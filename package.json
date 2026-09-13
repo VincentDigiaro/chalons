@@ -7,7 +7,8 @@
     "dev": "node scripts/serve.mjs",
     "data:refresh": "node scripts/fetch-osm.mjs",
     "roofs:build": "node scripts/build-roofs.mjs",
-    "check": "node scripts/check.mjs && node scripts/check-roofs.mjs"
+    "nerval:build": "node scripts/build-nerval.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-roofs.mjs && node scripts/check-nerval.mjs"
   },
   "devDependencies": {
     "earcut": "3.2.3",

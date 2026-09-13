@@ -23,9 +23,10 @@
     <div class="panel-heading"><span class="eyebrow">EXPLORER LE TERRITOIRE</span><span class="small-tag">51</span></div>
     <label class="field-label" for="destination">Point de vue</label>
     <select id="destination" disabled><option>Chargement des lieux…</option></select>
+    <button id="nerval-open" class="nerval-open"><span>Rue Gérard-de-Nerval</span><small>Saint-Memmie · maquette détaillée ↗</small></button>
     <div class="view-switch" role="group" aria-label="Mode de vue"><button id="view-3d" aria-pressed="true">Vue 3D</button><button id="view-2d" aria-pressed="false">Plan 2D</button></div>
     <div class="control-heading"><label for="pitch">Inclinaison</label><output id="pitch-value" for="pitch">55°</output></div>
-    <input id="pitch" type="range" min="0" max="70" value="55" step="1" aria-label="Inclinaison de la carte">
+    <input id="pitch" type="range" min="0" max="80" value="55" step="1" aria-label="Inclinaison de la carte">
     <div class="divider"></div>
     <p class="field-label">Afficher</p>
     <label class="layer-row photo-row"><span><i class="swatch photo"></i>Photographies IGN</span><input id="photo-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
@@ -48,14 +49,32 @@
   <div id="status" class="status" role="status"><span class="status-dot"></span><span id="status-text">Chargement du territoire…</span><button id="retry" hidden>Réessayer</button></div>
   <div class="map-caption"><span id="location-label">CENTRE-VILLE</span><span class="caption-rule"></span><span id="coordinates">48.9566° N · 4.3631° E</span></div>
   <div class="gesture-hint desktop-only">Glisser pour explorer <span>·</span> Clic droit pour tourner <span>·</span> Cliquer sur un bâtiment</div>
+  <section id="nerval-tools" class="nerval-tools" aria-label="Explorer la rue Gérard-de-Nerval" hidden>
+    <div><span class="eyebrow">SAINT-MEMMIE</span><button id="nerval-overview" title="Voir toute la rue" aria-label="Voir toute la rue">↗</button></div>
+    <strong>Rue Gérard-de-Nerval</strong>
+    <div class="nerval-navigation"><button id="nerval-prev" aria-label="Point de vue précédent">‹</button><span id="nerval-stop">6 points de vue le long de la rue</span><button id="nerval-next" aria-label="Point de vue suivant">›</button></div>
+    <button id="nerval-photos" disabled>Voir les 27 clichés et la vue aérienne</button>
+    <p id="nerval-note" role="status">Chargement de la maquette détaillée…</p>
+    <p>Clichés © Google · 2014 / 2022</p>
+  </section>
   <div id="fallback" class="fallback" hidden><h2>La 3D n’est pas disponible</h2><p>Ce navigateur n’a pas pu démarrer le rendu WebGL. Essayez un navigateur récent avec l’accélération graphique activée.</p><a href="https://www.openstreetmap.org/#map=14/48.9566/4.3631" target="_blank" rel="noopener">Voir Châlons sur OpenStreetMap ↗</a></div>
   <dialog id="info-dialog" aria-labelledby="info-title">
     <button id="close-info" class="dialog-close" aria-label="Fermer">×</button>
     <p class="eyebrow">À PROPOS DE CET ATLAS</p><h2 id="info-title">La ville, sous un autre angle.</h2>
     <p>Une maquette cartographique de Châlons-en-Champagne et de ses alentours, construite à partir des emprises réelles des bâtiments d’OpenStreetMap.</p>
+    <h3>Rue Gérard-de-Nerval, Saint-Memmie</h3><p>Cette rue dispose d’une maquette spécifique : 90 volumes OSM, toitures en pente, textures de façades et de toits redressées depuis les clichés fournis, clôtures et détails visibles. Le bouton dédié donne accès à six points de vue et aux 27 captures Street View, accompagnées de la vue aérienne.</p><p>Il s’agit d’une interprétation visuelle, sans relevé métrique ni photogrammétrie calibrée. Les dimensions verticales, la pente des toits et le petit mobilier sont estimés. Les faces arrière, les zones floutées et les parties cachées restent simplifiées. Les clichés mélangent mai 2014 et juillet 2022 ; ils ne décrivent pas un état actuel uniforme.</p><p>Références fournies par l’utilisateur : © Google Street View / Google Maps, attributions et floutages conservés dans les captures. <a href="./data/nerval/survey.json" target="_blank" rel="noopener">Observations, correspondances et provenance ↗</a></p>
     <h3>Se déplacer</h3><p><strong>Ordinateur :</strong> glissez pour déplacer la carte, utilisez la molette pour zoomer et le clic droit pour tourner. Les flèches du clavier déplacent la carte ; Maj + flèches modifie l’orientation.</p><p><strong>Mobile :</strong> glissez avec un doigt ; pincez ou tournez avec deux doigts. Le curseur d’inclinaison règle l’angle de la vue.</p>
-    <h3>Comment lire la 3D</h3><p>Les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les photographies aériennes IGN habillent le sol et sont projetées à la bonne position sur les toitures. Leur détail augmente avec le zoom. Les trous et cours intérieures des emprises OSM sont préservés.</p><p>Les volumes restent simplifiés : toits plats et façades de couleur unie. Les photographies aériennes ne montrent pas suffisamment les façades pour les restituer. Des décalages peuvent apparaître entre les prises de vue et les contours OSM, notamment sur les bâtiments hauts. Le sol reste plat.</p>
+    <h3>Comment lire la 3D</h3><p>Hors de la rue détaillée, les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les photographies aériennes IGN habillent le sol et sont projetées à la bonne position sur les toitures. Leur détail augmente avec le zoom. Les trous et cours intérieures des emprises OSM sont préservés.</p><p>Le reste du territoire conserve des volumes simplifiés : toits plats et façades de couleur unie. Des décalages peuvent apparaître entre les prises de vue et les contours OSM, notamment sur les bâtiments hauts. Le sol reste plat.</p>
     <h3>Données et crédits</h3><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>Photographies aériennes © <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">IGN · cartes.gouv.fr</a>, couche BD ORTHO, sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte 2.0</a>. Les images sont chargées à la demande depuis la Géoplateforme : une connexion internet est nécessaire. Elles ne sont pas en temps réel. <a href="https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf" target="_blank" rel="noopener">Dates des prises de vue ↗</a></p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers OSM ↗</a> · <a href="./data/imagery.json" target="_blank" rel="noopener">Provenance des photographies ↗</a></p>
+  </dialog>
+  <dialog id="photo-dialog" aria-labelledby="photo-title">
+    <button id="close-photo" class="dialog-close" aria-label="Fermer les clichés">×</button>
+    <p class="eyebrow">RÉFÉRENCES DE LA MAQUETTE</p><h2 id="photo-title">Clichés de la rue</h2>
+    <p id="photo-date"></p><img id="photo-image" alt="" width="1600" height="816">
+    <div class="photo-controls"><button id="photo-prev" aria-label="Cliché précédent">‹</button><select id="photo-select" aria-label="Choisir un cliché"></select><button id="photo-next" aria-label="Cliché suivant">›</button></div>
+    <p id="photo-description"></p><p id="photo-coordinates" class="photo-meta"></p>
+    <button id="photo-position">Placer la maquette à cet endroit</button>
+    <p class="photo-meta">Captures fournies · © Google Street View / Google Maps · Floutages conservés. Photos de 2014 et 2022, sans calibration métrique. Les faces cachées et certains détails restent simplifiés.</p>
   </dialog>
   <noscript><div class="fallback">Activez JavaScript pour explorer la carte 3D.</div></noscript>
 </body>

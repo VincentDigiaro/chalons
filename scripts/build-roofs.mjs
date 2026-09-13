@@ -16,8 +16,12 @@ function clip(poly,axis,edge,greater){
   return out;
 }
 const data=JSON.parse(await fs.readFile('dist/data/buildings.geojson','utf8'));
+let detailedIds=[];
+try{detailedIds=JSON.parse(await fs.readFile('dist/data/nerval/index.json','utf8')).excludeIds;}catch(error){if(error.code!=='ENOENT')throw error;}
+const excluded=new Set(detailedIds);
 const tiles=new Map();let triangles=0,skipped=0,maxDeviation=0;
 for(const f of data.features){
+  if(excluded.has(f.properties.osm_id))continue;
   const polygons=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
   for(const rings of polygons){
     const projected=rings.map(r=>r.slice(0,-1).map(xy));
@@ -53,5 +57,5 @@ for(const t of tiles.values()){
 }
 await fs.mkdir('dist/data/roofs',{recursive:true});
 await fs.writeFile('dist/data/roofs/mesh.bin',Buffer.from(buffer.buffer));
-await fs.writeFile('dist/data/roofs/index.json',JSON.stringify({zoom:ZOOM,vertexFormat:'float32-le: tile_u, tile_v, height_m',vertexCount:offset/3,triangles,skippedPolygons:skipped,maxAreaDeviation:maxDeviation,tiles:index}));
+await fs.writeFile('dist/data/roofs/index.json',JSON.stringify({zoom:ZOOM,vertexFormat:'float32-le: tile_u, tile_v, height_m',vertexCount:offset/3,triangles,skippedPolygons:skipped,maxAreaDeviation:maxDeviation,excludedDetailedBuildings:detailedIds,tiles:index}));
 console.log(JSON.stringify({tiles:index.length,triangles,bytes:buffer.byteLength,skippedPolygons:skipped,maxAreaDeviation:maxDeviation}));

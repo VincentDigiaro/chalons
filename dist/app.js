@@ -1,5 +1,7 @@
 import {IGN_WMTS} from './imagery.js';
 import {RoofTextures} from './roof-textures.js';
+import {NervalLayer} from './nerval-layer.js';
+import {NervalUI,NERVAL} from './nerval-ui.js';
 const $ = id => document.getElementById(id);
 const HOME = {center:[4.3631,48.9566],zoom:15.85,pitch:55,bearing:-24};
 const BOUNDS = [[4.26,48.89],[4.46,49.035]];
@@ -12,6 +14,7 @@ const transition = () => reducedMotion ? 0 : 1100;
 const number = new Intl.NumberFormat('fr-FR');
 let map, manifest, popup, selectedId, initialized=false;
 let photoMode=true,roofTextures,imageryError=false,cartographyReady=false;
+let nervalLayer,nervalUI;
 let destinations=[{id:'centre',name:'Centre-ville de Châlons',center:HOME.center,zoom:HOME.zoom}];
 const groups={buildings:['buildings-flat','buildings-3d'],green:['green'],labels:['road-labels','place-labels','landmark-labels','water-labels']};
 
@@ -49,6 +52,15 @@ function addLayers(){
     $('texture-note').textContent=!photoMode?'Rendu cartographique sans photographie.':!state.active?'Photographies aériennes IGN.':state.errors?'Certaines photos IGN sont indisponibles.':state.loading?'Les toitures se précisent progressivement…':'Sol et toitures · photographies IGN';
   },onError:error=>{console.error('Roof textures:',error);$('texture-note').textContent='Toitures photo indisponibles ; volumes conservés.';}});
   map.addLayer(roofTextures);
+  nervalUI=new NervalUI(map);
+  nervalLayer=new NervalLayer({onReady:async index=>{
+    map.setFilter('buildings-3d',['!',['in',['get','osm_id'],['literal',index.excludeIds]]]);
+    const response=await fetch('./data/nerval/buildings.geojson');if(!response.ok)throw Error('Fiches des bâtiments indisponibles');const buildings=await response.json();
+    const byPart=new Map(buildings.features.map(f=>[f.properties.part_id,f]));
+    map.on('click',e=>{const part=nervalLayer.pick(e.point),feature=byPart.get(part);if(!feature)return;popup?.remove();nervalUI.showBuilding({...e,features:[feature]});setPanel(false);});
+    nervalUI.ready(index);syncBuildingVisibility();
+  },onError:error=>{console.error('Nerval detail:',error);$('nerval-note').textContent='La maquette détaillée n’a pas pu charger. Rechargez la page.';}});
+  map.addLayer(nervalLayer);
   const font=['Noto Sans Regular'];
   map.addLayer({id:'road-labels',type:'symbol',source:'lines',minzoom:15,filter:['all',['==',['get','group'],'road'],['!=',['get','name'],''],['!',['in',['get','kind'],['literal',['footway','path','service','steps']]]]],layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':font,'text-size':12,'text-max-angle':35,'symbol-spacing':350,'text-padding':12},paint:{'text-color':'#606c67','text-halo-color':'#f4f4e9','text-halo-width':1.6}});
   map.addLayer({id:'water-labels',type:'symbol',source:'lines',minzoom:13,filter:['all',['==',['get','group'],'water'],['!=',['get','name'],'']],layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':font,'text-size':13,'text-letter-spacing':0.08,'symbol-spacing':500},paint:{'text-color':'#3c797f','text-halo-color':'#c9e6df','text-halo-width':1}});
@@ -70,7 +82,7 @@ function syncBuildingVisibility(){
 function navigate(id,mode){
   const place=destinations.find(p=>p.id===id);if(!place)throw Error('Lieu inconnu.');
   popup?.remove();$('destination').value=id;$('location-label').textContent=place.name.toLocaleUpperCase('fr');
-  map.flyTo({center:place.center,zoom:place.zoom,pitch:mode?(mode==='3d'?55:0):map.getPitch(),bearing:id==='centre'?HOME.bearing:map.getBearing(),duration:transition(),padding:cameraPadding()});setPanel(false);
+  map.flyTo({center:place.center,zoom:place.zoom,pitch:mode?(mode==='3d'?(place.pitch||55):0):(place.pitch??map.getPitch()),bearing:place.bearing??(id==='centre'?HOME.bearing:map.getBearing()),duration:transition(),padding:cameraPadding()});setPanel(false);
   return place;
 }
 function cameraPadding(){return isMobile()?{top:90,bottom:80,left:0,right:0}:{top:0,bottom:0,left:310,right:20};}
@@ -84,12 +96,14 @@ function setPhotoMode(visible){
   for(const id of groups.labels){map.setPaintProperty(id,'text-halo-color',visible?'#172728':'#f3f5e9');map.setPaintProperty(id,'text-color',visible?'#f9f5e9':id==='water-labels'?'#3c797f':id==='landmark-labels'?'#805838':'#334c4c');}
   $('green-toggle').disabled=visible;$('green-toggle').closest('label').title=visible?'Disponible lorsque les photographies IGN sont désactivées':'';
   roofTextures.setVisible(visible,$('buildings-toggle').checked);
+  nervalLayer?.setVisible($('buildings-toggle').checked,visible);
   syncBuildingVisibility();
   if(cartographyReady)status(visible?'OpenStreetMap · photographies IGN':'Données OpenStreetMap · prêtes');
   if(!visible)$('texture-note').textContent='Rendu cartographique sans photographie.';
 }
-function setLayer(name,visible){if(!initialized)return;for(const id of groups[name])map.setLayoutProperty(id,'visibility',visible?'visible':'none');$(name==='buildings'?'buildings-toggle':name==='green'?'green-toggle':'labels-toggle').checked=visible;if(name==='buildings'){roofTextures?.setVisible(photoMode,visible);syncBuildingVisibility();if(!visible)popup?.remove();}}
+function setLayer(name,visible){if(!initialized)return;for(const id of groups[name])map.setLayoutProperty(id,'visibility',visible?'visible':'none');$(name==='buildings'?'buildings-toggle':name==='green'?'green-toggle':'labels-toggle').checked=visible;if(name==='buildings'){roofTextures?.setVisible(photoMode,visible);nervalLayer?.setVisible(visible,photoMode);syncBuildingVisibility();if(!visible){popup?.remove();nervalUI?.popup?.remove();}}}
 function wireControls(){
+  $('nerval-open').onclick=()=>navigate('nerval','3d');
   $('photo-toggle').onchange=e=>setPhotoMode(e.target.checked);
   $('view-3d').onclick=()=>setMode('3d');$('view-2d').onclick=()=>setMode('2d');
   $('pitch').oninput=e=>map.setPitch(Number(e.target.value));
@@ -104,6 +118,7 @@ function wireControls(){
   let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{map.resize();map.setPadding(cameraPadding());},150);});
 }
 function showBuilding(e){
+  if(nervalLayer?.pick(e.point))return;
   if(!$('buildings-toggle').checked)return;
   const f=e.features?.[0];if(!f)return;
   popup?.remove();
@@ -126,7 +141,7 @@ async function loadMetadata(){
   const responses=await Promise.all(['manifest.json','places.geojson'].map(async f=>{const r=await fetch(`./data/${f}`);if(!r.ok)throw Error(`Données indisponibles (${r.status})`);return r.json();}));
   manifest=responses[0];const places=responses[1].features;
   const wanted=['Fagnières','Saint-Memmie','Compertrix','Sarry','Saint-Martin-sur-le-Pré','Recy','Coolus','Moncetz-Longevas','Saint-Gibrien','Cheniers'];
-  destinations=[destinations[0],...wanted.map(name=>places.find(f=>f.properties.name===name)).filter(Boolean).map(f=>({id:f.properties.osm_id,name:f.properties.name,center:f.geometry.coordinates,zoom:15.3}))];
+  destinations=[destinations[0],NERVAL,...wanted.map(name=>places.find(f=>f.properties.name===name)).filter(Boolean).map(f=>({id:f.properties.osm_id,name:f.properties.name,center:f.geometry.coordinates,zoom:15.3}))];
   $('destination').replaceChildren(...destinations.map(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;return opt;}));$('destination').disabled=false;
   $('building-count').textContent=number.format(manifest.files.buildings.features);
   const date=new Date(manifest.osm_timestamp||manifest.extracted_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
@@ -136,7 +151,8 @@ function exposeMapTools(){
   const context=document.modelContext;if(!context?.registerTool)return;
   const lifecycle=new AbortController();window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
   const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};
-  register({name:'read_map_state',description:'Lire le point de vue actuel, le rendu photo et les destinations disponibles de la carte de Châlons.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:()=>({center:map.getCenter().toArray(),zoom:map.getZoom(),pitch:map.getPitch(),rendering:photoMode?'photo':'map',roofs:roofTextures?.getState(),destinations})});
+  register({name:'read_map_state',description:'Lire le point de vue actuel, le rendu photo et les destinations disponibles de la carte de Châlons.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:()=>({center:map.getCenter().toArray(),zoom:map.getZoom(),pitch:map.getPitch(),rendering:photoMode?'photo':'map',roofs:roofTextures?.getState(),nerval:nervalLayer?.getState(),streetViews:nervalUI?.getState(),destinations})});
+  register({name:'visit_nerval',description:'Afficher l’un des six points de vue de la rue Gérard-de-Nerval.',inputSchema:{type:'object',properties:{stop:{type:'integer',minimum:1,maximum:6}},required:['stop'],additionalProperties:false},annotations:{readOnlyHint:false},execute:async input=>{if(!Number.isInteger(input?.stop)||input.stop<1||input.stop>6)throw Error('Point de vue entre 1 et 6 requis.');nervalUI.visit(input.stop-1);if(map.isMoving())await map.once('moveend');return nervalUI.getState();}});
   register({name:'set_map_rendering',description:'Activer les photographies IGN sur le sol et les toitures ou revenir au rendu cartographique.',inputSchema:{type:'object',properties:{photographs:{type:'boolean'}},required:['photographs'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:input=>{if(typeof input?.photographs!=='boolean')throw Error('photographs doit être un booléen.');setPhotoMode(input.photographs);return {photographs:photoMode};}});
   register({name:'navigate_map',description:'Déplacer la carte visible vers une destination disponible et choisir une vue 2D ou 3D.',inputSchema:{type:'object',properties:{destination:{type:'string'},mode:{type:'string',enum:['2d','3d']}},required:['destination'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:async input=>{if(!input||typeof input.destination!=='string'||!destinations.some(p=>p.id===input.destination)||(input.mode&&!['2d','3d'].includes(input.mode)))throw Error('Destination ou mode invalide.');const place=navigate(input.destination,input.mode);if(map.isMoving())await map.once('moveend');return {destination:place.name,center:map.getCenter().toArray(),pitch:map.getPitch()};}});
 }
@@ -144,7 +160,7 @@ async function boot(){
   status('Chargement du territoire…','loading');
   if(!window.maplibregl){$('fallback').hidden=false;status('Le moteur cartographique n’a pas pu charger.','error');return;}
   try{
-    map=new maplibregl.Map({container:'map',style:{version:8,glyphs:`${location.origin}${location.pathname.replace(/[^/]*$/,'')}fonts/{fontstack}/{range}.pbf`,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf0e3'}}],light:{anchor:'viewport',color:'#fff6e8',intensity:0.42,position:[1.3,200,45]}},...HOME,maxBounds:NAV_BOUNDS,minZoom:10.4,maxZoom:19.5,maxPitch:70,canvasContextAttributes:{antialias:!isMobile()},pixelRatio:Math.min(devicePixelRatio||1,isMobile()?1.5:2),renderWorldCopies:false,attributionControl:false,locale:{'AttributionControl.ToggleAttribution':'Afficher ou masquer les crédits','Popup.Close':'Fermer la fiche'}});
+    map=new maplibregl.Map({container:'map',style:{version:8,glyphs:`${location.origin}${location.pathname.replace(/[^/]*$/,'')}fonts/{fontstack}/{range}.pbf`,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf0e3'}}],light:{anchor:'viewport',color:'#fff6e8',intensity:0.42,position:[1.3,200,45]}},...(location.hash==='#nerval'?NERVAL:HOME),maxBounds:NAV_BOUNDS,minZoom:10.4,maxZoom:22,maxPitch:80,canvasContextAttributes:{antialias:!isMobile()},pixelRatio:Math.min(devicePixelRatio||1,isMobile()?1.5:2),renderWorldCopies:false,attributionControl:false,locale:{'AttributionControl.ToggleAttribution':'Afficher ou masquer les crédits','Popup.Close':'Fermer la fiche'}});
     map.addControl(new maplibregl.AttributionControl({compact:isMobile(),customAttribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://maplibre.org" target="_blank" rel="noopener">MapLibre</a>'}));
     map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
     map.getCanvas().setAttribute('aria-label','Carte : flèches pour déplacer, plus et moins pour zoomer, Maj et flèches pour tourner.');
@@ -159,6 +175,7 @@ async function boot(){
     map.on('mousemove',e=>{const features=map.queryRenderedFeatures(e.point,{layers:groups.buildings});map.getCanvas().style.cursor=features.length?'pointer':'';});
     map.once('idle',()=>{cartographyReady=true;if(!dataError)status(photoMode?'OpenStreetMap · photographies IGN':'Données OpenStreetMap · prêtes');});
     exposeMapTools();
+    if(location.hash==='#nerval')navigate('nerval','3d');
   }catch(error){console.error(error);if(!map)$('fallback').hidden=false;status('Le chargement de la carte a échoué.','error');}
 }
 boot();

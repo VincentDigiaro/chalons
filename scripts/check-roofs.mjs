@@ -16,7 +16,7 @@ assert.equal(first,index.vertexCount);
 const n=2**index.zoom,xy=([lon,lat])=>[(lon+180)/360*n,(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n];
 const ringArea=ring=>{const points=ring.map(xy),[ox,oy]=points[0];let a=0;for(let i=0;i<points.length-1;i++)a+=(points[i][0]-ox)*(points[i+1][1]-oy)-(points[i+1][0]-ox)*(points[i][1]-oy);return Math.abs(a/2);};
 const osm=JSON.parse(await fs.readFile('dist/data/buildings.geojson','utf8'));let footprintArea=0,holes=0;
-for(const feature of osm.features){const polygons=feature.geometry.type==='Polygon'?[feature.geometry.coordinates]:feature.geometry.coordinates;for(const rings of polygons){footprintArea+=ringArea(rings[0])-rings.slice(1).reduce((sum,r)=>sum+ringArea(r),0);holes+=rings.length-1;}}
+for(const feature of osm.features){if(index.excludedDetailedBuildings?.includes(feature.properties.osm_id))continue;const polygons=feature.geometry.type==='Polygon'?[feature.geometry.coordinates]:feature.geometry.coordinates;for(const rings of polygons){footprintArea+=ringArea(rings[0])-rings.slice(1).reduce((sum,r)=>sum+ringArea(r),0);holes+=rings.length-1;}}
 const relativeAreaError=Math.abs(meshArea-footprintArea)/footprintArea;
 assert(relativeAreaError<0.00001,`Roof clipping changed total footprint area: ${relativeAreaError}`);
 assert(holes>0,'Dataset should include courtyards');
