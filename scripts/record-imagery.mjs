@@ -1,0 +1,8 @@
+import fs from 'node:fs/promises';
+import {IGN_LAYER,IGN_WMTS,imageryURL} from '../dist/imagery.js';
+const zoom=17,x=Math.floor((4.3631+180)/360*2**zoom),y=Math.floor((1-Math.asinh(Math.tan(48.9566*Math.PI/180))/Math.PI)/2*2**zoom);
+const response=await fetch(imageryURL(zoom,x,y),{signal:AbortSignal.timeout(20000)});
+if(!response.ok||!response.headers.get('content-type')?.includes('image/jpeg'))throw Error(`IGN sample failed: ${response.status}`);
+await fs.mkdir('.cache/ign',{recursive:true});await fs.writeFile('.cache/ign/centre-sample.jpg',Buffer.from(await response.arrayBuffer()));
+const meta={provider:'IGN — Géoplateforme / cartes.gouv.fr',layer:IGN_LAYER,wmts_template:IGN_WMTS,tile_matrix_set:'PM_0_19',projection:'EPSG:3857',tile_size:256,max_zoom:19,license:'Licence Ouverte / Open Licence 2.0',license_url:'https://www.etalab.gouv.fr/licence-ouverte-open-licence/',dataset:'https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-ORTHO',acquisition_dates:'https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf',verified_at:new Date().toISOString(),delivery:'Images streamed on demand from IGN; bounded memory cache. No claim of offline imagery or real-time capture.',roof_projection:'Georeferenced aerial photos projected on flat roof polygons triangulated from OSM, clipped at WMTS tile boundaries. Original courtyard holes retained. No facade photography or measured roof shapes.',sample:{zoom,x,y,cors:response.headers.get('access-control-allow-origin')}};
+await fs.writeFile('dist/data/imagery.json',JSON.stringify(meta,null,2));console.log(JSON.stringify(meta.sample));

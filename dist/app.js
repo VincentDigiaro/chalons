@@ -1,3 +1,5 @@
+import {IGN_WMTS} from './imagery.js';
+import {RoofTextures} from './roof-textures.js';
 const $ = id => document.getElementById(id);
 const HOME = {center:[4.3631,48.9566],zoom:15.85,pitch:55,bearing:-24};
 const BOUNDS = [[4.26,48.89],[4.46,49.035]];
@@ -9,6 +11,7 @@ const isMobile = () => matchMedia('(max-width: 700px)').matches;
 const transition = () => reducedMotion ? 0 : 1100;
 const number = new Intl.NumberFormat('fr-FR');
 let map, manifest, popup, selectedId, initialized=false;
+let photoMode=true,roofTextures,imageryError=false,cartographyReady=false;
 let destinations=[{id:'centre',name:'Centre-ville de Châlons',center:HOME.center,zoom:HOME.zoom}];
 const groups={buildings:['buildings-flat','buildings-3d'],green:['green'],labels:['road-labels','place-labels','landmark-labels','water-labels']};
 
@@ -37,8 +40,15 @@ function addLayers(){
   map.addLayer({id:'roads-casing',type:'line',source:'lines',filter:roads,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#bdc5be','line-width':width(1.18),'line-opacity':0.6}});
   map.addLayer({id:'roads',type:'line',source:'lines',filter:roads,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','kind'],['motorway','trunk','primary','secondary'],'#fff8e7',['footway','path','cycleway','steps'],'#f3eddc','#f9faf3'],'line-width':width(1)}});
   map.addLayer({id:'rail',type:'line',source:'lines',filter:['==',['get','group'],'rail'],paint:{'line-color':'#8e9a98','line-width':['interpolate',['linear'],['zoom'],12,0.5,17,3],'line-dasharray':[3,2]}});
+  map.addSource('ign-photo',{type:'raster',tiles:[IGN_WMTS],tileSize:256,maxzoom:19,bounds:[4.16,48.81,4.56,49.115],attribution:'Photographies aériennes © <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">IGN</a>'});
+  map.addLayer({id:'ign-ground',type:'raster',source:'ign-photo',paint:{'raster-fade-duration':200,'raster-resampling':'linear'}});
   map.addLayer({id:'buildings-flat',type:'fill',source:'buildings',minzoom:12,paint:{'fill-color':'#c6b59f','fill-outline-color':'#aa9e8a','fill-opacity':0.85}});
   map.addLayer({id:'buildings-3d',type:'fill-extrusion',source:'buildings',minzoom:13,paint:{'fill-extrusion-color':['case',['boolean',['feature-state','selected'],false],'#edab64',['get','landmark'],'#c8a281',['match',['get','kind'],['industrial','warehouse','retail'],'#bcc5c4','#ede3d0']],'fill-extrusion-height':['get','height'],'fill-extrusion-base':['get','min_height'],'fill-extrusion-opacity':1,'fill-extrusion-vertical-gradient':true}});
+  roofTextures=new RoofTextures({onState:state=>{
+    if(imageryError)return;
+    $('texture-note').textContent=!photoMode?'Rendu cartographique sans photographie.':!state.active?'Photographies aériennes IGN.':state.errors?'Certaines photos IGN sont indisponibles.':state.loading?'Les toitures se précisent progressivement…':'Sol et toitures · photographies IGN';
+  },onError:error=>{console.error('Roof textures:',error);$('texture-note').textContent='Toitures photo indisponibles ; volumes conservés.';}});
+  map.addLayer(roofTextures);
   const font=['Noto Sans Regular'];
   map.addLayer({id:'road-labels',type:'symbol',source:'lines',minzoom:15,filter:['all',['==',['get','group'],'road'],['!=',['get','name'],''],['!',['in',['get','kind'],['literal',['footway','path','service','steps']]]]],layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':font,'text-size':12,'text-max-angle':35,'symbol-spacing':350,'text-padding':12},paint:{'text-color':'#606c67','text-halo-color':'#f4f4e9','text-halo-width':1.6}});
   map.addLayer({id:'water-labels',type:'symbol',source:'lines',minzoom:13,filter:['all',['==',['get','group'],'water'],['!=',['get','name'],'']],layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':font,'text-size':13,'text-letter-spacing':0.08,'symbol-spacing':500},paint:{'text-color':'#3c797f','text-halo-color':'#c9e6df','text-halo-width':1}});
@@ -50,6 +60,12 @@ function syncCamera(){
   $('view-3d').setAttribute('aria-pressed',String(p>0));$('view-2d').setAttribute('aria-pressed',String(p===0));
   $('compass-needle').style.transform=`rotate(${-map.getBearing()}deg)`;
   const c=map.getCenter();$('coordinates').textContent=`${c.lat.toFixed(4)}° N · ${c.lng.toFixed(4)}° E`;
+  syncBuildingVisibility();
+}
+function syncBuildingVisibility(){
+  if(!initialized)return;
+  const visibility=$('buildings-toggle').checked&&!(photoMode&&map.getPitch()<1)?'visible':'none';
+  if(map.getLayoutProperty('buildings-3d','visibility')!==visibility)map.setLayoutProperty('buildings-3d','visibility',visibility);
 }
 function navigate(id,mode){
   const place=destinations.find(p=>p.id===id);if(!place)throw Error('Lieu inconnu.');
@@ -59,8 +75,22 @@ function navigate(id,mode){
 }
 function cameraPadding(){return isMobile()?{top:90,bottom:80,left:0,right:0}:{top:0,bottom:0,left:310,right:20};}
 function setMode(mode){if(!map)return;map.easeTo({pitch:mode==='3d'?55:0,duration:reducedMotion?0:650});}
-function setLayer(name,visible){if(!initialized)return;for(const id of groups[name])map.setLayoutProperty(id,'visibility',visible?'visible':'none');$(name==='buildings'?'buildings-toggle':name==='green'?'green-toggle':'labels-toggle').checked=visible;if(name==='buildings'&&!visible)popup?.remove();}
+function setPhotoMode(visible){
+  photoMode=visible;$('photo-toggle').checked=visible;
+  if(!initialized)return;
+  map.setLayoutProperty('ign-ground','visibility',visible?'visible':'none');
+  map.setPaintProperty('buildings-flat','fill-opacity',visible?0:0.85);
+  map.setPaintProperty('buildings-3d','fill-extrusion-color',['case',['boolean',['feature-state','selected'],false],'#edab64',['get','landmark'],visible?'#b9b1a1':'#c8a281',['match',['get','kind'],['industrial','warehouse','retail'],visible?'#c1c3c1':'#bcc5c4',visible?'#d0cbc0':'#ede3d0']]);
+  for(const id of groups.labels){map.setPaintProperty(id,'text-halo-color',visible?'#172728':'#f3f5e9');map.setPaintProperty(id,'text-color',visible?'#f9f5e9':id==='water-labels'?'#3c797f':id==='landmark-labels'?'#805838':'#334c4c');}
+  $('green-toggle').disabled=visible;$('green-toggle').closest('label').title=visible?'Disponible lorsque les photographies IGN sont désactivées':'';
+  roofTextures.setVisible(visible,$('buildings-toggle').checked);
+  syncBuildingVisibility();
+  if(cartographyReady)status(visible?'OpenStreetMap · photographies IGN':'Données OpenStreetMap · prêtes');
+  if(!visible)$('texture-note').textContent='Rendu cartographique sans photographie.';
+}
+function setLayer(name,visible){if(!initialized)return;for(const id of groups[name])map.setLayoutProperty(id,'visibility',visible?'visible':'none');$(name==='buildings'?'buildings-toggle':name==='green'?'green-toggle':'labels-toggle').checked=visible;if(name==='buildings'){roofTextures?.setVisible(photoMode,visible);syncBuildingVisibility();if(!visible)popup?.remove();}}
 function wireControls(){
+  $('photo-toggle').onchange=e=>setPhotoMode(e.target.checked);
   $('view-3d').onclick=()=>setMode('3d');$('view-2d').onclick=()=>setMode('2d');
   $('pitch').oninput=e=>map.setPitch(Number(e.target.value));
   $('north').onclick=()=>map.easeTo({bearing:0,duration:reducedMotion?0:650});
@@ -106,7 +136,8 @@ function exposeMapTools(){
   const context=document.modelContext;if(!context?.registerTool)return;
   const lifecycle=new AbortController();window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
   const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};
-  register({name:'read_map_state',description:'Lire le point de vue actuel et les destinations disponibles de la carte de Châlons.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:()=>({center:map.getCenter().toArray(),zoom:map.getZoom(),pitch:map.getPitch(),destinations})});
+  register({name:'read_map_state',description:'Lire le point de vue actuel, le rendu photo et les destinations disponibles de la carte de Châlons.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:()=>({center:map.getCenter().toArray(),zoom:map.getZoom(),pitch:map.getPitch(),rendering:photoMode?'photo':'map',roofs:roofTextures?.getState(),destinations})});
+  register({name:'set_map_rendering',description:'Activer les photographies IGN sur le sol et les toitures ou revenir au rendu cartographique.',inputSchema:{type:'object',properties:{photographs:{type:'boolean'}},required:['photographs'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:input=>{if(typeof input?.photographs!=='boolean')throw Error('photographs doit être un booléen.');setPhotoMode(input.photographs);return {photographs:photoMode};}});
   register({name:'navigate_map',description:'Déplacer la carte visible vers une destination disponible et choisir une vue 2D ou 3D.',inputSchema:{type:'object',properties:{destination:{type:'string'},mode:{type:'string',enum:['2d','3d']}},required:['destination'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:async input=>{if(!input||typeof input.destination!=='string'||!destinations.some(p=>p.id===input.destination)||(input.mode&&!['2d','3d'].includes(input.mode)))throw Error('Destination ou mode invalide.');const place=navigate(input.destination,input.mode);if(map.isMoving())await map.once('moveend');return {destination:place.name,center:map.getCenter().toArray(),pitch:map.getPitch()};}});
 }
 async function boot(){
@@ -118,15 +149,15 @@ async function boot(){
     map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
     map.getCanvas().setAttribute('aria-label','Carte : flèches pour déplacer, plus et moins pour zoomer, Maj et flèches pour tourner.');
     let dataError=false;
-    map.on('error',e=>{console.error('Map error:',e.error);dataError=true;status('Certaines données n’ont pas pu charger.','error');});
+    map.on('error',e=>{console.error('Map error:',e.error);if(e.sourceId==='ign-photo'||String(e.error).includes('data.geopf.fr')){imageryError=true;$('texture-note').textContent='Certaines photos IGN sont indisponibles. Le plan reste accessible.';return;}dataError=true;status('Certaines données n’ont pas pu charger.','error');});
     map.getCanvas().addEventListener('webglcontextlost',()=>status('Rendu interrompu. Restauration en cours…','loading'));
     map.getCanvas().addEventListener('webglcontextrestored',()=>status('Rendu restauré'));
     // Register the event promise before awaiting metadata, so an early map load cannot be missed.
     await Promise.all([map.once('load'),loadMetadata()]);
-    map.setPadding(cameraPadding());addLayers();initialized=true;wireControls();syncCamera();
+    map.setPadding(cameraPadding());addLayers();initialized=true;setPhotoMode(photoMode);wireControls();syncCamera();
     for(const id of ['buildings-3d','buildings-flat'])map.on('click',id,e=>{if(e.originalEvent._buildingHandled)return;e.originalEvent._buildingHandled=true;showBuilding(e);});
     map.on('mousemove',e=>{const features=map.queryRenderedFeatures(e.point,{layers:groups.buildings});map.getCanvas().style.cursor=features.length?'pointer':'';});
-    map.once('idle',()=>{if(!dataError)status('Données OpenStreetMap · prêtes');});
+    map.once('idle',()=>{cartographyReady=true;if(!dataError)status(photoMode?'OpenStreetMap · photographies IGN':'Données OpenStreetMap · prêtes');});
     exposeMapTools();
   }catch(error){console.error(error);if(!map)$('fallback').hidden=false;status('Le chargement de la carte a échoué.','error');}
 }

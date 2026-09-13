@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "data:refresh": "node scripts/fetch-osm.mjs",
-    "check": "node scripts/check.mjs"
+    "roofs:build": "node scripts/build-roofs.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-roofs.mjs"
   },
   "devDependencies": {
+    "earcut": "3.2.3",
     "maplibre-gl": "5.6.0",
     "osmtogeojson": "3.0.0-beta.5"
   }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#152a35">
-  <meta name="description" content="Explorez Châlons-en-Champagne et ses communes voisines en 3D grâce aux données OpenStreetMap.">
+  <meta name="description" content="Explorez Châlons-en-Champagne en 3D : bâtiments OpenStreetMap, sol et toitures habillés par les photographies aériennes IGN.">
   <title>Châlons en 3D · La ville à explorer</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23152a35'/%3E%3Cpath d='M7 23V13l8-5 10 5v10l-10 5z' fill='%23e9b77b'/%3E%3Cpath d='m7 13 8 5 10-5M15 18v10' fill='none' stroke='%23152a35' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./vendor/maplibre-gl.css">
@@ -28,6 +28,7 @@
     <input id="pitch" type="range" min="0" max="70" value="55" step="1" aria-label="Inclinaison de la carte">
     <div class="divider"></div>
     <p class="field-label">Afficher</p>
+    <label class="layer-row photo-row"><span><i class="swatch photo"></i>Photographies IGN</span><input id="photo-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
     <label class="layer-row"><span><i class="swatch building"></i>Bâtiments</span><input id="buildings-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
     <label class="layer-row"><span><i class="swatch green"></i>Espaces verts</span><input id="green-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
     <label class="layer-row"><span><i class="swatch road"></i>Noms et repères</span><input id="labels-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
@@ -36,6 +37,7 @@
     <p class="coverage">Châlons-en-Champagne<br><span>et ses communes voisines</span></p>
     <div class="data-strip"><span id="building-count">—</span><span>bâtiments cartographiés</span></div>
     <p class="height-note">Hauteurs majoritairement estimées</p>
+    <p id="texture-note" class="height-note" role="status">Chargement des photographies IGN…</p>
   </aside>
   <nav class="map-actions" aria-label="Navigation de la carte">
     <button id="north" class="compass" title="Orienter vers le nord" aria-label="Orienter vers le nord"><span>N</span><svg id="compass-needle" viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 8 24-8-5-8 5z"/></svg></button>
@@ -52,8 +54,8 @@
     <p class="eyebrow">À PROPOS DE CET ATLAS</p><h2 id="info-title">La ville, sous un autre angle.</h2>
     <p>Une maquette cartographique de Châlons-en-Champagne et de ses alentours, construite à partir des emprises réelles des bâtiments d’OpenStreetMap.</p>
     <h3>Se déplacer</h3><p><strong>Ordinateur :</strong> glissez pour déplacer la carte, utilisez la molette pour zoomer et le clic droit pour tourner. Les flèches du clavier déplacent la carte ; Maj + flèches modifie l’orientation.</p><p><strong>Mobile :</strong> glissez avec un doigt ; pincez ou tournez avec deux doigts. Le curseur d’inclinaison règle l’angle de la vue.</p>
-    <h3>Comment lire la 3D</h3><p>Les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les volumes sont simplifiés, sans façades photographiques ni restitution détaillée des toitures. Le sol est plat : cette vue ne représente pas le relief.</p>
-    <h3>Données et crédits</h3><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers de données ↗</a></p>
+    <h3>Comment lire la 3D</h3><p>Les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les photographies aériennes IGN habillent le sol et sont projetées à la bonne position sur les toitures. Leur détail augmente avec le zoom. Les trous et cours intérieures des emprises OSM sont préservés.</p><p>Les volumes restent simplifiés : toits plats et façades de couleur unie. Les photographies aériennes ne montrent pas suffisamment les façades pour les restituer. Des décalages peuvent apparaître entre les prises de vue et les contours OSM, notamment sur les bâtiments hauts. Le sol reste plat.</p>
+    <h3>Données et crédits</h3><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>Photographies aériennes © <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">IGN · cartes.gouv.fr</a>, couche BD ORTHO, sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte 2.0</a>. Les images sont chargées à la demande depuis la Géoplateforme : une connexion internet est nécessaire. Elles ne sont pas en temps réel. <a href="https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf" target="_blank" rel="noopener">Dates des prises de vue ↗</a></p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers OSM ↗</a> · <a href="./data/imagery.json" target="_blank" rel="noopener">Provenance des photographies ↗</a></p>
   </dialog>
   <noscript><div class="fallback">Activez JavaScript pour explorer la carte 3D.</div></noscript>
 </body>

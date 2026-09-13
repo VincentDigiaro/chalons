@@ -1,6 +1,6 @@
 # Châlons en 3D
 
-Atlas web de Châlons-en-Champagne et de ses alentours proches, construit avec les données réelles d’OpenStreetMap et MapLibre GL JS. Compatible avec les navigateurs récents disposant de WebGL, avec commandes souris, clavier et tactiles.
+Atlas web de Châlons-en-Champagne et de ses alentours proches, construit avec les données réelles d’OpenStreetMap et MapLibre GL JS. Les photographies aériennes IGN habillent le sol et les toitures. Compatible avec les navigateurs récents disposant de WebGL 2, avec commandes souris, clavier et tactiles.
 
 ## Utilisation locale
 
@@ -21,13 +21,22 @@ Ouvrir http://localhost:5173. Pour un téléphone sur le même réseau local, ut
 - MapLibre GL JS 5.6.0 : BSD 3-Clause, licence dans `dist/vendor/`.
 - Glyphes Noto Sans : SIL Open Font License, licence dans `dist/fonts/`.
 
-Aucune clé API n’est requise. Les données, le moteur et les glyphes sont servis par l’application ; les visiteurs ne sollicitent pas Overpass ni un fournisseur de tuiles. Le téléchargement initial reste nécessaire. Il ne s’agit pas d’une application avec cache hors connexion garanti.
+Aucune clé API n’est requise. Les données OSM, le moteur, les glyphes et la géométrie des toitures sont servis par l’application ; les visiteurs ne sollicitent pas Overpass. Les photos sont chargées à la demande depuis `data.geopf.fr`, le service officiel utilisé par cartes.gouv.fr. Une connexion internet est nécessaire pour les photos. Désactiver « Photographies IGN » restitue le rendu cartographique local. Il ne s’agit pas d’une application avec cache hors connexion garanti.
+
+## Textures IGN
+
+- Couche `ORTHOIMAGERY.ORTHOPHOTOS`, WMTS `PM_0_19`, EPSG:3857, JPEG 256 × 256. Source, licence et lien vers les dates de prises de vue dans `dist/data/imagery.json`.
+- © IGN, BD ORTHO, Licence Ouverte 2.0. Attribution visible sur la carte et dans l’aide. Le millésime varie selon le secteur et ne correspond pas à la date de consultation.
+- Les toitures OSM sont triangulées avec conservation des cours intérieures, découpées aux limites des tuiles et stockées en coordonnées locales pour limiter les erreurs numériques.
+- Une couche WebGL partage la caméra et le tampon de profondeur des bâtiments. Les photos sont projetées géographiquement sur leurs toits plats, avec un détail progressif jusqu’au niveau IGN 19.
+- Les murs gardent une couleur sobre : aucune façade photographique n’est inventée à partir des vues du dessus. Les ombres, les déformations des bâtiments hauts et les différences de dates OSM/IGN peuvent créer des décalages.
+- Cache graphique plafonné à 128 images sur mobile et 320 sur ordinateur ; quatre téléchargements de toitures simultanés, au plus dix démarrages par seconde. Les textures les plus proches sont prioritaires ; les volumes restent présents pendant le chargement. Les requêtes du fond raster sont gérées séparément par MapLibre.
 
 ## Hauteurs et limites
 
 Priorité : `height`/`building:height`, puis `building:levels × 3 m + roof:height`, puis hauteur indicative par type. La fiche de chaque bâtiment affiche la méthode. Les mètres et les pieds explicites sont reconnus. Une valeur manifestement incohérente est corrigée et signalée. `min_height` et `building:min_level` sont pris en compte. Les contours et parties peuvent se superposer : les parties plus hautes émergent du volume principal.
 
-Le rendu est une extrusion simplifiée sur sol plat : pas de relief mesuré, de textures photographiques, de toits géométriques détaillés ou de garantie de précision architecturale. La géométrie OSM peut être incomplète ; les éléments incomplets signalés par le convertisseur sont écartés et comptés. La date est celle de l’extrait, pas une mise à jour en temps réel.
+Le rendu est une extrusion simplifiée sur sol plat avec photographies du sol et des toitures : pas de relief mesuré, de façades photographiques, de toits géométriques détaillés ou de garantie de précision architecturale. La géométrie OSM peut être incomplète ; les éléments incomplets signalés par le convertisseur sont écartés et comptés. La date est celle de l’extrait, pas une mise à jour en temps réel.
 
 ## Actualiser les données
 
@@ -35,6 +44,8 @@ Le rendu est une extrusion simplifiée sur sol plat : pas de relief mesuré, de 
 npm ci
 npm run data:refresh
 node scripts/fetch-fonts.mjs
+npm run roofs:build
+node scripts/record-imagery.mjs
 npm run check
 ```
 
@@ -42,6 +53,6 @@ Le script réutilise `.cache/osm.json` pour ne pas répéter les requêtes. Pour
 
 ## Validation
 
-`npm run check` vérifie la syntaxe JavaScript, les ressources locales, les glyphes, les identifiants, la fermeture des polygones, les hauteurs et la présence de bâtiments au centre de Châlons. La vérification visuelle et tactile reste nécessaire sur les appareils cibles, dont les capacités graphiques varient.
+`npm run check` vérifie la syntaxe JavaScript, les ressources locales, les glyphes, les identifiants, la fermeture des polygones, les hauteurs, la présence de bâtiments au centre de Châlons, les coordonnées UV des toitures, la conservation de leur surface (trous déduits) et les paramètres IGN. La vérification visuelle et tactile reste nécessaire sur les appareils cibles, dont les capacités graphiques varient.
 
 Si disponible dans le navigateur, WebMCP expose la lecture de la vue et la navigation entre les destinations. Son absence ne change pas les commandes de l’application.

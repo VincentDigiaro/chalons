@@ -1,0 +1,22 @@
+{
+  "provider": "IGN — Géoplateforme / cartes.gouv.fr",
+  "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
+  "wmts_template": "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM_0_19&TILEMATRIX={z}&TILECOL={x}&TILEROW={y}",
+  "tile_matrix_set": "PM_0_19",
+  "projection": "EPSG:3857",
+  "tile_size": 256,
+  "max_zoom": 19,
+  "license": "Licence Ouverte / Open Licence 2.0",
+  "license_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+  "dataset": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-ORTHO",
+  "acquisition_dates": "https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf",
+  "verified_at": "2026-09-13T15:48:46.178Z",
+  "delivery": "Images streamed on demand from IGN; bounded memory cache. No claim of offline imagery or real-time capture.",
+  "roof_projection": "Georeferenced aerial photos projected on flat roof polygons triangulated from OSM, clipped at WMTS tile boundaries. Original courtyard holes retained. No facade photography or measured roof shapes.",
+  "sample": {
+    "zoom": 17,
+    "x": 67124,
+    "y": 45037,
+    "cors": "*"
+  }
+}
