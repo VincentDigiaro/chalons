@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#152a35">
+  <meta name="description" content="Explorez Châlons-en-Champagne et ses communes voisines en 3D grâce aux données OpenStreetMap.">
+  <title>Châlons en 3D · La ville à explorer</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23152a35'/%3E%3Cpath d='M7 23V13l8-5 10 5v10l-10 5z' fill='%23e9b77b'/%3E%3Cpath d='m7 13 8 5 10-5M15 18v10' fill='none' stroke='%23152a35' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./vendor/maplibre-gl.js"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div id="map" role="region" aria-label="Carte interactive de Châlons-en-Champagne"></div>
+  <header class="masthead">
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 23V12l10-6 12 6v11l-12 7zM5 12l10 6 12-6M15 18v12"/></svg></div>
+    <div><p class="eyebrow">ATLAS LOCAL <span>/</span> MARNE</p><h1>Châlons <span>en 3D</span></h1></div>
+    <button id="panel-toggle" class="icon-button mobile-only" aria-label="Afficher les commandes" aria-expanded="false" aria-controls="explorer">☰</button>
+  </header>
+  <aside id="explorer" class="explorer" aria-label="Commandes de la carte">
+    <div class="panel-heading"><span class="eyebrow">EXPLORER LE TERRITOIRE</span><span class="small-tag">51</span></div>
+    <label class="field-label" for="destination">Point de vue</label>
+    <select id="destination" disabled><option>Chargement des lieux…</option></select>
+    <div class="view-switch" role="group" aria-label="Mode de vue"><button id="view-3d" aria-pressed="true">Vue 3D</button><button id="view-2d" aria-pressed="false">Plan 2D</button></div>
+    <div class="control-heading"><label for="pitch">Inclinaison</label><output id="pitch-value" for="pitch">55°</output></div>
+    <input id="pitch" type="range" min="0" max="70" value="55" step="1" aria-label="Inclinaison de la carte">
+    <div class="divider"></div>
+    <p class="field-label">Afficher</p>
+    <label class="layer-row"><span><i class="swatch building"></i>Bâtiments</span><input id="buildings-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+    <label class="layer-row"><span><i class="swatch green"></i>Espaces verts</span><input id="green-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+    <label class="layer-row"><span><i class="swatch road"></i>Noms et repères</span><input id="labels-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+    <div class="divider"></div>
+    <button id="overview" class="overview-button"><span>Vue d’ensemble</span><span aria-hidden="true">↗</span></button>
+    <p class="coverage">Châlons-en-Champagne<br><span>et ses communes voisines</span></p>
+    <div class="data-strip"><span id="building-count">—</span><span>bâtiments cartographiés</span></div>
+    <p class="height-note">Hauteurs majoritairement estimées</p>
+  </aside>
+  <nav class="map-actions" aria-label="Navigation de la carte">
+    <button id="north" class="compass" title="Orienter vers le nord" aria-label="Orienter vers le nord"><span>N</span><svg id="compass-needle" viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 8 24-8-5-8 5z"/></svg></button>
+    <div class="zoom-group"><button id="zoom-in" aria-label="Zoomer" title="Zoomer">+</button><button id="zoom-out" aria-label="Dézoomer" title="Dézoomer">−</button></div>
+    <button id="reset" class="icon-button" aria-label="Revenir au centre-ville" title="Revenir au centre-ville"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
+    <button id="info-button" class="icon-button" aria-label="Aide et sources" title="Aide et sources">i</button>
+  </nav>
+  <div id="status" class="status" role="status"><span class="status-dot"></span><span id="status-text">Chargement du territoire…</span><button id="retry" hidden>Réessayer</button></div>
+  <div class="map-caption"><span id="location-label">CENTRE-VILLE</span><span class="caption-rule"></span><span id="coordinates">48.9566° N · 4.3631° E</span></div>
+  <div class="gesture-hint desktop-only">Glisser pour explorer <span>·</span> Clic droit pour tourner <span>·</span> Cliquer sur un bâtiment</div>
+  <div id="fallback" class="fallback" hidden><h2>La 3D n’est pas disponible</h2><p>Ce navigateur n’a pas pu démarrer le rendu WebGL. Essayez un navigateur récent avec l’accélération graphique activée.</p><a href="https://www.openstreetmap.org/#map=14/48.9566/4.3631" target="_blank" rel="noopener">Voir Châlons sur OpenStreetMap ↗</a></div>
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <button id="close-info" class="dialog-close" aria-label="Fermer">×</button>
+    <p class="eyebrow">À PROPOS DE CET ATLAS</p><h2 id="info-title">La ville, sous un autre angle.</h2>
+    <p>Une maquette cartographique de Châlons-en-Champagne et de ses alentours, construite à partir des emprises réelles des bâtiments d’OpenStreetMap.</p>
+    <h3>Se déplacer</h3><p><strong>Ordinateur :</strong> glissez pour déplacer la carte, utilisez la molette pour zoomer et le clic droit pour tourner. Les flèches du clavier déplacent la carte ; Maj + flèches modifie l’orientation.</p><p><strong>Mobile :</strong> glissez avec un doigt ; pincez ou tournez avec deux doigts. Le curseur d’inclinaison règle l’angle de la vue.</p>
+    <h3>Comment lire la 3D</h3><p>Les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les volumes sont simplifiés, sans façades photographiques ni restitution détaillée des toitures. Le sol est plat : cette vue ne représente pas le relief.</p>
+    <h3>Données et crédits</h3><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers de données ↗</a></p>
+  </dialog>
+  <noscript><div class="fallback">Activez JavaScript pour explorer la carte 3D.</div></noscript>
+</body>
+</html>
