@@ -1,6 +1,9 @@
 const $ = id => document.getElementById(id);
 const HOME = {center:[4.3631,48.9566],zoom:15.85,pitch:55,bearing:-24};
 const BOUNDS = [[4.26,48.89],[4.46,49.035]];
+// Leave room around the extraction so an overview can show its full extent,
+// including the area otherwise hidden by the controls.
+const NAV_BOUNDS = [[4.16,48.81],[4.56,49.115]];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isMobile = () => matchMedia('(max-width: 700px)').matches;
 const transition = () => reducedMotion ? 0 : 1100;
@@ -110,7 +113,7 @@ async function boot(){
   status('Chargement du territoire…','loading');
   if(!window.maplibregl){$('fallback').hidden=false;status('Le moteur cartographique n’a pas pu charger.','error');return;}
   try{
-    map=new maplibregl.Map({container:'map',style:{version:8,glyphs:`${location.origin}${location.pathname.replace(/[^/]*$/,'')}fonts/{fontstack}/{range}.pbf`,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf0e3'}}],light:{anchor:'viewport',color:'#fff6e8',intensity:0.42,position:[1.3,200,45]}},...HOME,maxBounds:BOUNDS,minZoom:11,maxZoom:19.5,maxPitch:70,canvasContextAttributes:{antialias:!isMobile()},pixelRatio:Math.min(devicePixelRatio||1,isMobile()?1.5:2),renderWorldCopies:false,attributionControl:false,locale:{'AttributionControl.ToggleAttribution':'Afficher ou masquer les crédits','Popup.Close':'Fermer la fiche'}});
+    map=new maplibregl.Map({container:'map',style:{version:8,glyphs:`${location.origin}${location.pathname.replace(/[^/]*$/,'')}fonts/{fontstack}/{range}.pbf`,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf0e3'}}],light:{anchor:'viewport',color:'#fff6e8',intensity:0.42,position:[1.3,200,45]}},...HOME,maxBounds:NAV_BOUNDS,minZoom:10.4,maxZoom:19.5,maxPitch:70,canvasContextAttributes:{antialias:!isMobile()},pixelRatio:Math.min(devicePixelRatio||1,isMobile()?1.5:2),renderWorldCopies:false,attributionControl:false,locale:{'AttributionControl.ToggleAttribution':'Afficher ou masquer les crédits','Popup.Close':'Fermer la fiche'}});
     map.addControl(new maplibregl.AttributionControl({compact:isMobile(),customAttribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://maplibre.org" target="_blank" rel="noopener">MapLibre</a>'}));
     map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
     map.getCanvas().setAttribute('aria-label','Carte : flèches pour déplacer, plus et moins pour zoomer, Maj et flèches pour tourner.');
