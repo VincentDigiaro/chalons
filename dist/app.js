@@ -1,4 +1,5 @@
 import {IGN_WMTS} from './imagery.js';
+import {installFacadeCatalogue} from './facade-layer.js';
 import {RoofTextures} from './roof-textures.js';
 import {NervalLayer} from './nerval-layer.js';
 import {NervalUI,NERVAL} from './nerval-ui.js';
@@ -52,6 +53,7 @@ function addLayers(){
     $('texture-note').textContent=!photoMode?'Rendu cartographique sans photographie.':!state.active?'Photographies aériennes IGN.':state.errors?'Certaines photos IGN sont indisponibles.':state.loading?'Les toitures se précisent progressivement…':'Sol et toitures · photographies IGN';
   },onError:error=>{console.error('Roof textures:',error);$('texture-note').textContent='Toitures photo indisponibles ; volumes conservés.';}});
   map.addLayer(roofTextures);
+  installFacadeCatalogue(map);
   nervalUI=new NervalUI(map);
   nervalLayer=new NervalLayer({onReady:async index=>{
     map.setFilter('buildings-3d',['!',['in',['get','osm_id'],['literal',index.excludeIds]]]);

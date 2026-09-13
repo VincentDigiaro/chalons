@@ -1,0 +1,245 @@
+{
+  "method": "OpenAI built-in image_gen; original facade modules inspired by the provided sector views. Technical Lanczos resizing and WebP encoding only.",
+  "textures": [
+    {
+      "id": "01-house-ivory",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "02-house-sand",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "03-house-grey",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "04-house-peach",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "05-town-limestone",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "06-town-cream",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "07-town-brick",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "08-town-timber",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "09-apartment-white",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "10-apartment-grey",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "11-apartment-balcony",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "12-institution",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "13-industrial-metal",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "14-garage",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "15-blank-render",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "16-blank-stone",
+      "original": [
+        1536,
+        1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    }
+  ]
+}

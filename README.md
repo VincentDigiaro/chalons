@@ -29,14 +29,14 @@ Aucune clé API n’est requise. Les données OSM, le moteur, les glyphes et la 
 - © IGN, BD ORTHO, Licence Ouverte 2.0. Attribution visible sur la carte et dans l’aide. Le millésime varie selon le secteur et ne correspond pas à la date de consultation.
 - Les toitures OSM sont triangulées avec conservation des cours intérieures, découpées aux limites des tuiles et stockées en coordonnées locales pour limiter les erreurs numériques.
 - Une couche WebGL partage la caméra et le tampon de profondeur des bâtiments. Les photos sont projetées géographiquement sur leurs toits plats, avec un détail progressif jusqu’au niveau IGN 19.
-- Les murs gardent une couleur sobre : aucune façade photographique n’est inventée à partir des vues du dessus. Les ombres, les déformations des bâtiments hauts et les différences de dates OSM/IGN peuvent créer des décalages.
+- Les murs OSM auparavant unis reçoivent un catalogue de façades originales inspirées des vues de quartier fournies (voir ci-dessous). Les ombres, les déformations des bâtiments hauts et les différences de dates OSM/IGN peuvent créer des décalages.
 - Cache graphique plafonné à 128 images sur mobile et 320 sur ordinateur ; quatre téléchargements de toitures simultanés, au plus dix démarrages par seconde. Les textures les plus proches sont prioritaires ; les volumes restent présents pendant le chargement. Les requêtes du fond raster sont gérées séparément par MapLibre.
 
 ## Hauteurs et limites
 
 Priorité : `height`/`building:height`, puis `building:levels × 3 m + roof:height`, puis hauteur indicative par type. La fiche de chaque bâtiment affiche la méthode. Les mètres et les pieds explicites sont reconnus. Une valeur manifestement incohérente est corrigée et signalée. `min_height` et `building:min_level` sont pris en compte. Les contours et parties peuvent se superposer : les parties plus hautes émergent du volume principal.
 
-Le rendu est une extrusion simplifiée sur sol plat avec photographies du sol et des toitures : pas de relief mesuré, de façades photographiques, de toits géométriques détaillés ou de garantie de précision architecturale. La géométrie OSM peut être incomplète ; les éléments incomplets signalés par le convertisseur sont écartés et comptés. La date est celle de l’extrait, pas une mise à jour en temps réel.
+Hors de la maquette dédiée de Nerval, le rendu est une extrusion simplifiée sur sol plat avec photographies du sol et des toitures et façades de catalogue approximatives : pas de relief mesuré, de façades photographiques à l’adresse exacte, de toits géométriques détaillés ou de garantie de précision architecturale. La géométrie OSM peut être incomplète ; les éléments incomplets signalés par le convertisseur sont écartés et comptés. La date est celle de l’extrait, pas une mise à jour en temps réel.
 
 ## Actualiser les données
 
@@ -56,3 +56,20 @@ Le script réutilise `.cache/osm.json` pour ne pas répéter les requêtes. Pour
 `npm run check` vérifie la syntaxe JavaScript, les ressources locales, les glyphes, les identifiants, la fermeture des polygones, les hauteurs, la présence de bâtiments au centre de Châlons, les coordonnées UV des toitures, la conservation de leur surface (trous déduits) et les paramètres IGN. La vérification visuelle et tactile reste nécessaire sur les appareils cibles, dont les capacités graphiques varient.
 
 Si disponible dans le navigateur, WebMCP expose la lecture de la vue et la navigation entre les destinations. Son absence ne change pas les commandes de l’application.
+
+## Catalogue de façades approximatives
+
+`facade-catalogue.html` présente les 16 textures et les observations sur les dix secteurs des 30 captures du ZIP fourni. Le catalogue contient des enduits de pavillons, pierre et brique du centre ancien, immeubles collectifs, équipements, bardage, garage et murs sans ouverture. Les textures sont des créations originales avec l’outil intégré ImageGen, inspirées des familles observées ; aucun pixel aérien Google n’est projeté sur ces façades.
+
+`scripts/facade-catalogue.json` décrit les familles, modules et pondérations géographiques. `scripts/build-facades.mjs` classe les bâtiments selon le secteur, l’usage OSM, l’emprise et la hauteur, puis affecte chaque segment de façade. Le choix est déterministe. Les secteurs lointains sont explicitement notés comme extrapolés dans `dist/data/facades/assignments.json`. L’attribution reste volontairement indicative, sans relevé par adresse.
+
+La couche est strictement constituée de murs. Elle n’écrit ni les toits ni leurs textures ni les fichiers du modèle Nerval. Les identifiants Nerval, son emprise augmentée de 15 m et les propriétés explicites de texture sont exclus. La première passe habille 33 602 bâtiments et 217 445 faces ; 263 bâtiments sont protégés autour de Nerval et 56 objets sans mur approprié sont exclus.
+
+Les versions 128 × 64 sont chargées au départ (environ 12 Ko pour les 16). À partir du zoom 17, les versions 512 × 256 sont chargées progressivement (environ 321 Ko). Les mipmaps et le filtrage anisotrope choisissent les niveaux intermédiaires à distance. Les 419 cellules géographiques sont chargées à la demande, quatre requêtes simultanées ; 64 cellules visibles sur mobile, 144 sur ordinateur. Les instances de murs occupent 11,3 Mo au total avant compression, avec cache borné. Aucune nouvelle dépendance n’est nécessaire.
+
+```sh
+npm run facades:build
+npm run check:facades
+```
+
+Après une mise à jour des emprises OSM ou de l’emprise protégée Nerval, relancer ces deux commandes. Les WebP livrés sont déjà prêts à servir ; `scripts/prepare-facade-textures.py` permet de les reconstruire depuis les PNG originaux avec Pillow. La provenance est dans `dist/data/facades/texture-provenance.json`. Les observations, affectations, surfaces protégées, dimensions, hauteurs, portes de garage et absence de modification des toits sont vérifiées par le contrôle dédié. `read_facade_state` expose le chargement et les compteurs via WebMCP.
