@@ -9,6 +9,7 @@ import {collisionGeometry} from './walk-physics.js';
 import {GROUND_GLSL} from './nerval-ground-materials.js';
 import {HOUSE_GLSL} from './nerval-house-materials.js';
 import {fetchWalkBuffer} from './walk-loading.js';
+import {WalkGeometryLoader} from './walk-geometry-loader.js';
 import {FPS_CONFIG} from './walk-config.js';
 import {FPSHighwind} from './fps-highwind.js';
 import {IDENTITY} from './highwind-math.js';
@@ -68,7 +69,8 @@ void main(){
 
 export class WalkRenderer {
  constructor(canvas){
-  this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.textures=new Map();this.ground=new Map();this.queue=[];this.active=0;this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
+  this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.textures=new Map();this.ground=new Map();this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
+  this.geometryLoader=new WalkGeometryLoader({concurrency:FPS_CONFIG.chargementsGeometrieSimultanes,onLoad:(node,buffer)=>this.installGeometry(node,buffer),onError:error=>{this.errors++;console.warn('Promenade :',error.message);},onRetry:()=>{this.retries=(this.retries||0)+1;}});
   this.gl=canvas.getContext('webgl2',{alpha:false,antialias:!matchMedia('(pointer:coarse)').matches,powerPreference:'high-performance'});
   if(!this.gl)throw Error('Le mode promenade nécessite WebGL 2.');
   this.abort=new AbortController();this.setup();this.highwind=new FPSHighwind(this,FPS_CONFIG.highwind);
@@ -104,14 +106,14 @@ export class WalkRenderer {
  }
  geometry(vertices){const gl=this.gl,vao=gl.createVertexArray(),buffer=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);for(const [a,size,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);let bottom=Infinity,top=-Infinity;for(let i=2;i<vertices.length;i+=11){bottom=Math.min(bottom,vertices[i]);top=Math.max(top,vertices[i]);}return {vao,buffer,count:vertices.length/11,bytes:vertices.byteLength,zBounds:[bottom,top]};}
  drop(gpu){if(gpu){this.gl.deleteVertexArray(gpu.vao);this.gl.deleteBuffer(gpu.buffer);}}
- trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);}for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){this.drop(tile.gpu);this.ground.delete(key);}}
+ trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);}this.geometryLoader.prune(this.nodes.values());for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){this.drop(tile.gpu);this.ground.delete(key);}}
  refresh(position){
   if(!this.index||this.disposed)return;this.position=[...position];
   this.highwind.refresh(position);
   const wanted=new Set();
   for(const record of this.index.nodes){const bounds=record.slice(1);if(!inRange(bounds,position,nodeLoadRadius(record[0])))continue;wanted.add(record[0]);if(!this.nodes.has(record[0]))this.nodes.set(record[0],{file:record[0],bounds,controller:new AbortController()});}
   for(const [key,node] of this.nodes)if(!wanted.has(key)){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);}
-  this.queue=[...this.nodes.values()].filter(n=>!n.gpu&&!n.loading&&!n.failed).sort((a,b)=>nearDistance(a.bounds,position)-nearDistance(b.bounds,position));this.pump();
+  this.pump();
   const [tx,ty]=tileAt(position,18),groundWanted=new Set(),tile=tileBounds(18,tx,ty),reach=Math.ceil(GROUND_LOAD_RADIUS/Math.min(tile[2]-tile[0],tile[3]-tile[1]))+1;
   for(let x=tx-reach;x<=tx+reach;x++)for(let y=ty-reach;y<=ty+reach;y++){
    const b=tileBounds(18,x,y);if(nearDistance(b,position)>=GROUND_LOAD_RADIUS)continue;const key=`ign/18/${x}/${y}`;groundWanted.add(key);
@@ -123,10 +125,13 @@ export class WalkRenderer {
   for(const [key,tile] of this.ground)if(!groundWanted.has(key)){this.drop(tile.gpu);this.ground.delete(key);}
   this.pruneTextures();
  }
- pump(){while(this.active<FPS_CONFIG.chargementsGeometrieSimultanes&&this.queue.length&&!this.disposed){const node=this.queue.shift();if(node.controller.signal.aborted)continue;node.loading=true;this.active++;
-  fetchWalkBuffer('./data/walk/'+node.file,{signal:node.controller.signal,onRetry:()=>{node.retrying=true;this.retries=(this.retries||0)+1;}}).then(buffer=>{node.retrying=false;if(node.controller.signal.aborted||this.disposed)return;const length=new DataView(buffer).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length))),vertices=new Float32Array(buffer,4+length);node.ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+this.index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,this.index,this.roofMode);node.collision=collisionGeometry(vertices);node.segments=node.collision.segments;node.gpu=this.geometry(vertices);for(const [material] of node.ranges)this.texture(material);
-  }).catch(error=>{if(error.name!=='AbortError'){this.errors++;node.failed=true;console.warn('Promenade :',error.message);}}).finally(()=>{this.active--;node.loading=false;this.pump();});
- }}
+ get active(){return this.geometryLoader.active;}
+ get queue(){return this.geometryLoader.queue;}
+ pump(){this.geometryLoader.configure(this.index.geometryPacks);this.geometryLoader.sync(this.nodes.values(),this.position||[0,0]);}
+ installGeometry(node,buffer){
+  const length=new DataView(buffer).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length))),vertices=new Float32Array(buffer,4+length);
+  node.ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+this.index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,this.index,this.roofMode);node.collision=collisionGeometry(vertices);node.segments=node.collision.segments;node.gpu=this.geometry(vertices);for(const [material] of node.ranges)this.texture(material);
+ }
  material(id){return typeof id==='string'?{kind:1,texture:id}:this.index.materials[id];}
  texture(id){
   const material=this.material(id),key=material.texture;if(!key)return null;
@@ -173,6 +178,6 @@ export class WalkRenderer {
   this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visible;this.culledAssets=0;gl.bindVertexArray(null);
   if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position),viewProjection([0,0,height],yaw,pitch,width/heightPx),height);}
  }
- getState(){return {sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
- dispose(){this.disposed=true;this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.textures.clear();this.ground.clear();}
+ getState(){return {geometryTransport:this.geometryLoader.getState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
+ dispose(){this.disposed=true;this.geometryLoader.dispose();this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.textures.clear();this.ground.clear();}
 }

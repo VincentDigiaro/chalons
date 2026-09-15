@@ -25,7 +25,8 @@ const gl=new Proxy({}, {get(target,key){
  return ()=>{};
 }});
 const index=JSON.parse(await fs.readFile('dist/data/walk/index.json','utf8')),bounds=new Map(index.nodes.map(n=>[n[0],n.slice(1)]));
-let position=[...SPAWN],requests=0,remoteRequests=0,missingImages=0,recoveredURL,indexAttempts=0,failedBuilding,buildingAttempts=0;const notices=[];
+const packMembers=new Map((index.geometryPacks?.files||[]).map(p=>[p.file,p.entries.map(e=>e[0])]));
+let position=[...SPAWN],requests=0,remoteRequests=0,missingImages=0,recoveredURL,indexAttempts=0,failedBuilding,failedBuildingNode,buildingAttempts=0;const notices=[];
 globalThis.fetch=async(url,{signal}={})=>{
  if(signal?.aborted)throw new DOMException('Aborted','AbortError');
  if(/^https?:/.test(String(url))){remoteRequests++;return new Response('',{status:503});}
@@ -33,13 +34,13 @@ globalThis.fetch=async(url,{signal}={})=>{
  if(relative==='data/walk/index.json'&&++indexAttempts===1)return new Response('',{status:503});
  // Even missing local images must not put a warning over the promenade.
  if(relative.startsWith('data/imagery/ign/')){if(String(url)===recoveredURL)return new Response(await fs.readFile('.cache/ign/centre-sample.jpg'),{headers:{'content-type':'image/jpeg'}});missingImages++;return new Response('',{status:503});}
- if(relative.startsWith('data/walk/')&&relative.endsWith('.bin')){const file=relative.slice('data/walk/'.length);assert(inRange(bounds.get(file),position,nodeLoadRadius(file)),'An asset was requested beyond its category loading radius');requests++;failedBuilding??=relative;if(relative===failedBuilding&&++buildingAttempts===1)throw TypeError('Failed to fetch');}
+ if(relative.startsWith('data/walk/')&&relative.endsWith('.bin')){const file=relative.slice('data/walk/'.length),needed=(packMembers.get(file)||[file]).find(f=>bounds.has(f)&&inRange(bounds.get(f),position,nodeLoadRadius(f)));assert(needed,'An asset was requested without any needed building inside its category radius');requests++;failedBuilding??=relative;failedBuildingNode??=needed;if(relative===failedBuilding&&++buildingAttempts===1)throw TypeError('Failed to fetch');}
  const buffer=await fs.readFile(path.join('dist',relative));if(signal?.aborted)throw new DOMException('Aborted','AbortError');return new Response(buffer);
 };
 globalThis.createImageBitmap=async()=>({width:512,height:256,close(){}});
 const renderer=new WalkRenderer({clientWidth:800,clientHeight:600,getContext:()=>gl},{onStatus:message=>notices.push(message)});
 await renderer.load(position);
-assert.equal(indexAttempts,2);assert.equal(buildingAttempts,2);assert(renderer.nodes.get(failedBuilding.slice('data/walk/'.length)).gpu,'The failed nearby file must recover before entry');
+assert.equal(indexAttempts,2);assert.equal(buildingAttempts,2);assert(renderer.nodes.get(failedBuildingNode).gpu,'The failed nearby file must recover before entry');
 renderer.draw(position,EYE_HEIGHT+.022,0,0);assert(renderer.draws>0);assert.equal(renderer.getState().outsideRadius,0);
 const initialAssets=renderer.getState().loadedAssets;assert(initialAssets>100);
 function renderedBuildings(){return [...renderer.nodes.values()].filter(n=>n.gpu&&drawCalls.some(c=>c.vao===n.gpu.vao)).map(n=>n.file).sort();}
@@ -103,4 +104,4 @@ assert([...renderer.nodes.values()].every(n=>inRange(n.bounds,position,nodeLoadR
 await new Promise(resolve=>setTimeout(resolve,500));renderer.draw(position,EYE_HEIGHT+.022,0,0);
 assert.equal(renderer.getState().outsideRadius,0);
 renderer.dispose();await new Promise(resolve=>setTimeout(resolve,50));assert.equal(allocations.size,0,'GPU objects leaked after leaving pedestrian mode');
-assert(missingImages>0);assert(remoteRequests>0);assert.deepEqual(notices,[]);console.log(JSON.stringify({streaming:'passed',initialAssets,buildingRequests:requests,radius:LOAD_RADIUS,visibleAssets:forward.visibleAssets,culledAssets:forward.culledAssets,forwardDrawCalls:forwardCalls,outerGroundTiles:outerGround,outsideRequests:0,ignOutage:'local fallback attempted',missingImages:'playable without banners',silentRecovery:true,gpuResourcesAfterExit:allocations.size}));
+assert(missingImages>0);assert.equal(remoteRequests,0,'Aerial textures must use persistent local storage');assert.deepEqual(notices,[]);console.log(JSON.stringify({streaming:'passed',initialAssets,buildingRequests:requests,radius:LOAD_RADIUS,visibleAssets:forward.visibleAssets,culledAssets:forward.culledAssets,forwardDrawCalls:forwardCalls,outerGroundTiles:outerGround,outsideRequests:0,imagery:'local storage only',missingImages:'playable without banners',silentRecovery:true,gpuResourcesAfterExit:allocations.size}));

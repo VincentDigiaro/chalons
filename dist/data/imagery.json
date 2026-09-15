@@ -12,7 +12,7 @@
   "acquisition_dates": "https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf",
   "verified_at": "2026-09-13T19:26:04.801Z",
   "local_template": "./data/imagery/ign/{z}/{x}/{y}.jpg",
-  "delivery": "IGN is requested first by the browser. On failure or after 2500 ms, the saved same-origin JPEG is used silently. Originals remain permanently with the project. The Node server acquires missing originals once; successful IGN images are not served a second time to visitors. Static hosting provides fallback for the preloaded coverage.",
+  "delivery": "Saved same-origin JPEGs are requested first, without contacting IGN from the browser. The Node acquisition service downloads a missing original once and saves it to disk before delivery. Originals are never expired or evicted. Nginx serves the shared project cache directly and forwards only missing files to the acquisition service. Static-only hosting serves saved coverage but cannot acquire new originals.",
   "roof_projection": "Georeferenced aerial photos projected on flat roof polygons triangulated from OSM, clipped at WMTS tile boundaries. Original courtyard holes retained. No facade photography or measured roof shapes.",
   "sample": {
     "zoom": 17,

@@ -54,7 +54,7 @@ if(!process.argv.includes('--probe')){
  const until=async predicate=>{for(let i=0;i<100&&!predicate();i++)await turn();assert(predicate(),'Loader did not settle');};
  try{
   for(let i=0;i<count;i++)renderer.nodes.set(String(i),{file:`probe/${i}.bin`,bounds:[0,0,1,1],controller:new AbortController()});
-  renderer.queue=[...renderer.nodes.values()];renderer.pump();
+  renderer.pump();
   for(let i=0;i<count;i++)renderer.texture(`probe/${i}.webp`);
   for(const type of ['geometry','textures'])assert.equal(pending[type].length,limits[type],`${type}: JSON must set the actual number of requests`);
   assert.equal(renderer.queue.length,count-limits.geometry);

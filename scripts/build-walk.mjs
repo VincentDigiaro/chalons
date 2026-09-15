@@ -6,6 +6,7 @@ import {EYE_HEIGHT,LOAD_RADIUS,ORIGIN,SCALE,SPAWN,SPAWN_YAW,toLocal,toLngLat,til
 import {facadeHash} from '../dist/facade-layer.js';
 import {roofUV} from './roof-policy.mjs';
 import {integrateCityRoads} from './city-roads-walk.mjs';
+import {buildWalkPacks} from './build-walk-packs.mjs';
 
 const output='dist/data/walk',sourceHashes={};
 async function read(file,json=true){const raw=await fs.readFile(file);sourceHashes[file]=crypto.createHash('sha256').update(raw).digest('hex');return json?JSON.parse(raw):raw;}
@@ -103,4 +104,5 @@ await integrateCityRoads(index);
 // Full builds retain the list of empty legacy replacement URLs.
 try{const old=JSON.parse(await fs.readFile(path.join(output,'index.json'),'utf8')),active=new Set(nodes.map(n=>n[0]));index.retiredNodes=(old.retiredNodes||[]).filter(file=>!active.has(file));}catch(error){if(error.code!=='ENOENT')throw error;}
 await fs.writeFile(path.join(output,'index.json'),JSON.stringify(index));
+await buildWalkPacks();
 console.log(JSON.stringify(index.stats));

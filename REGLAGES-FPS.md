@@ -7,6 +7,8 @@ Chargements simultanés, réglables indépendamment :
 
 Ces deux valeurs sont des entiers supérieurs ou égaux à 1. Elles limitent les chargements en cours, pas les bâtiments affichés. Une place libérée permet de commencer le fichier suivant. Elles sont lues directement dans le JSON, sans valeur de remplacement dans le chargeur. Enregistrer puis recharger le jeu.
 
+Les fichiers de bâtiments sont maintenant regroupés par zone : `chargementsGeometrieSimultanes` compte les paquets téléchargés, ainsi que les fichiers de routes de cette file. Un seul paquet peut alimenter plusieurs bâtiments. Leur taille se règle à la génération dans `walk-pack-config.json` ; voir `docs/walk-packs.md` pour la reconstruction et les mesures.
+
 Les distances suivantes sont indépendantes, en mètres :
 
 - `rayonChargementBatimentsMetres` : bâtiments (600 au départ).

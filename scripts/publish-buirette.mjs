@@ -5,6 +5,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import {gzipSync,gunzipSync} from 'node:zlib';
+import {buildWalkPacks} from './build-walk-packs.mjs';
 
 const work=path.resolve(process.env.BUIRETTE_RELEASE||'artifacts/buirette-overlap-fix/publication');
 const source=path.join(work,'source'),live=path.resolve('C:/nginx/html/chalons');
@@ -16,8 +17,14 @@ async function optional(file){try{return await fs.readFile(file);}catch(e){if(e.
 const digest=b=>b?hash(b):null;
 async function parallel(items,fn){let next=0;await Promise.all(Array.from({length:12},async()=>{while(next<items.length){const i=next++;await fn(items[i],i);}}));}
 async function put(root,file,bytes){const target=child(root,file);await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,bytes);}
+// Rebuild transport packs from the overlay before publication, including later
+// house edits. Hash-named packs cannot silently serve a previous mesh version.
+if(process.argv[2]==='prepare'){
+ const index=JSON.parse(await fs.readFile(child(source,'data/walk/index.json')));
+ if(index.geometryPacks)await buildWalkPacks({root:live,output:source});
+}
 const walk=JSON.parse(await fs.readFile(child(source,'data/walk/index.json')));
-const activeWalk=new Set([...walk.nodes.map(n=>'data/walk/'+n[0]),...(walk.retiredNodes||[]).map(file=>'data/walk/'+file)]);
+const activeWalk=new Set([...walk.nodes.map(n=>'data/walk/'+n[0]),...(walk.retiredNodes||[]).map(file=>'data/walk/'+file),...(walk.geometryPacks?.files||[]).map(pack=>'data/walk/'+pack.file)]);
 async function list(folder=''){
  const out=[];for(const e of await fs.readdir(folder?child(source,folder):source,{withFileTypes:true})){
   assert(!e.isSymbolicLink(),'Unexpected symlink');if(e.name.startsWith('.'))continue;
@@ -29,7 +36,7 @@ async function list(folder=''){
 async function checkInputs(){for(const [file,expected] of Object.entries(walk.sourceHashes))assert.equal(hash((await optional(child(source,file.replace(/^dist\//,''))))??await fs.readFile(child(live,file.replace(/^dist\//,'')))),expected,'Rebuild walk: '+file);}
 const guardFiles=[...(await fs.readdir(source,{withFileTypes:true})).filter(e=>e.isFile()&&!e.name.endsWith('.gz')).map(e=>e.name),'data/nerval/index.json','data/nerval/mesh.bin','data/attila/index.json','data/attila/mesh.bin','data/walk/index.json','data/facades/index.json','data/roofs/index.json'];
 async function guards(root){const result={};for(const file of guardFiles)result[file]=digest(await optional(child(root,file)));return result;}
-const priority=f=>f==='index.html'||f==='app.js'?4:f.endsWith('/index.json')||f==='data/custom-models.json'?3:!f.includes('/')?2:1;
+const priority=f=>f==='walk-geometry-loader.js'?1:f==='index.html'||f==='app.js'?4:f.endsWith('/index.json')||f==='data/custom-models.json'?3:!f.includes('/')?2:1;
 await checkInputs();
 if(process.argv[2]==='prepare'){
  assert(!(await optional(manifestFile)),'This prepared release already exists');
