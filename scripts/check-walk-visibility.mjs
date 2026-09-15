@@ -26,6 +26,15 @@ assert(inFrustum([-1,20,1,25],[0,50],upward),'Use roof height: a tall building i
 assert(inFrustum([-2,18,2,22],[0,1],planes(0,-.8,9/16,[0,0,25])),'Looking down during flight');
 assert(inFrustum([-2,18,2,22],[0,1],planes(0,-Math.PI/2,9/16,[0,0,700])),'Far clip must account for high flight above the loaded circle');
 
+// Orbiting/zooming the chase camera must never trim the ship's loaded circle.
+let chaseSamples=0;
+for(const offset of [90,310,600,2000])for(const height of [20,210,1200])for(const angle of [0,Math.PI/2,Math.PI,5]){
+ const direction=[Math.sin(angle),Math.cos(angle)],range=MAX_LOAD_RADIUS*.95;
+ const point=direction.map(n=>n*(offset+range)),pitch=-Math.atan2(height,offset+range);
+ const m=viewProjection([0,0,height],angle,pitch,16/9,undefined,offset);
+ assert(inFrustum([point[0]-1,point[1]-1,point[0]+1,point[1]+1],[0,2],frustumPlanes(m)),'A loaded point near the opposite edge was clipped by the chase camera');chaseSamples++;
+}
+
 // A vertex that WebGL projects strictly inside the screen must never belong to
 // a discarded box, even at map-scale coordinates and oblique camera angles.
 let seed=12345,checked=0;
@@ -40,4 +49,4 @@ for(let i=0;i<2000;i++){
  }
 }
 assert(checked>100);
-console.log(JSON.stringify({visibility:'passed',radius:LOAD_RADIUS,projectedSamples:checked,checks:'six planes, turning, portrait, roof heights, edge crossings, flight'}));
+console.log(JSON.stringify({visibility:'passed',radius:LOAD_RADIUS,projectedSamples:checked,chaseSamples,checks:'six planes, turning, portrait, roof heights, edge crossings, flight, chase camera far plane'}));

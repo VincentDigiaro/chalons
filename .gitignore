@@ -5,7 +5,7 @@ artifacts/
 *.log
 __pycache__/
 
-
+/dist/data/imagery/ign
 
 # Duplicate archives, generated compressed files and Blender backups
 /references_buirette_12_20.zip

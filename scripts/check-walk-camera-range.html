@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8"><title>Chase camera rendering regression</title>
+<pre id="result">Running GPU regression…</pre><canvas id="canvas" style="width:256px;height:256px"></canvas>
+<script type="module">
+const output=document.querySelector('#result');
+try{
+ const prefix=new URLSearchParams(location.search).has('baseline')?'/baseline':'/dist';
+ const {WalkRenderer}=await import(prefix+'/walk-renderer.js');
+ const renderer=new WalkRenderer(document.querySelector('canvas')),gl=renderer.gl;
+ renderer.index={materials:[{kind:0}],facadeBase:100,roofBase:200};
+ renderer.sky.draw=()=>{gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);};
+ renderer.sky.apply=u=>{gl.uniform1f(u.u_sky_horizon,10000);gl.uniform1f(u.u_sky_band,1);};
+ const geometry=points=>renderer.geometry(new Float32Array(points.flatMap(p=>[...p,0,0,1,0,0,1,1,1])));
+ const building=geometry([[-20,650,0],[20,650,0],[0,650,50]]);
+ const ground=geometry([[-100,450,0],[100,450,0],[100,850,0],[-100,450,0],[100,850,0],[-100,850,0]]);
+ const cases=[];
+ for(const kind of ['building','ground']){
+  renderer.nodes.clear();renderer.ground.clear();
+  if(kind==='building')renderer.nodes.set('building.bin',{file:'building.bin',gpu:building,bounds:[-20,650,20,650],ranges:[[0,0,3]],controller:new AbortController()});
+  else renderer.ground.set('ign/test',{gpu:ground,bounds:[-100,450,100,850]});
+  for(const offset of [90,310,600,2000]){
+   const height=210,pitch=-Math.atan2(height-(kind==='building'?20:0),650+offset);
+   renderer.draw([0,-offset],height,0,pitch,null,[0,0]);
+   const pixel=new Uint8Array(4);gl.readPixels(gl.drawingBufferWidth/2,gl.drawingBufferHeight/2,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+   if(gl.getError()!==gl.NO_ERROR)throw Error('WebGL error');
+   const visible=pixel.slice(0,3).some(v=>v>10);cases.push({kind,offset,visible,pixel:[...pixel]});
+  }
+ }
+ const passed=cases.every(c=>c.visible);
+ output.textContent=JSON.stringify({passed,checks:cases.length,usesActualRendererDraw:true,cases},null,2);
+ renderer.nodes.clear();renderer.ground.clear();renderer.drop(building);renderer.drop(ground);renderer.dispose();
+}catch(error){output.textContent=JSON.stringify({passed:false,error:error.message},null,2);}
+</script>

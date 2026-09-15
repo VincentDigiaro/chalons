@@ -28,12 +28,14 @@ export function stepPlayer(p,dx,dy,segments,feet=0){
  return q;
 }
 export function movement(yaw,forward,right,seconds,fast=false,turbo=false){const n=Math.max(1,Math.hypot(forward,right)),speed=(turbo?TURBO_SPEED:fast?RUN_SPEED:WALK_SPEED)*Math.min(seconds,.05)/n;return [(Math.sin(yaw)*forward+Math.cos(yaw)*right)*speed,(Math.cos(yaw)*forward-Math.sin(yaw)*right)*speed];}
-export function viewProjection(position,yaw,pitch,aspect,fov=FPS_FOV*Math.PI/180){
+export function viewProjection(position,yaw,pitch,aspect,fov=FPS_FOV*Math.PI/180,centerOffset=0){
  const sy=Math.sin(yaw),cy=Math.cos(yaw),sp=Math.sin(pitch),cp=Math.cos(pitch);
  const right=[cy,-sy,0],up=[-sy*sp,-cy*sp,cp],back=[-sy*cp,-cy*cp,-sp];
  const dot=a=>a[0]*position[0]+a[1]*position[1]+a[2]*position[2];
  const v=[right[0],up[0],back[0],0,right[1],up[1],back[1],0,right[2],up[2],back[2],0,-dot(right),-dot(up),-dot(back),1];
- const f=1/Math.tan(fov/2),near=.06,far=Math.hypot(MAX_LOAD_RADIUS,position[2])+100;
+ // A chase camera can sit outside the loaded circle. Its far plane must still
+ // reach the opposite edge of the circle centered on the player/ship.
+ const f=1/Math.tan(fov/2),near=.06,far=Math.hypot(MAX_LOAD_RADIUS,position[2])+centerOffset+100;
  const p=[f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0];
  const m=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)m[c*4+r]+=p[k*4+r]*v[c*4+k];return m;
 }
