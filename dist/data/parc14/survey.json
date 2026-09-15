@@ -1,0 +1,1472 @@
+{
+  "origin": [
+    4.375850934904045,
+    48.972652712899745
+  ],
+  "scale": [
+    73109.44253336328,
+    111320
+  ],
+  "gameAnchor": [
+    -413,
+    2800
+  ],
+  "parts": [
+    {
+      "id": 14,
+      "osmId": "way/156707307",
+      "label": "14 · maison aux trois lucarnes",
+      "address": "14",
+      "footprint": [
+        [
+          4.37599,
+          48.972606
+        ],
+        [
+          4.375933,
+          48.972721
+        ],
+        [
+          4.37587,
+          48.972708
+        ],
+        [
+          4.375874,
+          48.972696
+        ],
+        [
+          4.375753,
+          48.972668
+        ],
+        [
+          4.375792,
+          48.97259
+        ],
+        [
+          4.375879,
+          48.972608
+        ],
+        [
+          4.375915,
+          48.972619
+        ],
+        [
+          4.375928,
+          48.972593
+        ],
+        [
+          4.37599,
+          48.972606
+        ]
+      ],
+      "refs": [
+        "06",
+        "01",
+        "02",
+        "03",
+        "04"
+      ],
+      "confidence": "Adresse et repère fournis par l’utilisateur ; proportions estimées sur les clichés."
+    },
+    {
+      "id": 140,
+      "osmId": "way/156685169",
+      "label": "14 · prolongement arrière vitré",
+      "address": null,
+      "footprint": [
+        [
+          4.375928,
+          48.972593
+        ],
+        [
+          4.375915,
+          48.972619
+        ],
+        [
+          4.375879,
+          48.972608
+        ],
+        [
+          4.375891,
+          48.972585
+        ],
+        [
+          4.375928,
+          48.972593
+        ]
+      ],
+      "refs": [
+        "03"
+      ],
+      "confidence": "Emprise OSM ; architecture simplifiée d’après les vues fournies."
+    },
+    {
+      "id": 16,
+      "osmId": "way/156699365",
+      "label": "Voisine à droite · pignon et balcon",
+      "address": null,
+      "footprint": [
+        [
+          4.375664,
+          48.97256
+        ],
+        [
+          4.375654,
+          48.97266
+        ],
+        [
+          4.375581,
+          48.972659
+        ],
+        [
+          4.375582,
+          48.972638
+        ],
+        [
+          4.375484,
+          48.972632
+        ],
+        [
+          4.375491,
+          48.972555
+        ],
+        [
+          4.375664,
+          48.97256
+        ]
+      ],
+      "refs": [
+        "07"
+      ],
+      "confidence": "Emprise OSM ; architecture simplifiée d’après les vues fournies."
+    },
+    {
+      "id": 12,
+      "osmId": "way/156676243",
+      "label": "Voisine à gauche · deux lucarnes",
+      "address": null,
+      "footprint": [
+        [
+          4.376326,
+          48.972739
+        ],
+        [
+          4.376246,
+          48.972865
+        ],
+        [
+          4.376177,
+          48.972847
+        ],
+        [
+          4.376184,
+          48.972835
+        ],
+        [
+          4.376065,
+          48.972801
+        ],
+        [
+          4.37612,
+          48.972713
+        ],
+        [
+          4.376176,
+          48.972728
+        ],
+        [
+          4.376167,
+          48.972743
+        ],
+        [
+          4.376242,
+          48.972764
+        ],
+        [
+          4.376253,
+          48.97275
+        ],
+        [
+          4.376266,
+          48.972731
+        ],
+        [
+          4.376284,
+          48.972725
+        ],
+        [
+          4.376326,
+          48.972739
+        ]
+      ],
+      "refs": [
+        "08"
+      ],
+      "confidence": "Emprise OSM ; architecture simplifiée d’après les vues fournies."
+    },
+    {
+      "id": 120,
+      "osmId": "way/156684861",
+      "label": "Voisine à gauche · petite annexe",
+      "address": null,
+      "footprint": [
+        [
+          4.376253,
+          48.97275
+        ],
+        [
+          4.376242,
+          48.972764
+        ],
+        [
+          4.376167,
+          48.972743
+        ],
+        [
+          4.376176,
+          48.972728
+        ],
+        [
+          4.376253,
+          48.97275
+        ]
+      ],
+      "refs": [
+        "08"
+      ],
+      "confidence": "Emprise OSM ; architecture simplifiée d’après les vues fournies."
+    }
+  ],
+  "openings": [
+    {
+      "part": 14,
+      "kind": "garage",
+      "side": "front",
+      "center": [
+        3.696785976961166,
+        6.878140000065058,
+        1.3
+      ],
+      "width": 4.567891849282009,
+      "height": 2.4,
+      "depth": 0.17,
+      "reference": "06",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "front",
+      "center": [
+        0.2024013905626021,
+        4.295878947991098,
+        1.29
+      ],
+      "width": 1.44,
+      "height": 2.38,
+      "depth": 0.17,
+      "reference": "06",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "shutters",
+      "side": "front",
+      "center": [
+        -4.203515799792573,
+        2.7434607802124105,
+        1.26
+      ],
+      "width": 2.48,
+      "height": 2.32,
+      "depth": 0.17,
+      "reference": "06",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "rear",
+      "center": [
+        -3.036593680367718,
+        -6.580448000046452,
+        1.255
+      ],
+      "width": 1.28,
+      "height": 2.23,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "rear",
+      "center": [
+        -1.1284372302334587,
+        -5.979319999903054,
+        1.255
+      ],
+      "width": 1.28,
+      "height": 2.23,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "rear",
+      "center": [
+        0.7797192199008011,
+        -5.378191999759656,
+        1.255
+      ],
+      "width": 1.28,
+      "height": 2.23,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "rear",
+      "center": [
+        3.367793485579966,
+        -4.365179999628025,
+        1.255
+      ],
+      "width": 1.6,
+      "height": 2.23,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 14,
+      "kind": "french-door",
+      "side": "rear",
+      "center": [
+        7.900578922632718,
+        -5.92365999964818,
+        1.255
+      ],
+      "width": 1.6,
+      "height": 2.23,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 140,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        5.15897482763799,
+        -5.200079999497574,
+        1.395
+      ],
+      "width": 2.7963735277550428,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 140,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        3.367793485579966,
+        -4.365179999628025,
+        1.395
+      ],
+      "width": 2.65285325704085,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 140,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        2.49048017518686,
+        -6.257619999595817,
+        1.395
+      ],
+      "width": 2.4564962541067814,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 140,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        4.281661517244884,
+        -7.092519999465365,
+        1.395
+      ],
+      "width": 2.5978745105956653,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 16,
+      "kind": "window",
+      "side": "context",
+      "center": [
+        -13.907967785044534,
+        -6.647239999759339,
+        1.625
+      ],
+      "width": 1.15,
+      "height": 1.45,
+      "depth": 0.17,
+      "reference": "07",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 16,
+      "kind": "french-door",
+      "side": "front",
+      "center": [
+        -23.24404359658277,
+        -1.971799999738323,
+        1.17
+      ],
+      "width": 1.45,
+      "height": 2.1,
+      "depth": 0.17,
+      "reference": "07",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 16,
+      "kind": "french-door",
+      "side": "front",
+      "center": [
+        -23.24404359658277,
+        -1.971799999738323,
+        3.91
+      ],
+      "width": 1.45,
+      "height": 2.04,
+      "depth": 0.17,
+      "reference": "07",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 16,
+      "kind": "window",
+      "side": "context",
+      "center": [
+        -26.657523468444587,
+        -5.134401199987537,
+        1.625
+      ],
+      "width": 1.15,
+      "height": 1.45,
+      "depth": 0.17,
+      "reference": "07",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 12,
+      "kind": "window",
+      "side": "context",
+      "center": [
+        32.801655049489234,
+        14.234165599962104,
+        1.625
+      ],
+      "width": 1.15,
+      "height": 1.45,
+      "depth": 0.17,
+      "reference": "08",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 12,
+      "kind": "window",
+      "side": "context",
+      "center": [
+        16.97711621314317,
+        13.274587199948563,
+        1.625
+      ],
+      "width": 1.15,
+      "height": 1.45,
+      "depth": 0.17,
+      "reference": "08",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 120,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        25.84894706458223,
+        11.219620000177427,
+        1.395
+      ],
+      "width": 5.710747172307384,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    },
+    {
+      "part": 120,
+      "kind": "veranda-glazing",
+      "side": "rear",
+      "center": [
+        26.580041489920657,
+        9.6054799999024,
+        1.395
+      ],
+      "width": 5.889075346981167,
+      "height": 1.95,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated"
+    }
+  ],
+  "roofAreas": [
+    {
+      "id": 14,
+      "footprint": 152.76045478913284,
+      "roofProjected": 152.7604547891328
+    },
+    {
+      "id": 140,
+      "footprint": 8.244344203278706,
+      "roofProjected": 8.244344203278704
+    },
+    {
+      "id": 16,
+      "footprint": 123.8930422618784,
+      "roofProjected": 123.89304226187849
+    },
+    {
+      "id": 12,
+      "footprint": 170.92161381575414,
+      "roofProjected": 170.92161381575414
+    },
+    {
+      "id": 120,
+      "footprint": 10.718461320592988,
+      "roofProjected": 10.718461320592995
+    }
+  ],
+  "details": [
+    {
+      "type": "triangular-dormer",
+      "center": [
+        4.602151534951079,
+        4.702297443734011,
+        4.124742765273312
+      ],
+      "estimated": true,
+      "side": "front",
+      "width": 2.5,
+      "height": 1.6499999999999995,
+      "transomHeightRatios": [
+        0.45,
+        0.7,
+        0.86
+      ],
+      "lowerPaneCount": 6,
+      "reference": "06",
+      "roofOpening": [
+        [
+          -7.08,
+          -3.05
+        ],
+        [
+          -4.58,
+          -3.05
+        ],
+        [
+          -5.83,
+          -1.4428506097560985
+        ]
+      ]
+    },
+    {
+      "type": "triangular-dormer",
+      "center": [
+        -0.01998117892433582,
+        3.2004688332319047,
+        4.124742765273312
+      ],
+      "estimated": true,
+      "side": "front",
+      "width": 2.5,
+      "height": 1.6499999999999995,
+      "transomHeightRatios": [
+        0.45,
+        0.7,
+        0.86
+      ],
+      "lowerPaneCount": 6,
+      "reference": "06",
+      "roofOpening": [
+        [
+          -2.2199999999999998,
+          -3.05
+        ],
+        [
+          0.28,
+          -3.05
+        ],
+        [
+          -0.97,
+          -1.4428506097560985
+        ]
+      ]
+    },
+    {
+      "type": "triangular-dormer",
+      "center": [
+        -4.537497720263476,
+        1.7326322283172946,
+        4.124742765273312
+      ],
+      "estimated": true,
+      "side": "front",
+      "width": 2.5,
+      "height": 1.6499999999999995,
+      "transomHeightRatios": [
+        0.45,
+        0.7,
+        0.86
+      ],
+      "lowerPaneCount": 6,
+      "reference": "06",
+      "roofOpening": [
+        [
+          2.53,
+          -3.05
+        ],
+        [
+          5.029999999999999,
+          -3.05
+        ],
+        [
+          3.78,
+          -1.4428506097560985
+        ]
+      ]
+    },
+    {
+      "type": "triangular-dormer",
+      "center": [
+        6.558386956245964,
+        -2.548050339405168,
+        4.135289389067524
+      ],
+      "estimated": true,
+      "side": "rear",
+      "width": 2.08,
+      "height": 1.894710610932476,
+      "transomHeightRatios": [
+        0.2058361829768097,
+        0.4116723659536194,
+        0.6175085489304291,
+        0.8233447319072388
+      ],
+      "lowerPaneCount": null,
+      "reference": "03",
+      "roofOpening": [
+        [
+          -6.49,
+          4.45
+        ],
+        [
+          -4.41,
+          4.45
+        ],
+        [
+          -5.45,
+          2.610823170731707
+        ]
+      ]
+    },
+    {
+      "type": "triangular-dormer",
+      "center": [
+        -2.0106286305889096,
+        -5.332304615253723,
+        4.135289389067524
+      ],
+      "estimated": true,
+      "side": "rear",
+      "width": 2.08,
+      "height": 1.894710610932476,
+      "transomHeightRatios": [
+        0.2058361829768097,
+        0.4116723659536194,
+        0.6175085489304291,
+        0.8233447319072388
+      ],
+      "lowerPaneCount": null,
+      "reference": "03",
+      "roofOpening": [
+        [
+          2.52,
+          4.45
+        ],
+        [
+          4.6,
+          4.45
+        ],
+        [
+          3.56,
+          2.610823170731707
+        ]
+      ]
+    },
+    {
+      "type": "capped-chimney",
+      "center": [
+        -4.708612816351988,
+        -2.271209005284584,
+        8
+      ],
+      "estimated": true,
+      "reference": "06"
+    },
+    {
+      "type": "rear-rooflight",
+      "center": [
+        1.8747506135493952,
+        -2.986856229716483,
+        5.176591639871383
+      ],
+      "estimated": true,
+      "reference": "03"
+    },
+    {
+      "type": "rear-rooflight",
+      "center": [
+        -0.010950646107181106,
+        -3.525958037661514,
+        5.250418006430868
+      ],
+      "estimated": true,
+      "reference": "03"
+    },
+    {
+      "type": "neighbor-balcony",
+      "center": [
+        -23.47446503429674,
+        -1.276515316625587,
+        2.72
+      ],
+      "estimated": true,
+      "reference": "07"
+    },
+    {
+      "type": "neighbor-dormer",
+      "center": [
+        26.991692556842665,
+        18.864213021403362,
+        4.888433142721774
+      ],
+      "estimated": true,
+      "reference": "08"
+    },
+    {
+      "type": "neighbor-dormer",
+      "center": [
+        22.426623209805214,
+        17.38092550485807,
+        4.888433142721774
+      ],
+      "estimated": true,
+      "reference": "08"
+    },
+    {
+      "type": "existing-street-kerb",
+      "center": [
+        -3.0661809100106936,
+        12.672747714173354,
+        0
+      ],
+      "estimated": true,
+      "source": "city-roads",
+      "additionalKerb": false,
+      "groundClippedToStreet": true
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        -0.8185982987244791,
+        6.72624686027248,
+        0
+      ],
+      "estimated": true,
+      "height": 2.86,
+      "radii": [
+        1.64,
+        1.44
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        -2.0211892536840548,
+        9.942016596284281,
+        0
+      ],
+      "estimated": true,
+      "height": 1.88,
+      "radii": [
+        1.89,
+        1.58
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        -4.084320982047121,
+        8.52512299709568,
+        0
+      ],
+      "estimated": true,
+      "height": 3.47,
+      "radii": [
+        1.33,
+        1.23
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "hedge",
+      "points": [
+        [
+          0.34808053735757394,
+          6.695255031700649,
+          0
+        ],
+        [
+          -0.16110950574126637,
+          7.938768401153909,
+          0
+        ],
+        [
+          -1.2024709478789488,
+          8.231285660181348,
+          0
+        ],
+        [
+          -2.869219288932218,
+          7.374285095656344,
+          0
+        ]
+      ],
+      "height": 0.91,
+      "estimated": true
+    },
+    {
+      "type": "hedge",
+      "points": [
+        [
+          -7.484991627534421,
+          11.710140918696904,
+          0
+        ],
+        [
+          -10.12529741017132,
+          11.745993034034115,
+          0
+        ],
+        [
+          -14.927830767998733,
+          14.391399117597647,
+          0
+        ]
+      ],
+      "height": 1.1,
+      "estimated": true
+    },
+    {
+      "type": "hedge",
+      "points": [
+        [
+          -14.97538357369704,
+          14.375948205966967,
+          0
+        ],
+        [
+          -7.074117385238955,
+          -11.235962941370886,
+          0
+        ],
+        [
+          -0.3684217375237875,
+          -31.87388061443601,
+          0
+        ],
+        [
+          19.03312298738536,
+          -25.569908669118526,
+          0
+        ],
+        [
+          10.442416120727218,
+          0.8694512991400183,
+          0
+        ]
+      ],
+      "height": 1.7,
+      "estimated": true
+    },
+    {
+      "type": "hedge",
+      "points": [
+        [
+          10.394863315028912,
+          0.8540003875093385,
+          0
+        ],
+        [
+          5.912898871325414,
+          14.486204711292691,
+          0
+        ]
+      ],
+      "height": 2.5,
+      "estimated": true
+    },
+    {
+      "type": "stone-statue-with-planter",
+      "center": [
+        -6.194645494866614,
+        5.47364295446175,
+        0
+      ],
+      "estimated": true,
+      "height": 2.13,
+      "reference": "05",
+      "description": "Figure drapée sur socle rond décoré, un bras portant une vasque plantée."
+    },
+    {
+      "type": "front-drive-without-vehicle",
+      "center": [
+        3.3316965758971375,
+        9.809678788123252,
+        0
+      ],
+      "estimated": true,
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "rear-terrace",
+      "center": [
+        3.0283786796133016,
+        -9.320349916868121,
+        0
+      ],
+      "estimated": true,
+      "reference": "03"
+    },
+    {
+      "type": "rear-garden",
+      "center": [
+        5.871346419658441,
+        -18.07006616535656,
+        0
+      ],
+      "estimated": true,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        11.73759253839025,
+        -7.647151195231169,
+        0
+      ],
+      "estimated": true,
+      "height": 9.6,
+      "crownRadius": 3.2,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        14.354646949155738,
+        -16.99600279374812,
+        0
+      ],
+      "estimated": true,
+      "height": 11.3,
+      "crownRadius": 3.8,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        13.914220963255964,
+        -25.025076523073576,
+        0
+      ],
+      "estimated": true,
+      "height": 12.6,
+      "crownRadius": 4.3,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        4.182546777540027,
+        -28.081956884335703,
+        0
+      ],
+      "estimated": true,
+      "height": 12.8,
+      "crownRadius": 4,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        -1.5588919773400738,
+        -22.061501666998662,
+        0
+      ],
+      "estimated": true,
+      "height": 10.9,
+      "crownRadius": 3.2,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        -4.4684636471329995,
+        -13.754011510619396,
+        0
+      ],
+      "estimated": true,
+      "height": 9.2,
+      "crownRadius": 2.7,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        7.642350912006104,
+        11.105155223487847,
+        0
+      ],
+      "estimated": true,
+      "height": 10.3,
+      "crownRadius": 2.45,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "conifer",
+      "center": [
+        -8.925826639308035,
+        -5.213407600122879,
+        0
+      ],
+      "estimated": true,
+      "height": 8.8,
+      "crownRadius": 1.9,
+      "reference": "07"
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        13.004567292106021,
+        -11.546481262492321,
+        0
+      ],
+      "estimated": true,
+      "height": 1.4,
+      "radii": [
+        0.75,
+        0.6000000000000001
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        16.189855229638653,
+        -21.02614057889231,
+        0
+      ],
+      "estimated": true,
+      "height": 1.7,
+      "radii": [
+        1.05,
+        0.8400000000000001
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        -2.878069811128432,
+        -16.707085747139477,
+        0
+      ],
+      "estimated": true,
+      "height": 1.5,
+      "radii": [
+        0.8,
+        0.6400000000000001
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        0.3072181264042033,
+        -26.18674506353947,
+        0
+      ],
+      "estimated": true,
+      "height": 1.6,
+      "radii": [
+        0.9,
+        0.7200000000000001
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        12.302225852738598,
+        -24.917970203614296,
+        0
+      ],
+      "estimated": true,
+      "height": 1.2,
+      "radii": [
+        0.7,
+        0.5599999999999999
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        7.511243176421499,
+        -27.000393070188096,
+        0
+      ],
+      "estimated": true,
+      "height": 1.3,
+      "radii": [
+        0.8,
+        0.6400000000000001
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    },
+    {
+      "type": "rose-bed",
+      "center": [
+        -9.961487745115953,
+        8.329391448593627,
+        0
+      ],
+      "estimated": true,
+      "reference": "06"
+    },
+    {
+      "type": "rose-bed",
+      "center": [
+        -10.144798560773149,
+        5.010295616162287,
+        0
+      ],
+      "estimated": true,
+      "reference": "06"
+    },
+    {
+      "type": "rose-bed",
+      "center": [
+        -8.364193501975354,
+        2.119025026164924,
+        0
+      ],
+      "estimated": true,
+      "reference": "06"
+    },
+    {
+      "type": "hedge",
+      "points": [
+        [
+          -15.596420215939911,
+          7.54994545992359,
+          0
+        ],
+        [
+          -29.603046631278385,
+          3.734920366802653,
+          0
+        ]
+      ],
+      "height": 1,
+      "estimated": true
+    },
+    {
+      "type": "conifer",
+      "center": [
+        -23.00055707290213,
+        2.8309670319824756,
+        0
+      ],
+      "estimated": true,
+      "height": 11,
+      "crownRadius": 3.6,
+      "reference": "07"
+    },
+    {
+      "type": "connected-left-garden",
+      "center": [
+        11.127656551105343,
+        7.821461479841368,
+        0
+      ],
+      "estimated": true,
+      "outline": [
+        [
+          30.292787327180008,
+          32.974945579185444,
+          0
+        ],
+        [
+          19.831170073552528,
+          29.575745020435825,
+          0
+        ],
+        [
+          16.00294420156266,
+          25.17748551546941,
+          0
+        ],
+        [
+          10.890642566867726,
+          18.25907731734352,
+          0
+        ],
+        [
+          5.946200836199307,
+          14.70731775734728,
+          0
+        ],
+        [
+          14.95408231688581,
+          -13.015967964765547,
+          0
+        ],
+        [
+          41.726461933883286,
+          -2.214130637561537,
+          0
+        ]
+      ],
+      "reference": "user-annotated-corrections",
+      "groundClippedToStreet": true
+    },
+    {
+      "type": "garden-tree",
+      "center": [
+        26.749578271678416,
+        24.463443385740895,
+        0
+      ],
+      "estimated": true,
+      "height": 7.3,
+      "crownRadius": 2.7,
+      "reference": [
+        "03",
+        "04"
+      ]
+    },
+    {
+      "type": "clipped-shrub",
+      "center": [
+        14.97988383922054,
+        15.381907559319789,
+        0
+      ],
+      "estimated": true,
+      "height": 1.8,
+      "radii": [
+        0.9,
+        0.8
+      ],
+      "reference": [
+        "01",
+        "02",
+        "06"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "01",
+      "title": "Façade oblique et allée",
+      "file": "references/01.png",
+      "sha256": "c56e0021e1faff02c089986fe1bcc421f8b035666afe352c74c0cb730c940d82",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "02",
+      "title": "Façade depuis la droite",
+      "file": "references/02.png",
+      "sha256": "094e2ed52a67c229a0f8861368f4b262102c34484a3051c6dbe4a0fa7f9714aa",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "03",
+      "title": "Jardin et toiture arrière",
+      "file": "references/03.png",
+      "sha256": "767235a1b32e7c66abb0f916235b0bab3fe3731b6cc36c66308c3a3694c4e81b",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "04",
+      "title": "Vue aérienne oblique",
+      "file": "references/04.png",
+      "sha256": "de766437bd3bedccff80dddbb447789100336ab72a258800c20fe950f7eac56a",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "05",
+      "title": "Statue et vasque",
+      "file": "references/05.png",
+      "sha256": "0d3e8abb9743c0d57dfe15e24cc9bdfc62cfb26f6f63e83057c93df7cbac8e22",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "06",
+      "title": "Façade principale et trois lucarnes",
+      "file": "references/06.png",
+      "sha256": "a20d7c8acf8bcc10fd5ac46ff0d791a10b26c667495e2efb56885429767f1b31",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "house-reference"
+    },
+    {
+      "id": "07",
+      "title": "Voisine à droite et conifère",
+      "file": "references/07.png",
+      "sha256": "c9200a38ce31f75e7fa3300fa3e10df6445411eaa4547fb974b3babb69c46aff",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "neighbor-context"
+    },
+    {
+      "id": "08",
+      "title": "Voisine à gauche et deux lucarnes",
+      "file": "references/08.png",
+      "sha256": "5a68d866fe1cfaa27a479946fe9e9c7bc541547c187335cf4e2f629c64e1a85a",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur",
+      "role": "neighbor-context"
+    }
+  ]
+}

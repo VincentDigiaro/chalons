@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import {imageryURL} from '../dist/imagery.js';
+import {sourceURL as imageryURL} from './ign-source.mjs';
 const z=19,n=2**z;
 const tile=([lng,lat])=>[(lng+180)/360*n,(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n];
 const nw=tile([4.3796,48.94885]).map(Math.floor),se=tile([4.3830,48.94615]).map(Math.floor);

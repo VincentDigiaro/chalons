@@ -1,0 +1,24 @@
+{
+  "targetParts": 64,
+  "protectedParts": 45,
+  "facades": 374,
+  "removedPhotoVertices": 498,
+  "retexturedVertices": 3078,
+  "unchangedVertices": 366330,
+  "preservedTriangleSha256": "94da93d0c6cece20ad05175622c2f12a99bb40a8a0a7d9c4c0de65d59c765e65",
+  "materials": 15,
+  "manifest": [
+    {
+      "file": "data/nerval/index.json",
+      "before": "6df1ed1c6e03473208a1871902f52bfc960c5b04baf1c5a8c01e1b00b020167c",
+      "after": "52ac6fdb54380c16c3aa3f585322cd815e25dbfa5d36f6175f84e3aff0c11311",
+      "bytes": 809585
+    },
+    {
+      "file": "data/nerval/mesh.bin",
+      "before": "41d56dac035b8539987afe27f69192b07c7f004fd91c8613c993bd02e3e1235d",
+      "after": "8d166b00ee620b0e94b26f86773b455831eb2279d108a9790c800c9685344ac2",
+      "bytes": 16253952
+    }
+  ]
+}

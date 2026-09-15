@@ -1,0 +1,1146 @@
+{
+  "origin": [
+    4.375864613027764,
+    48.96645436579231
+  ],
+  "scale": [
+    73109.44253336328,
+    111320
+  ],
+  "gameAnchor": [
+    -412,
+    2110
+  ],
+  "parts": [
+    {
+      "id": 125,
+      "osmId": "way/156703677",
+      "label": "Voisine aux volets vert sauge",
+      "address": null,
+      "footprint": [
+        [
+          4.375864,
+          48.96648
+        ],
+        [
+          4.375828,
+          48.966511
+        ],
+        [
+          4.375817,
+          48.966525
+        ],
+        [
+          4.375783,
+          48.966563
+        ],
+        [
+          4.375679,
+          48.966521
+        ],
+        [
+          4.375772,
+          48.966434
+        ],
+        [
+          4.375841,
+          48.966468
+        ],
+        [
+          4.375864,
+          48.96648
+        ]
+      ],
+      "refs": [
+        "02",
+        "01",
+        "04"
+      ],
+      "confidence": "Emprise OSM et correspondance de la séquence photo/orthophoto ; dimensions estimées."
+    },
+    {
+      "id": 1251,
+      "osmId": "way/156703371",
+      "label": "Annexe arrière de la voisine",
+      "address": null,
+      "footprint": [
+        [
+          4.375652,
+          48.966549
+        ],
+        [
+          4.375653,
+          48.966548
+        ],
+        [
+          4.375679,
+          48.966521
+        ],
+        [
+          4.375783,
+          48.966563
+        ],
+        [
+          4.375764,
+          48.966584
+        ],
+        [
+          4.375763,
+          48.966586
+        ],
+        [
+          4.375757,
+          48.966593
+        ],
+        [
+          4.375652,
+          48.966549
+        ]
+      ],
+      "refs": [
+        "aerial"
+      ],
+      "confidence": "Emprise OSM et correspondance de la séquence photo/orthophoto ; dimensions estimées."
+    },
+    {
+      "id": 127,
+      "osmId": "way/156676458",
+      "label": "127 · maison blanche et garage",
+      "address": "127",
+      "footprint": [
+        [
+          4.375783,
+          48.966563
+        ],
+        [
+          4.375817,
+          48.966525
+        ],
+        [
+          4.375896,
+          48.966554
+        ],
+        [
+          4.375906,
+          48.966542
+        ],
+        [
+          4.375961,
+          48.966562
+        ],
+        [
+          4.37589,
+          48.966639
+        ],
+        [
+          4.375886,
+          48.966644
+        ],
+        [
+          4.375877,
+          48.966654
+        ],
+        [
+          4.375826,
+          48.966635
+        ],
+        [
+          4.375843,
+          48.966614
+        ],
+        [
+          4.375763,
+          48.966586
+        ],
+        [
+          4.375764,
+          48.966584
+        ],
+        [
+          4.375783,
+          48.966563
+        ]
+      ],
+      "refs": [
+        "01",
+        "02",
+        "04"
+      ],
+      "confidence": "Emprise OSM et correspondance de la séquence photo/orthophoto ; dimensions estimées."
+    },
+    {
+      "id": 129,
+      "osmId": "way/156704157",
+      "label": "Voisine en pierre · escalier extérieur",
+      "address": null,
+      "footprint": [
+        [
+          4.375925,
+          48.96661
+        ],
+        [
+          4.375971,
+          48.966557
+        ],
+        [
+          4.376072,
+          48.966595
+        ],
+        [
+          4.376024,
+          48.966649
+        ],
+        [
+          4.375992,
+          48.966636
+        ],
+        [
+          4.375974,
+          48.966657
+        ],
+        [
+          4.375957,
+          48.966659
+        ],
+        [
+          4.3759,
+          48.966637
+        ],
+        [
+          4.375925,
+          48.96661
+        ]
+      ],
+      "refs": [
+        "03",
+        "01",
+        "04"
+      ],
+      "confidence": "Emprise OSM et correspondance de la séquence photo/orthophoto ; dimensions estimées."
+    },
+    {
+      "id": 400,
+      "osmId": "way/156684633",
+      "label": "Bâtiment en face · pignon et toiture rouge",
+      "address": null,
+      "footprint": [
+        [
+          4.376783,
+          48.966043
+        ],
+        [
+          4.376305,
+          48.966468
+        ],
+        [
+          4.376132,
+          48.966385
+        ],
+        [
+          4.376615,
+          48.965959
+        ],
+        [
+          4.376783,
+          48.966043
+        ]
+      ],
+      "refs": [
+        "04",
+        "aerial"
+      ],
+      "confidence": "Emprise OSM et correspondance de la séquence photo/orthophoto ; dimensions estimées."
+    },
+    {
+      "id": 401,
+      "osmId": "way/156681188",
+      "label": "Long bâtiment voisin en face · même style",
+      "address": null,
+      "footprint": [
+        [
+          4.376481,
+          48.965893
+        ],
+        [
+          4.376,
+          48.966317
+        ],
+        [
+          4.375824,
+          48.966231
+        ],
+        [
+          4.376307,
+          48.965808
+        ],
+        [
+          4.376481,
+          48.965893
+        ]
+      ],
+      "refs": [
+        "04",
+        "aerial"
+      ],
+      "styleFrom": 400,
+      "confidence": "Emprise OSM conservée ; même style que le bâtiment voisin à la demande de l’utilisateur."
+    }
+  ],
+  "openings": [
+    {
+      "part": 125,
+      "kind": "garage",
+      "side": "front",
+      "center": [
+        -5.291636931185387,
+        -1.140931007399153,
+        1.3050000000000002
+      ],
+      "width": 2.95,
+      "height": 2.45,
+      "depth": 0.17,
+      "reference": "02",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 125,
+      "kind": "door",
+      "side": "front",
+      "center": [
+        -2.2771655135843942,
+        1.1540595339252842,
+        1.32
+      ],
+      "width": 1.03,
+      "height": 2.48,
+      "depth": 0.17,
+      "reference": "02",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 125,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        -0.8618831769388355,
+        2.2315484618150063,
+        1.56
+      ],
+      "width": 1.05,
+      "height": 1.54,
+      "depth": 0.17,
+      "reference": "02",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": true,
+      "roller": 0
+    },
+    {
+      "part": 125,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        -4.931819387970414,
+        -0.8669931443763423,
+        4.7
+      ],
+      "width": 1.27,
+      "height": 1.68,
+      "depth": 0.17,
+      "reference": "02",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": true,
+      "roller": 0
+    },
+    {
+      "part": 125,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        -1.5415385363448948,
+        1.7141102761052527,
+        4.7
+      ],
+      "width": 1.22,
+      "height": 1.68,
+      "depth": 0.17,
+      "reference": "02",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": true,
+      "roller": 0
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        -2.6284082207551127,
+        8.339532333500141,
+        3.35
+      ],
+      "width": 0.46,
+      "height": 0.66,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 127,
+      "kind": "door",
+      "side": "front",
+      "center": [
+        -1.3266588285288217,
+        9.06714125510605,
+        3.13
+      ],
+      "width": 0.88,
+      "height": 2.18,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        0.7963284353033186,
+        10.253778623899574,
+        3.23
+      ],
+      "width": 1.76,
+      "height": 1.84,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.15
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        -1.3179222554266317,
+        9.072024536459107,
+        5.73
+      ],
+      "width": 0.62,
+      "height": 1.3,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 1
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        0.8924307394274082,
+        10.307494718783232,
+        5.715
+      ],
+      "width": 1.23,
+      "height": 1.39,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.7
+    },
+    {
+      "part": 127,
+      "kind": "garage",
+      "side": "front",
+      "center": [
+        5.006784466601163,
+        10.852304099169011,
+        1.06
+      ],
+      "width": 3.34,
+      "height": 1.96,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        5.006784466601163,
+        10.852304099169011,
+        3.28
+      ],
+      "width": 3.18,
+      "height": 2.04,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.055
+    },
+    {
+      "part": 127,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        3.10905391657929,
+        14.415140781268942,
+        5.515
+      ],
+      "width": 1.22,
+      "height": 0.85,
+      "depth": 0.17,
+      "reference": "01",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 1
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        9.698944749610508,
+        12.525768226162555,
+        1.3199999999999998
+      ],
+      "width": 1,
+      "height": 1.2,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        13.47527649031543,
+        14.68914462247833,
+        1.3199999999999998
+      ],
+      "width": 1,
+      "height": 1.2,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        9.672901082433233,
+        12.510848388946584,
+        3.6500000000000004
+      ],
+      "width": 1.77,
+      "height": 1.86,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.51
+    },
+    {
+      "part": 129,
+      "kind": "door",
+      "side": "front",
+      "center": [
+        11.53936389680463,
+        13.580103389424497,
+        3.42
+      ],
+      "width": 0.95,
+      "height": 2.46,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        13.501320157492703,
+        14.7040644596943,
+        3.6500000000000004
+      ],
+      "width": 1.83,
+      "height": 1.86,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.51
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        9.681582304825657,
+        12.515821668018575,
+        6.3100000000000005
+      ],
+      "width": 1.11,
+      "height": 1.38,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.75
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        11.53936389680463,
+        13.580103389424497,
+        6.31
+      ],
+      "width": 0.66,
+      "height": 1.42,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 1
+    },
+    {
+      "part": 129,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        13.423189155960879,
+        14.65930494804639,
+        6.3100000000000005
+      ],
+      "width": 1.14,
+      "height": 1.38,
+      "depth": 0.17,
+      "reference": "03",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0.75
+    },
+    {
+      "part": 400,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        22.794299706519688,
+        -5.350689677114973,
+        3.2199999999999998
+      ],
+      "width": 1.3,
+      "height": 2.18,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 400,
+      "kind": "door",
+      "side": "front",
+      "center": [
+        25.872479260062534,
+        -3.102019999695587,
+        3.2249999999999996
+      ],
+      "width": 1.22,
+      "height": 2.35,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 400,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        28.950658813605372,
+        -0.8533503222761993,
+        3.2199999999999998
+      ],
+      "width": 1.3,
+      "height": 2.18,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": true,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 401,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        0.40379254843987944,
+        -22.35550400103885,
+        3.2199999999999998
+      ],
+      "width": 1.3,
+      "height": 2.18,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": false,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 401,
+      "kind": "door",
+      "side": "front",
+      "center": [
+        3.464435123571378,
+        -20.078319999943005,
+        3.2249999999999996
+      ],
+      "width": 1.22,
+      "height": 2.35,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": false,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    },
+    {
+      "part": 401,
+      "kind": "window",
+      "side": "front",
+      "center": [
+        6.525077698702875,
+        -17.801135998847162,
+        3.2199999999999998
+      ],
+      "width": 1.3,
+      "height": 2.18,
+      "depth": 0.17,
+      "reference": "04",
+      "observed": false,
+      "dimensions": "estimated",
+      "shutters": false,
+      "roller": 0
+    }
+  ],
+  "roofAreas": [
+    {
+      "id": 125,
+      "footprint": 97.43056923402708,
+      "roofProjected": 97.43056923402708
+    },
+    {
+      "id": 1251,
+      "footprint": 33.85633947498195,
+      "roofProjected": 33.85633947498195
+    },
+    {
+      "id": 127,
+      "footprint": 104.64131845970269,
+      "roofProjected": 104.64131845970263
+    },
+    {
+      "id": 129,
+      "footprint": 77.88992714575173,
+      "roofProjected": 77.88992714575174
+    },
+    {
+      "id": 400,
+      "footprint": 916.9655866268516,
+      "roofProjected": 916.9655866268515
+    },
+    {
+      "id": 401,
+      "footprint": 938.5652801163923,
+      "roofProjected": 938.5652801163923
+    }
+  ],
+  "details": [
+    {
+      "type": "chimney",
+      "center": [
+        -5.147564732678452,
+        6.460849582128112,
+        7.25
+      ],
+      "estimated": true
+    },
+    {
+      "type": "sage-shutters-and-brick-bands",
+      "center": [
+        -3.7056991860359174,
+        0.09236897694264923,
+        0
+      ],
+      "estimated": true,
+      "reference": "02"
+    },
+    {
+      "type": "exterior-stair",
+      "center": [
+        -2.445213219232629,
+        6.3618733335779325,
+        0
+      ],
+      "estimated": true,
+      "top": [
+        4.3,
+        6.7,
+        2.02
+      ],
+      "steps": 12,
+      "width": 1.1,
+      "frameStart": [
+        1.25,
+        6.7
+      ],
+      "frameTop": [
+        4.3,
+        6.7
+      ],
+      "height": 2.02
+    },
+    {
+      "type": "connected-entrance-landing",
+      "center": [
+        0.15276334119664092,
+        7.959689903607202,
+        2.02
+      ],
+      "estimated": true,
+      "part": 127,
+      "frameOutline": [
+        [
+          4.3,
+          6.15
+        ],
+        [
+          5.42,
+          6.15
+        ],
+        [
+          5.42,
+          8.36
+        ],
+        [
+          2.25,
+          8.36
+        ],
+        [
+          2.25,
+          7.25
+        ],
+        [
+          4.3,
+          7.25
+        ]
+      ],
+      "flightEntry": [
+        [
+          4.3,
+          6.15
+        ],
+        [
+          4.3,
+          7.25
+        ]
+      ],
+      "door": [
+        3.62,
+        8.35
+      ],
+      "height": 2.02,
+      "clearEntryWidth": 1.1
+    },
+    {
+      "type": "white-house-recessed-front",
+      "center": [
+        -0.6526433843793691,
+        9.460129841224477,
+        0
+      ],
+      "estimated": true,
+      "reference": "01",
+      "frontSetback": 6.7,
+      "garageFront": 6.6
+    },
+    {
+      "type": "front-fence-and-gate",
+      "center": [
+        3.05250748609446,
+        3.626609718088959,
+        0
+      ],
+      "estimated": true,
+      "reference": "01",
+      "frameLayout": {
+        "leftPillar": [
+          1.12,
+          1.49
+        ],
+        "gateLeft": [
+          7.4,
+          1.49
+        ],
+        "gateRight": [
+          8.72,
+          1.49
+        ],
+        "returnEnd": [
+          7.82,
+          6.56
+        ]
+      },
+      "returnFrom": "right-gate-pillar",
+      "gardenInsideGate": true
+    },
+    {
+      "type": "stone-trim-aligned",
+      "center": [
+        11.469919080957283,
+        13.540320000208112,
+        0
+      ],
+      "estimated": true,
+      "facade": [
+        [
+          7.777892233025852,
+          11.42524000040703,
+          0
+        ],
+        [
+          15.161945928888713,
+          15.655400000009195,
+          0
+        ]
+      ],
+      "minimumProjection": 0.04,
+      "stoneMaximumProjection": 0.025,
+      "upperCourseAvoidsArches": true
+    },
+    {
+      "type": "exterior-stair",
+      "center": [
+        8.725532783532497,
+        10.748906863136419,
+        0
+      ],
+      "estimated": true,
+      "top": [
+        16.123446276883705,
+        4.584789251411111,
+        2.19
+      ],
+      "steps": 13,
+      "width": 1.05,
+      "frameStart": [
+        13.063446276883706,
+        4.584789251411111
+      ],
+      "frameTop": [
+        16.123446276883705,
+        4.584789251411111
+      ],
+      "height": 2.19
+    },
+    {
+      "type": "connected-entrance-landing",
+      "center": [
+        11.3320272998976,
+        12.351962176018244,
+        2.19
+      ],
+      "estimated": true,
+      "part": 129,
+      "frameOutline": [
+        [
+          16.123446276883705,
+          4.059789251411111
+        ],
+        [
+          17.763446276883705,
+          4.059789251411111
+        ],
+        [
+          17.763446276883705,
+          5.54478925141111
+        ],
+        [
+          16.123446276883705,
+          5.54478925141111
+        ]
+      ],
+      "flightEntry": [
+        [
+          16.123446276883705,
+          4.059789251411111
+        ],
+        [
+          16.123446276883705,
+          5.109789251411112
+        ]
+      ],
+      "door": [
+        16.943446276883705,
+        5.524789251411111
+      ],
+      "height": 2.19,
+      "clearEntryWidth": 1.05
+    },
+    {
+      "type": "chimney",
+      "center": [
+        6.373830796634136,
+        16.246956613977513,
+        8.01203977842277
+      ],
+      "estimated": true
+    },
+    {
+      "type": "stone-gable-brick-arches",
+      "center": [
+        11.538057858495794,
+        13.582226947896118,
+        0
+      ],
+      "estimated": true,
+      "reference": "03"
+    },
+    {
+      "type": "opposite-street-gable",
+      "center": [
+        25.872479260062534,
+        -3.102019999695587,
+        1.75
+      ],
+      "estimated": true,
+      "part": 400,
+      "reference": "04",
+      "unseenFacades": "plain"
+    },
+    {
+      "type": "opposite-street-gable",
+      "center": [
+        3.464435123571378,
+        -20.078319999943005,
+        1.75
+      ],
+      "estimated": true,
+      "part": 401,
+      "reference": "04",
+      "unseenFacades": "plain",
+      "styleFrom": 400,
+      "requestedByUser": true
+    },
+    {
+      "type": "opposite-raised-fence",
+      "center": [
+        13.547149074286455,
+        -2.9384948458453426,
+        0
+      ],
+      "estimated": true,
+      "reference": "04",
+      "length": 61,
+      "extension": "Same enclosure continued along the newly requested building"
+    }
+  ],
+  "references": [
+    {
+      "id": "01",
+      "title": "Maison blanche, escalier, garage et clôture",
+      "file": "references/01.png",
+      "sha256": "f031f5b960c634e3561450d922714be08fb82b0b9deb8c0c576e0317f62f771f",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur"
+    },
+    {
+      "id": "02",
+      "title": "Voisine aux volets vert sauge et bandeaux de briques",
+      "file": "references/02.png",
+      "sha256": "6c7ef6c8a03a1e67dea099f555140d931157755384821d35b197791539c4d011",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur"
+    },
+    {
+      "id": "03",
+      "title": "Voisine en pierre, pignon et escalier",
+      "file": "references/03.png",
+      "sha256": "2411eaab216ba97018549f3fbeb3e06ea03844524bcd555ab9d41b3986541b48",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur"
+    },
+    {
+      "id": "04",
+      "title": "Alignement et bâtiment en face",
+      "file": "references/04.png",
+      "sha256": "84f7b86c51227bd17d9ebb308d4c00b1512a8490355018a6db79dcc1e856ca72",
+      "source": "Capture Google Maps / Street View fournie par l’utilisateur"
+    }
+  ],
+  "correctionReferences": [
+    {
+      "file": "corrections/01-stair.png",
+      "sha256": "377e57a5a5bb894cd1e3de3d2006e232b69b0bab7f75894a7facff73953a9666",
+      "role": "User screenshot identifying a correction, not a reference facade photograph"
+    },
+    {
+      "file": "corrections/02-bricks.png",
+      "sha256": "a7df8d3c1a7b9020c153174ae498f9e67bc5278cd48776ef2ede4b1311125996",
+      "role": "User screenshot identifying a correction, not a reference facade photograph"
+    },
+    {
+      "file": "corrections/03-gate.png",
+      "sha256": "de16a48316c24cc9c620a3263881c91f24da1eefec282bbc6d9f8819f1eba82e",
+      "role": "User screenshot identifying a correction, not a reference facade photograph"
+    }
+  ]
+}

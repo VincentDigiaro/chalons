@@ -3,78 +3,96 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#152a35">
-  <meta name="description" content="Explorez Châlons-en-Champagne en 3D : bâtiments OpenStreetMap, sol et toitures habillés par les photographies aériennes IGN.">
-  <title>Châlons en 3D · La ville à explorer</title>
+  <meta name="theme-color" content="#f8fafc">
+  <meta name="description" content="Châlons-en-Champagne FPS">
+  <title>Châlons-en-Champagne FPS</title>
+  <script>
+    if (new URLSearchParams(location.search).has('ff7')) {
+      import('./highwind-music.js').then(({preloadHighwindMusic}) => preloadHighwindMusic());
+    }
+  </script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23152a35'/%3E%3Cpath d='M7 23V13l8-5 10 5v10l-10 5z' fill='%23e9b77b'/%3E%3Cpath d='m7 13 8 5 10-5M15 18v10' fill='none' stroke='%23152a35' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./vendor/maplibre-gl.css">
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./walk.css">
   <script defer src="./vendor/maplibre-gl.js"></script>
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <div id="map" role="region" aria-label="Carte interactive de Châlons-en-Champagne"></div>
-  <header class="masthead">
-    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 23V12l10-6 12 6v11l-12 7zM5 12l10 6 12-6M15 18v12"/></svg></div>
-    <div><p class="eyebrow">ATLAS LOCAL <span>/</span> MARNE</p><h1>Châlons <span>en 3D</span></h1></div>
-    <button id="panel-toggle" class="icon-button mobile-only" aria-label="Afficher les commandes" aria-expanded="false" aria-controls="explorer">☰</button>
-  </header>
-  <aside id="explorer" class="explorer" aria-label="Commandes de la carte">
-    <div class="panel-heading"><span class="eyebrow">EXPLORER LE TERRITOIRE</span><span class="small-tag">51</span></div>
+  <button id="play" class="play-button" disabled title="Se promener à pied dans la zone détaillée"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2 18 10 5 18z"/></svg>Jouer</button>
+  <button id="panel-toggle" class="panel-toggle" aria-label="Afficher les réglages de la carte" aria-expanded="false" aria-controls="explorer" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7m4 0h5M4 17h3m4 0h9"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+    <span>Réglages</span><svg class="panel-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </button>
+  <aside id="explorer" class="explorer" aria-label="Réglages de la carte" hidden>
+    <div class="panel-heading"><h2>Explorer la carte</h2><button id="panel-close" class="panel-close" aria-label="Fermer les réglages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <label class="field-label" for="destination">Point de vue</label>
     <select id="destination" disabled><option>Chargement des lieux…</option></select>
-    <button id="nerval-open" class="nerval-open"><span>Rue Gérard-de-Nerval</span><small>Saint-Memmie · maquette détaillée ↗</small></button>
-    <div class="view-switch" role="group" aria-label="Mode de vue"><button id="view-3d" aria-pressed="true">Vue 3D</button><button id="view-2d" aria-pressed="false">Plan 2D</button></div>
-    <div class="control-heading"><label for="pitch">Inclinaison</label><output id="pitch-value" for="pitch">55°</output></div>
-    <input id="pitch" type="range" min="0" max="80" value="55" step="1" aria-label="Inclinaison de la carte">
+    <button id="attila-open" class="nerval-open" disabled><span>Camp d’Attila · 70–90</span><small>Maisons, façades et jardins arrière ↗</small></button>
+    <details id="attila-tools" class="nerval-tools" hidden>
+      <summary>Camp d’Attila · points de vue et clichés</summary>
+      <button id="attila-street">Façades côté 77–89 ↗</button>
+      <button id="attila-terrace">Façades côté 72–78 ↗</button>
+      <button id="attila-rear">Arrière des maisons 72–78 ↗</button>
+      <p id="attila-note">Modèle d’après 14 clichés Street View et deux vues arrière fournies. Dimensions estimées.</p>
+      <p><a href="./attila-references.html">Clichés et coordonnées ↗</a> · <a href="./data/attila/camp-attila.glb" download>Modèle 3D (.glb)</a></p>
+    </details>
+    <button id="nerval-open" class="nerval-open"><span>Impasse et boucle</span><small>Rue Gérard-de-Nerval · zone détaillée ↗</small></button>
+    <details id="nerval-tools" class="nerval-tools" hidden>
+      <summary>Points de vue et clichés</summary>
+      <div class="nerval-navigation"><button id="nerval-prev" aria-label="Point de vue précédent">‹</button><span id="nerval-stop">6 points de vue le long de la rue</span><button id="nerval-next" aria-label="Point de vue suivant">›</button></div>
+      <button id="nerval-overview">Voir l’impasse et la boucle ↗</button>
+
+      <p id="nerval-note" role="status">Chargement de la maquette détaillée…</p>
+
+    </details>
+    <div class="view-switch" role="group" aria-label="Mode de vue"><button id="view-3d" aria-pressed="false">Vue 3D</button><button id="view-2d" aria-pressed="true">Plan 2D</button></div>
+    <div class="control-heading"><label for="pitch">Inclinaison</label><output id="pitch-value" for="pitch">0°</output></div>
+    <input id="pitch" type="range" min="0" max="80" value="0" step="1" aria-label="Inclinaison de la carte">
+    <div class="divider"></div>
+    <label class="field-label" for="roof-mode">Textures des toits</label>
+    <select id="roof-mode" aria-describedby="roof-mode-note"><option value="catalogue">Catalogue · 32 textures</option><option value="aerial">Photos aériennes · ancien rendu</option></select>
+    <p id="roof-mode-note" class="height-note">Choix mémorisé après rechargement. Rue Gérard-de-Nerval préservée. <a href="./roof-catalogue.html">Voir les textures ↗</a></p>
     <div class="divider"></div>
     <p class="field-label">Afficher</p>
-    <label class="layer-row photo-row"><span><i class="swatch photo"></i>Photographies IGN</span><input id="photo-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+    <label class="layer-row photo-row"><span><i class="swatch photo"></i>Photographies aériennes</span><input id="photo-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
     <label class="layer-row"><span><i class="swatch building"></i>Bâtiments</span><input id="buildings-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
     <label class="layer-row"><span><i class="swatch green"></i>Espaces verts</span><input id="green-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
-    <label class="layer-row"><span><i class="swatch road"></i>Noms et repères</span><input id="labels-toggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+    <label class="layer-row"><span><i class="swatch road"></i>Noms et repères</span><input id="labels-toggle" type="checkbox"><span class="switch" aria-hidden="true"></span></label>
     <div class="divider"></div>
     <button id="overview" class="overview-button"><span>Vue d’ensemble</span><span aria-hidden="true">↗</span></button>
     <p class="coverage">Châlons-en-Champagne<br><span>et ses communes voisines</span></p>
     <div class="data-strip"><span id="building-count">—</span><span>bâtiments cartographiés</span></div>
     <p class="height-note">Hauteurs majoritairement estimées</p>
-    <p id="texture-note" class="height-note" role="status">Chargement des photographies IGN…</p>
+    <p id="texture-note" class="height-note" role="status">Chargement des photographies aériennes…</p>
+    <button id="info-button" class="sources-button">Crédits et aide</button>
   </aside>
   <nav class="map-actions" aria-label="Navigation de la carte">
     <button id="north" class="compass" title="Orienter vers le nord" aria-label="Orienter vers le nord"><span>N</span><svg id="compass-needle" viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 8 24-8-5-8 5z"/></svg></button>
     <div class="zoom-group"><button id="zoom-in" aria-label="Zoomer" title="Zoomer">+</button><button id="zoom-out" aria-label="Dézoomer" title="Dézoomer">−</button></div>
-    <button id="reset" class="icon-button" aria-label="Revenir au centre-ville" title="Revenir au centre-ville"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
-    <button id="info-button" class="icon-button" aria-label="Aide et sources" title="Aide et sources">i</button>
   </nav>
-  <div id="status" class="status" role="status"><span class="status-dot"></span><span id="status-text">Chargement du territoire…</span><button id="retry" hidden>Réessayer</button></div>
-  <div class="map-caption"><span id="location-label">CENTRE-VILLE</span><span class="caption-rule"></span><span id="coordinates">48.9566° N · 4.3631° E</span></div>
-  <div class="gesture-hint desktop-only">Glisser pour explorer <span>·</span> Clic droit pour tourner <span>·</span> Cliquer sur un bâtiment</div>
-  <section id="nerval-tools" class="nerval-tools" aria-label="Explorer la rue Gérard-de-Nerval" hidden>
-    <div><span class="eyebrow">SAINT-MEMMIE</span><button id="nerval-overview" title="Voir toute la rue" aria-label="Voir toute la rue">↗</button></div>
-    <strong>Rue Gérard-de-Nerval</strong>
-    <div class="nerval-navigation"><button id="nerval-prev" aria-label="Point de vue précédent">‹</button><span id="nerval-stop">6 points de vue le long de la rue</span><button id="nerval-next" aria-label="Point de vue suivant">›</button></div>
-    <button id="nerval-photos" disabled>Voir les 27 clichés et la vue aérienne</button>
-    <p id="nerval-note" role="status">Chargement de la maquette détaillée…</p>
-    <p>Clichés © Google · 2014 / 2022</p>
-  </section>
-  <div id="fallback" class="fallback" hidden><h2>La 3D n’est pas disponible</h2><p>Ce navigateur n’a pas pu démarrer le rendu WebGL. Essayez un navigateur récent avec l’accélération graphique activée.</p><a href="https://www.openstreetmap.org/#map=14/48.9566/4.3631" target="_blank" rel="noopener">Voir Châlons sur OpenStreetMap ↗</a></div>
+  <div id="status" class="status" role="status" hidden><span id="status-text"></span><button id="retry" hidden>Réessayer</button></div>
+  <div class="map-caption"><span id="location-label">CHÂLONS ET ALENTOURS</span><span class="caption-rule"></span><span id="coordinates">48.9566° N · 4.3631° E</span></div>
+  <div class="gesture-hint desktop-only">Glisser pour explorer <span>·</span> Clic droit pour tourner</div>
+  <div id="fallback" class="fallback" hidden><h2>La 3D n’est pas disponible</h2><p>Ce navigateur n’a pas pu démarrer le rendu WebGL. Essayez un navigateur récent avec l’accélération graphique activée.</p><a href="https://www.openstreetmap.org/#map=14/48.9566/4.3631" target="_blank" rel="noopener">Voir Châlons sur une carte ↗</a></div>
   <dialog id="info-dialog" aria-labelledby="info-title">
     <button id="close-info" class="dialog-close" aria-label="Fermer">×</button>
-    <p class="eyebrow">À PROPOS DE CET ATLAS</p><h2 id="info-title">La ville, sous un autre angle.</h2>
-    <p>Une maquette cartographique de Châlons-en-Champagne et de ses alentours, construite à partir des emprises réelles des bâtiments d’OpenStreetMap.</p>
-    <h3>Rue Gérard-de-Nerval, Saint-Memmie</h3><p>Cette rue dispose d’une maquette spécifique : 90 volumes OSM, toitures en pente, textures de façades et de toits redressées depuis les clichés fournis, clôtures et détails visibles. Le bouton dédié donne accès à six points de vue et aux 27 captures Street View, accompagnées de la vue aérienne.</p><p>Il s’agit d’une interprétation visuelle, sans relevé métrique ni photogrammétrie calibrée. Les dimensions verticales, la pente des toits et le petit mobilier sont estimés. Les faces arrière, les zones floutées et les parties cachées restent simplifiées. Les clichés mélangent mai 2014 et juillet 2022 ; ils ne décrivent pas un état actuel uniforme.</p><p>Références fournies par l’utilisateur : © Google Street View / Google Maps, attributions et floutages conservés dans les captures. <a href="./data/nerval/survey.json" target="_blank" rel="noopener">Observations, correspondances et provenance ↗</a></p>
+    <p class="eyebrow">CRÉDITS ET AIDE</p><h2 id="info-title">La ville, sous un autre angle.</h2>
+    <p>Une maquette cartographique de Châlons-en-Champagne et de ses alentours, construite à partir des emprises réelles des bâtiments.</p>
+    <h3>Impasse et boucle de Gérard-de-Nerval</h3><p>Dans cette zone, les photographies servent de références à la construction des maisons : fenêtres en retrait, encadrements, volets, portes, garages, auvent et toitures sont modélisés en 3D. Les teintes d’enduit et les matériaux s’inspirent des clichés. La cour de retournement, son îlot planté, les trottoirs et les clôtures complètent la scène. Le bouton dédié ouvre cette zone. Les 27 clichés de référence et la vue aérienne sont accessibles dans les crédits.</p><p>Les dimensions verticales, positions des ouvertures et pentes de toit sont estimées d’après les vues disponibles, sans relevé métrique. Les faces arrière, les zones floutées et les parties cachées restent simplifiées. Les clichés mélangent mai 2014 et juillet 2022 ; ils ne décrivent pas un état actuel uniforme.</p>
     <h3>Se déplacer</h3><p><strong>Ordinateur :</strong> glissez pour déplacer la carte, utilisez la molette pour zoomer et le clic droit pour tourner. Les flèches du clavier déplacent la carte ; Maj + flèches modifie l’orientation.</p><p><strong>Mobile :</strong> glissez avec un doigt ; pincez ou tournez avec deux doigts. Le curseur d’inclinaison règle l’angle de la vue.</p>
-    <h3>Comment lire la 3D</h3><p>Hors de la rue détaillée, les hauteurs renseignées dans OSM sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment. Cliquez sur un bâtiment pour connaître l’origine de sa hauteur.</p><p>Les photographies aériennes IGN habillent le sol et sont projetées à la bonne position sur les toitures. Leur détail augmente avec le zoom. Les trous et cours intérieures des emprises OSM sont préservés.</p><p>Le reste du territoire conserve des volumes simplifiés à toits plats. Les murs auparavant unis reçoivent 16 textures originales, inspirées des 30 vues de quartier fournies et réparties approximativement. Les bâtiments absents de ces vues sont habillés par analogie. <a href="./facade-catalogue.html">Consulter le catalogue des façades ↗</a>. Des décalages peuvent apparaître entre les prises de vue et les contours OSM, notamment sur les bâtiments hauts. Le sol reste plat.</p>
-    <h3>Données et crédits</h3><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>Photographies aériennes © <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">IGN · cartes.gouv.fr</a>, couche BD ORTHO, sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte 2.0</a>. Les images sont chargées à la demande depuis la Géoplateforme : une connexion internet est nécessaire. Elles ne sont pas en temps réel. <a href="https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf" target="_blank" rel="noopener">Dates des prises de vue ↗</a></p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers OSM ↗</a> · <a href="./data/imagery.json" target="_blank" rel="noopener">Provenance des photographies ↗</a></p>
+    <h3>Comment lire la 3D</h3><p>Hors de la rue détaillée, les hauteurs renseignées dans les données cartographiques sont utilisées en priorité, puis le nombre d’étages. À défaut, une hauteur indicative est attribuée selon le type de bâtiment.</p><p>Les photographies aériennes habillent le sol. Hors de Gérard-de-Nerval, 32 textures de tuiles, ardoises, métal et toits plats habillent les toitures. Elles sont choisies approximativement selon les couleurs des vues aériennes et le type de bâtiment. Les cours intérieures sont préservées. Le réglage « Textures des toits » permet de retrouver les anciennes photos projetées, sur la carte comme en promenade. <a href="./roof-catalogue.html">Consulter le catalogue des toits ↗</a>.</p><p>Le reste du territoire conserve des volumes simplifiés à toits plats. Les murs auparavant unis reçoivent 48 textures originales, inspirées des 30 vues de quartier fournies et réparties approximativement. Les bâtiments absents de ces vues sont habillés par analogie. <a href="./facade-catalogue.html">Consulter le catalogue des façades ↗</a>. Des décalages peuvent apparaître entre les prises de vue et les contours des bâtiments, notamment sur les bâtiments hauts. Le sol reste plat.</p>
+    <section id="credits" aria-labelledby="credits-title"><h3 id="credits-title">Données et crédits</h3><p>Références fournies par l’utilisateur : © Google Street View / Google Maps, attributions et floutages conservés dans les captures. <a href="./data/nerval/survey.json" target="_blank" rel="noopener">Observations, correspondances et provenance ↗</a></p><button id="nerval-photos" class="nerval-reference-button" disabled>Voir les 27 clichés de référence et la vue aérienne</button><p id="data-date">Extrait OpenStreetMap local en cours de chargement.</p><p>Photographies aériennes © <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">IGN · cartes.gouv.fr</a>, couche BD ORTHO, sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte 2.0</a>. Les images enregistrées sont servies avec le projet. Elles ne sont pas en temps réel. <a href="https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf" target="_blank" rel="noopener">Dates des prises de vue ↗</a></p><p>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">les contributeurs OpenStreetMap</a>, sous licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Rendu avec <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>.</p><p><a href="./data/manifest.json" target="_blank" rel="noopener">Provenance et fichiers OSM ↗</a> · <a href="./data/imagery.json" target="_blank" rel="noopener">Provenance des photographies ↗</a></p></section>
   </dialog>
   <dialog id="photo-dialog" aria-labelledby="photo-title">
     <button id="close-photo" class="dialog-close" aria-label="Fermer les clichés">×</button>
-    <p class="eyebrow">RÉFÉRENCES DE LA MAQUETTE</p><h2 id="photo-title">Clichés de la rue</h2>
+    <p class="eyebrow">CRÉDITS · RÉFÉRENCES DE LA MAQUETTE</p><h2 id="photo-title">Clichés de la rue</h2>
     <p id="photo-date"></p><img id="photo-image" alt="" width="1600" height="816">
     <div class="photo-controls"><button id="photo-prev" aria-label="Cliché précédent">‹</button><select id="photo-select" aria-label="Choisir un cliché"></select><button id="photo-next" aria-label="Cliché suivant">›</button></div>
     <p id="photo-description"></p><p id="photo-coordinates" class="photo-meta"></p>
     <button id="photo-position">Placer la maquette à cet endroit</button>
-    <p class="photo-meta">Captures fournies · © Google Street View / Google Maps · Floutages conservés. Photos de 2014 et 2022, sans calibration métrique. Les faces cachées et certains détails restent simplifiés.</p>
+    <p class="photo-meta">Photos de référence de 2014 et 2022, sans calibration métrique. Les faces cachées et certains détails restent simplifiés.</p>
   </dialog>
   <noscript><div class="fallback">Activez JavaScript pour explorer la carte 3D.</div></noscript>
 </body>

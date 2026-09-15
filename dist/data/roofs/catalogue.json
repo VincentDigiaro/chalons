@@ -1,0 +1,454 @@
+{
+  "version": 1,
+  "method": "Catalogue de 32 matériaux de toiture inspirés des vues aériennes IGN et des 30 clichés fournis. Choix approximatif selon couleur observée, usage et dimensions du bâtiment. Modèle et toitures de Gérard-de-Nerval exclus.",
+  "materials": [
+    {
+      "id": "01-clay-muted-red",
+      "label": "Tuiles rouges patinées",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        148,
+        82,
+        65
+      ]
+    },
+    {
+      "id": "02-clay-orange",
+      "label": "Tuiles terre cuite orangée",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        181,
+        110,
+        77
+      ]
+    },
+    {
+      "id": "03-clay-red-brown",
+      "label": "Tuiles brun rouge",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        120,
+        76,
+        65
+      ]
+    },
+    {
+      "id": "04-clay-dark-brown",
+      "label": "Tuiles brun foncé",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        86,
+        66,
+        57
+      ]
+    },
+    {
+      "id": "05-clay-weathered-grey",
+      "label": "Tuiles gris brun usées",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        114,
+        105,
+        93
+      ]
+    },
+    {
+      "id": "06-clay-flat-brown",
+      "label": "Petites tuiles plates brunes",
+      "family": "tile",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        125,
+        88,
+        70
+      ]
+    },
+    {
+      "id": "07-clay-flat-red",
+      "label": "Petites tuiles plates rouges",
+      "family": "tile",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        159,
+        82,
+        66
+      ]
+    },
+    {
+      "id": "08-concrete-charcoal",
+      "label": "Tuiles béton anthracite",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "id": "09-concrete-brown",
+      "label": "Tuiles béton chocolat",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        103,
+        79,
+        64
+      ]
+    },
+    {
+      "id": "10-concrete-grey",
+      "label": "Tuiles béton gris moyen",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        119,
+        120,
+        116
+      ]
+    },
+    {
+      "id": "11-clay-ochre",
+      "label": "Tuiles ocre mélangées",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        160,
+        114,
+        79
+      ]
+    },
+    {
+      "id": "12-clay-aged",
+      "label": "Tuiles anciennes assombries",
+      "family": "tile",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        100,
+        88,
+        73
+      ]
+    },
+    {
+      "id": "13-slate-blue",
+      "label": "Ardoises bleu gris",
+      "family": "slate",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        80,
+        91,
+        102
+      ]
+    },
+    {
+      "id": "14-slate-anthracite",
+      "label": "Ardoises anthracite",
+      "family": "slate",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        53,
+        60,
+        67
+      ]
+    },
+    {
+      "id": "15-slate-silver",
+      "label": "Ardoises gris patiné",
+      "family": "slate",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        117,
+        124,
+        126
+      ]
+    },
+    {
+      "id": "16-slate-green-grey",
+      "label": "Ardoises gris vert",
+      "family": "slate",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        85,
+        96,
+        93
+      ]
+    },
+    {
+      "id": "17-slate-small-dark",
+      "label": "Petites ardoises sombres",
+      "family": "slate",
+      "size": [
+        3,
+        3
+      ],
+      "palette": [
+        68,
+        69,
+        75
+      ]
+    },
+    {
+      "id": "18-fibre-cement",
+      "label": "Ardoises fibrociment grises",
+      "family": "slate",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        112,
+        117,
+        120
+      ]
+    },
+    {
+      "id": "19-zinc-light",
+      "label": "Zinc clair à joints debout",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        165,
+        172,
+        171
+      ]
+    },
+    {
+      "id": "20-zinc-patina",
+      "label": "Zinc gris patiné",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        125,
+        135,
+        137
+      ]
+    },
+    {
+      "id": "21-metal-white",
+      "label": "Bac acier gris très clair",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        193,
+        192,
+        184
+      ]
+    },
+    {
+      "id": "22-metal-grey",
+      "label": "Bac acier gris",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        128,
+        135,
+        136
+      ]
+    },
+    {
+      "id": "23-metal-beige",
+      "label": "Bac acier beige",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        163,
+        151,
+        129
+      ]
+    },
+    {
+      "id": "24-metal-red",
+      "label": "Bac acier rouge passé",
+      "family": "metal",
+      "size": [
+        4,
+        6
+      ],
+      "palette": [
+        132,
+        78,
+        68
+      ]
+    },
+    {
+      "id": "25-bitumen-dark",
+      "label": "Étanchéité bitumineuse sombre",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        66,
+        66,
+        64
+      ]
+    },
+    {
+      "id": "26-bitumen-grey",
+      "label": "Étanchéité bitumineuse grise",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        113,
+        113,
+        107
+      ]
+    },
+    {
+      "id": "27-gravel-pale",
+      "label": "Toit terrasse en gravier clair",
+      "family": "flat",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        169,
+        164,
+        147
+      ]
+    },
+    {
+      "id": "28-gravel-brown",
+      "label": "Toit terrasse en gravier brun",
+      "family": "flat",
+      "size": [
+        4,
+        4
+      ],
+      "palette": [
+        133,
+        124,
+        108
+      ]
+    },
+    {
+      "id": "29-membrane-ivory",
+      "label": "Membrane de toiture claire",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        198,
+        196,
+        183
+      ]
+    },
+    {
+      "id": "30-membrane-grey",
+      "label": "Membrane de toiture gris clair",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        153,
+        156,
+        154
+      ]
+    },
+    {
+      "id": "31-bitumen-patched",
+      "label": "Bitume ancien à reprises",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        81,
+        80,
+        73
+      ]
+    },
+    {
+      "id": "32-mineral-sand",
+      "label": "Étanchéité sablée beige grise",
+      "family": "flat",
+      "size": [
+        8,
+        8
+      ],
+      "palette": [
+        152,
+        145,
+        127
+      ]
+    }
+  ]
+}

@@ -4,3 +4,12 @@ node_modules/
 artifacts/
 *.log
 __pycache__/
+
+
+
+# Duplicate archives, generated compressed files and Blender backups
+/references_buirette_12_20.zip
+/dist/**/*.gz
+*.blend1
+*.blend2
+/assets/Highwind/Highwind-before-*.blend

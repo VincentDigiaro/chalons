@@ -1,0 +1,44 @@
+{
+  "revision": "redrawn-v3",
+  "textures": [
+    {
+      "name": "Highwind1",
+      "texture": "Highwind1-redrawn-v3.webp",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 219082,
+      "sha256": "068f26af142065f0ca43c5e5ad4889c8f7b6067f108f0aece0342a05686f9cd0",
+      "sourcePngSha256": "4835ce36daea6bfaa8cec1cc6a13b1bc119586bd0677ad59f931934f8e83f58b",
+      "lossless": false,
+      "psnrDb": 41.57
+    },
+    {
+      "name": "Highwind2",
+      "texture": "Highwind2-redrawn-v3.webp",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 150644,
+      "sha256": "17d70ea563a96943f90c268a479c679c2362691bd0fce65d763198c04a275a8c",
+      "sourcePngSha256": "a112fd20845eb0976c123dc7a8df376ffcf1a4e11a761ff9844ff9484f7084bf",
+      "lossless": false,
+      "psnrDb": 43.84
+    },
+    {
+      "name": "Highwind3",
+      "texture": "Highwind3-redrawn-v3.webp",
+      "width": 512,
+      "height": 512,
+      "bytes": 32078,
+      "sha256": "19d3d871b1ff48be05bb2d97d12ddd94f13468a295981719e27857728bd2d600",
+      "sourcePngSha256": "9a029e441c59a4598177805a47ffba354e80b7902f0ee5049fa87359b94704ed",
+      "lossless": true,
+      "psnrDb": null
+    }
+  ],
+  "budget": {
+    "triangles": 5164,
+    "drawCalls": 9,
+    "textureDownloadBytes": 401915,
+    "textureGpuBytesWithMipmaps": 12582992
+  }
+}

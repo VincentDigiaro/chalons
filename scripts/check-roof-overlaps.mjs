@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {harmonizeRoofOverlaps} from './roof-overlaps.mjs';
+import {toLngLat} from '../dist/walk-core.js';
+const rect=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h],[x,y]].map(toLngLat);
+const feature=(id,ring,height=8,holes=[])=>({properties:{osm_id:id,height},geometry:{type:'Polygon',coordinates:[ring,...holes]}});
+const features=[feature('large',rect(0,0,20,20)),feature('overlap',rect(15,10,10,10)),feature('touch',rect(20,0,10,10)),feature('higher',rect(1,1,3,3),12),feature('courtyard',rect(50,50,20,20),8,[rect(55,55,10,10)]),feature('in-hole',rect(57,57,3,3))];
+const assignments=features.map((f,i)=>({id:f.properties.osm_id,areaM2:i===0?400:100,material:i,tint:245+i,uvTransform:[i,2,3]}));
+const result=harmonizeRoofOverlaps(features,assignments);
+assert.equal(result.shared,1);assert.equal(assignments[1].sharedRoofWith,'large');assert.deepEqual(assignments[1].uvTransform,assignments[0].uvTransform);assert.equal(assignments[1].material,0);
+for(const i of [2,3,4,5])assert.equal(assignments[i].sharedRoofWith,undefined);
+console.log(JSON.stringify({overlapChecks:'passed',coplanar:'shared appearance',adjacent:'independent',heights:'independent',courtyard:'preserved'}));

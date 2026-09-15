@@ -1,0 +1,23 @@
+[
+  {
+    "id": "user-nerval-furniture-20260914-1",
+    "file": "artifacts/nerval/furniture-fixes-20260914/reference-1.png",
+    "sha256": "63c270d4f40866b835285786ea28324570de60bce7f86e8f089782d89f0d2aac",
+    "source": "Référence fournie par l’utilisateur",
+    "usage": "Position des bornes, lampadaire, arbre et suppression du triangle de pelouse"
+  },
+  {
+    "id": "user-nerval-furniture-20260914-2",
+    "file": "artifacts/nerval/furniture-fixes-20260914/reference-2.png",
+    "sha256": "b33daaa62c161589990943d6c9178cbb0f67c0c4a73f2b98d35e2547358b7e9f",
+    "source": "Référence fournie par l’utilisateur",
+    "usage": "Position du lampadaire côté maisons impaires"
+  },
+  {
+    "id": "user-nerval-furniture-20260914-3",
+    "file": "artifacts/nerval/furniture-fixes-20260914/reference-3.png",
+    "sha256": "3bda90d30f15dd39ff3d093e25423b8c4fd12508acbe688de75226fe0f49f13a",
+    "source": "Référence fournie par l’utilisateur",
+    "usage": "Position du lampadaire côté maisons impaires"
+  }
+]

@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "name": "Highwind",
+  "mesh": "mesh.bin",
+  "stride": 44,
+  "vertexCount": 15492,
+  "normalisedLength": 1,
+  "forwardAxis": "+Y",
+  "upAxis": "+Z",
+  "positionAnchor": "bounding-box centre",
+  "bounds": [
+    [
+      -0.2476799227799228,
+      -0.5,
+      -0.13777944997571945
+    ],
+    [
+      0.2476799227799228,
+      0.5,
+      0.13777944997571945
+    ]
+  ],
+  "rotors": {
+    "PropR": {
+      "pivot": [
+        0.14150231829001544,
+        -0.048712249034749036,
+        0.0965880527914365
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": -1
+    },
+    "PropL": {
+      "pivot": [
+        -0.14150231491461776,
+        -0.048712249034749036,
+        0.09658802805037905
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": 1
+    },
+    "PropRear": {
+      "pivot": [
+        0.00040320681850509674,
+        -0.08512592664092664,
+        -0.07117713328901792
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    },
+    "PropTail": {
+      "pivot": [
+        0.0004032068185050935,
+        -0.2781761196911197,
+        -0.07117713328901792
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    }
+  },
+  "materials": [
+    {
+      "name": "Highwind3",
+      "kind": 17,
+      "texture": "Highwind3.png"
+    },
+    {
+      "name": "Highwind1",
+      "kind": 17,
+      "texture": "Highwind1.png"
+    },
+    {
+      "name": "Highwind2",
+      "kind": 17,
+      "texture": "Highwind2.png"
+    },
+    {
+      "name": "Color",
+      "kind": 17,
+      "texture": "color.png"
+    }
+  ],
+  "ranges": [
+    {
+      "part": "Body",
+      "material": 1,
+      "first": 0,
+      "count": 4218
+    },
+    {
+      "part": "Body",
+      "material": 2,
+      "first": 4218,
+      "count": 6447
+    },
+    {
+      "part": "Body",
+      "material": 0,
+      "first": 10665,
+      "count": 63
+    },
+    {
+      "part": "Body",
+      "material": 3,
+      "first": 10728,
+      "count": 702
+    },
+    {
+      "part": "Turbine",
+      "material": 2,
+      "first": 11430,
+      "count": 642
+    },
+    {
+      "part": "PropRear",
+      "material": 2,
+      "first": 12072,
+      "count": 1296
+    },
+    {
+      "part": "PropTail",
+      "material": 2,
+      "first": 13368,
+      "count": 540
+    },
+    {
+      "part": "PropR",
+      "material": 2,
+      "first": 13908,
+      "count": 792
+    },
+    {
+      "part": "PropL",
+      "material": 2,
+      "first": 14700,
+      "count": 792
+    }
+  ],
+  "source": "PlayStation - Final Fantasy 7 International_ PERFECT GUIDE - Vehicles - Highwind.zip",
+  "sourceSha256": "eb53b3c7dbe2798bfbe2a7edb9063fa2749fe166a092c45ac158038cfae76fbb",
+  "meshSha256": "cd3b2cfc8fe939674715fba945cfc02611187bf2f286aea02a81b867e173f49f"
+}

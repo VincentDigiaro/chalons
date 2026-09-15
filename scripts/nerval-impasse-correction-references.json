@@ -1,0 +1,51 @@
+[
+  {
+    "id": "user-impasse-corrections-20260914-1",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-1.png",
+    "sha256": "266a4cccf15bc94641dbb22183c5f07c3286ca1719f7f21511b8316f351b85ed",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Trois portes-fenêtres sur le mur du jardin"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-2",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-2.png",
+    "sha256": "9a17bb44542dc94b4cf35a0763445fe7ff3df626fad61388b0191b31da4bc81e",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Raccord de la chaussée et du chemin"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-3",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-3.png",
+    "sha256": "a1935c955ba47f37c770bd3e52ecd90dd0574e3b03bd02a50bea41e08b00c2e2",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Supprimer la pelouse de la chaussée"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-4",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-4.png",
+    "sha256": "bce63161681fefe22e9656b0f5123113016ae68b88419fa6aded42a201d44952",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Rehausser la petite fenêtre du pignon"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-5",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-5.png",
+    "sha256": "6350d7b4a08af9bd5e16e9799082784196942764d91839e58007660deb17889e",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Libérer le trottoir devant la haie"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-6",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-6.png",
+    "sha256": "85b9a702270b54ba2ac63b051b24ffc42258c1439693c61339d0aeef3048be1d",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Accès au garage du 30 et limite mitoyenne"
+  },
+  {
+    "id": "user-impasse-corrections-20260914-7",
+    "file": "artifacts/nerval/impasse-fixes-20260914/reference-7.png",
+    "sha256": "1f3d32d286e273555f449f30b6692a1653734a23bcd1b77d00974f866296d967",
+    "source": "Cliché ou capture annotée fourni par l’utilisateur",
+    "usage": "Clôture du 28 et obstruction du garage voisin"
+  }
+]

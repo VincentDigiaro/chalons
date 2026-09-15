@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const registry=JSON.parse(await fs.readFile('dist/data/custom-models.json'));
+assert.equal(registry.loadRadiusMeters,500);
+for(const id of ['nerval','attila','buirette'])assert(registry.models.some(m=>m.id===id&&m.bounds.length===4),'Missing detailed model: '+id);
+import {ModelResidency,modelDistance} from '../dist/custom-model-residency.js';
+const bounds=[4.3755,48.9611,4.3760,48.9616],center=[4.37575,48.96135];
+const at=n=>[center[0],bounds[3]+n/6371008.8*180/Math.PI];
+assert(Math.abs(modelDistance(at(500),bounds)-500)<1e-6);
+let calls=0,loads=0,unloads=0,disposed=0,resolve,signal;
+const m=new ModelResidency({bounds,load:s=>{calls++;signal=s;return new Promise(r=>resolve=r);},onLoad:()=>loads++,onUnload:()=>unloads++,disposeData:()=>disposed++});
+const tick=()=>new Promise(r=>setTimeout(r,0));
+m.update(at(501));await tick();assert.equal(calls,0);
+m.update(at(499));await tick();assert.equal(calls,1);m.update(center);assert.equal(calls,1);
+m.update(at(501));assert(signal.aborted);resolve({});await tick();assert.equal(loads,0);assert.equal(disposed,1);
+m.update(center);await tick();resolve({});await tick();assert.equal(loads,1);assert(m.getState().loaded);
+m.update(at(501));assert.equal(unloads,1);assert.equal(disposed,2);assert(!m.getState().loaded);
+m.update(center,false);await tick();assert.equal(calls,2);
+m.update(center,true);await tick();resolve({});await tick();assert.equal(loads,2);m.dispose();assert.equal(unloads,2);assert.equal(disposed,3);
+m.update(center);await tick();assert.equal(calls,3);
+// A future model follows the same distance policy without any named-site branch.
+let futureCalls=0;const future=new ModelResidency({bounds:[2,46,2.01,46.01],load:async()=>{futureCalls++;return {};},onLoad:()=>{},onUnload:()=>{},disposeData:()=>{}});
+future.update(center);await tick();assert.equal(futureCalls,0);future.update([2.005,46.005]);await tick();assert.equal(futureCalls,1);future.dispose();
+console.log(JSON.stringify({checks:'passed',radius:500,outsideNoRequests:true,cancelledLoadsDisposed:true,reentry:true,unload:true,futureModels:true}));

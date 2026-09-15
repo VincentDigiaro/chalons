@@ -56,7 +56,8 @@ export class FacadeLayer {
   this.restore=()=>{try{this.texture=null;for(const tile of this.cache.values()){tile.buffer=null;tile.vao=null;}this.setupGL();this.map.triggerRepaint();}catch(error){this.fail(error);}};
   map.getCanvas().addEventListener('webglcontextrestored',this.restore);
   this.request('index.json').then(r=>r.json()).then(async index=>{
-   this.index=index;this.n=2**index.zoom;if(index.textures.length>32)throw Error('Catalogue de façades trop grand');
+   this.index=index;this.n=2**index.zoom;if(index.textures.length>Math.min(64,gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS)))throw Error('Catalogue de façades trop grand');
+   this.detailSize=this.mobile?[256,128]:index.textureSize;
    const results=await Promise.allSettled(index.overviewTextures.map(async file=>createImageBitmap(await(await this.request(file)).blob(),{imageOrientation:'none',premultiplyAlpha:'none'})));
    this.bitmaps=results.filter(r=>r.status==='fulfilled').map(r=>r.value);const failed=results.find(r=>r.status==='rejected');
    if(failed||this.abort.signal.aborted){this.bitmaps.forEach(b=>b.close());this.bitmaps=[];if(failed)throw failed.reason;return;}
@@ -67,9 +68,9 @@ export class FacadeLayer {
  }
  async requestDetail(){
   if(this.detailRequested||this.abort.signal.aborted)return;this.detailRequested=true;
-  const results=await Promise.allSettled(this.index.textures.map(async file=>createImageBitmap(await(await this.request(file)).blob(),{imageOrientation:'none',premultiplyAlpha:'none'})));
+  const results=await Promise.allSettled(this.index.textures.map(async file=>createImageBitmap(await(await this.request(file)).blob(),{imageOrientation:'none',premultiplyAlpha:'none',resizeWidth:this.detailSize[0],resizeHeight:this.detailSize[1],resizeQuality:'high'})));
   const bitmaps=results.filter(r=>r.status==='fulfilled').map(r=>r.value),failed=results.find(r=>r.status==='rejected');
-  if(failed||this.abort.signal.aborted||bitmaps.some(b=>b.width!==this.index.textureSize[0]||b.height!==this.index.textureSize[1])){bitmaps.forEach(b=>b.close());if(failed)this.fail(failed.reason);return;}
+  if(failed||this.abort.signal.aborted||bitmaps.some(b=>b.width!==this.detailSize[0]||b.height!==this.detailSize[1])){bitmaps.forEach(b=>b.close());if(failed)this.fail(failed.reason);return;}
   this.pendingBitmaps=bitmaps;this.map.triggerRepaint();
  }
  request(file){return fetch(`./data/facades/${file}`,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error(`Façades : HTTP ${r.status} (${file})`);return r;});}
@@ -83,7 +84,7 @@ export class FacadeLayer {
   this.program=program;this.uniforms=Object.fromEntries(['u_matrix','u_catalogue','u_selected','u_hasSelected'].map(k=>[k,gl.getUniformLocation(program,k)]));
   this.attributes=Object.fromEntries(['a_endpoints','a_vertical','a_material','a_building'].map(k=>[k,gl.getAttribLocation(program,k)]));this.matrix=new Float32Array(16);
  }
- isActive(){return this.map.getLayer('buildings-3d')&&this.map.getLayoutProperty('buildings-3d','visibility')!=='none'&&this.map.getLayoutProperty('ign-ground','visibility')!=='none'&&this.map.getPitch()>=1&&this.map.getZoom()>=14;}
+ isActive(){return this.map.getLayer('buildings-3d')&&this.map.getLayoutProperty('buildings-3d','visibility')!=='none'&&this.map.getLayoutProperty('ign-ground','visibility')!=='none'&&this.map.getZoom()>=14;}
  refresh(){
   if(!this.index||!this.stats.loaded||this.abort.signal.aborted)return;
   this.tiles=[];this.desired=new Set();
@@ -130,7 +131,7 @@ export class FacadeLayer {
  }
  render(gl,options){
   this.stats.draws=0;this.stats.visibleFacades=0;if(!this.stats.loaded||!this.program||!this.isActive())return;
-  if(this.pendingBitmaps){if(this.texture)gl.deleteTexture(this.texture);this.texture=null;this.bitmaps.forEach(b=>b.close());this.bitmaps=this.pendingBitmaps;this.pendingBitmaps=null;this.textureSize=this.index.textureSize;this.stats.resolution='512 × 256';}
+  if(this.pendingBitmaps){if(this.texture)gl.deleteTexture(this.texture);this.texture=null;this.bitmaps.forEach(b=>b.close());this.bitmaps=this.pendingBitmaps;this.pendingBitmaps=null;this.textureSize=this.detailSize;this.stats.resolution=this.textureSize.join(' × ');}
   gl.useProgram(this.program);gl.activeTexture(gl.TEXTURE0);if(!this.texture)this.uploadTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,this.texture);
   const selected=this.selected&&this.map.getFeatureState({source:'buildings',id:this.selected}).selected;
   gl.uniform1i(this.uniforms.u_catalogue,0);gl.uniform1ui(this.uniforms.u_selected,this.selected?facadeHash(this.selected):0);gl.uniform1i(this.uniforms.u_hasSelected,selected?1:0);

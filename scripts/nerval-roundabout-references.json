@@ -1,0 +1,58 @@
+[
+  {
+    "id": "nerval-roundabout-32",
+    "file": "artifacts/nerval/roundabout-20260914/32.png",
+    "sha256": "f8c84f5d44cfc1fafe628d768afc743226c8303fe76f72f48e05f0a2eb7c08df",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-30",
+    "file": "artifacts/nerval/roundabout-20260914/30.png",
+    "sha256": "0b35a9ba7d1aba109c385e1457e6f9e89ffbe7ceb833932e125c9c787c9ca170",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-28",
+    "file": "artifacts/nerval/roundabout-20260914/28.png",
+    "sha256": "21ecee07cf78b80bdf172faa35d328d3e4a8de0b27067b86d181ab396e19c279",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-26-24",
+    "file": "artifacts/nerval/roundabout-20260914/26-24.png",
+    "sha256": "281e051c68888d8036e56c2f4d5b43febc6c84dd93c71e67407eb6077f9aa9b3",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-22",
+    "file": "artifacts/nerval/roundabout-20260914/22.png",
+    "sha256": "feff64eeda6c4636e92c76fa4f347c78af44cf50b092196b9314365b7da74eb9",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-22-wall",
+    "file": "artifacts/nerval/roundabout-20260914/22-wall.png",
+    "sha256": "2f07a1f973965a18f0aa5590a46bd7333aa10a688abab7a8a88c85b3ae331430",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-aerial",
+    "file": "artifacts/nerval/roundabout-20260914/aerial.png",
+    "sha256": "f1ddd101f3db3be47447b5fdc12cc5ff9e0def145fac505f828ae07588bb25d0",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  },
+  {
+    "id": "nerval-roundabout-32-entry",
+    "file": "artifacts/nerval/roundabout-20260914/32-entry.png",
+    "sha256": "6d777ba0a383bd1c02d2614b12738f1b391d66933ffb9a52c00039cd0b5cb8fd",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Ouvertures, volumes et jardins observés ; dimensions estimées, emprises OSM conservées."
+  }
+]

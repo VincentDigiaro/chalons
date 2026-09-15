@@ -1,0 +1,16 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>14 · Résidence du Parc</title><link rel="stylesheet" href="./vendor/maplibre-gl.css"><script src="./vendor/maplibre-gl.js"></script><style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui;color:#233b31;background:#dbe4e3}#map{position:absolute;inset:0}header{position:absolute;top:20px;left:22px;padding:18px 22px;border-radius:14px;background:#fffffff2;box-shadow:0 6px 30px #132b2520;max-width:calc(100% - 44px)}h1{font-size:20px;margin:4px 0 8px}small{font-size:11px;letter-spacing:2px;color:#738478}nav{display:flex;gap:7px;flex-wrap:wrap}button,a{font:inherit;color:#234e3e;background:#eff3ec;border:0;border-radius:7px;padding:8px 11px;cursor:pointer;text-decoration:none}button:hover,a:hover{background:#d9e7d6}footer{position:absolute;bottom:22px;left:22px;background:#ffffffed;padding:12px 17px;border-radius:10px;max-width:calc(100% - 44px);font-size:12px}#status{display:block;margin-top:9px;color:#68786c}@media(max-width:600px){header{top:10px;left:10px;padding:12px;max-width:calc(100% - 20px)}h1{font-size:17px}footer{left:10px;bottom:30px}button,a{padding:6px 8px}}
+</style></head><body><div id="map"></div><header><small>MODÈLE DU JEU · −413, 2800</small><h1>14, Résidence du Parc</h1><nav><button id="front">Façade</button><button id="rear">Jardin arrière</button><button id="all">Ensemble</button><button id="statue">Statue</button><a href="./?fps=1&x=-418.51&y=2816.94&angle=162&pitch=11">Jouer ici</a><a href="./parc14-references.html">Photos</a></nav><span id="status">Chargement du modèle…</span></header><footer>Glisser pour déplacer · molette pour zoomer · clic droit pour tourner</footer><script type="module">
+import{NervalLayer}from'./nerval-layer.js';
+const index=await(await fetch('./data/parc14/index.json')).json();
+const at=(x,y)=>[index.origin[0]+(index.frame.u[0]*x+index.frame.v[0]*y)/index.scale[0],index.origin[1]+(index.frame.u[1]*x+index.frame.v[1]*y)/index.scale[1]];
+const views={front:{center:at(-.7,-1),zoom:20.65,pitch:65,bearing:162},rear:{center:at(0,9),zoom:20.20,pitch:58,bearing:-18},all:{center:at(-8,5),zoom:19.65,pitch:48,bearing:143},statue:{center:at(4.2,-7.12),zoom:23,pitch:68,bearing:162}};
+const map=new maplibregl.Map({container:'map',style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#dbe4e3'}}]},...views.front,padding:{top:140,bottom:10,left:0,right:0},maxZoom:24,maxPitch:80,canvasContextAttributes:{antialias:true},attributionControl:false});
+map.jumpTo({...views.front,padding:{top:140,bottom:10,left:0,right:0}});
+map.addControl(new maplibregl.NavigationControl());
+map.on('load',()=>{const layer=new NervalLayer({id:'parc14-detail',basePath:'./data/parc14',label:index.name,bounds:index.bounds,onReady:()=>{document.getElementById('status').textContent='Maison détaillée · deux voisines · 8 photos de référence';},onError:e=>document.getElementById('status').textContent='Erreur : '+e.message});map.addLayer(layer);});
+for(const [key,view]of Object.entries(views))document.getElementById(key).onclick=()=>map.easeTo({...view,padding:{top:140,bottom:10,left:0,right:0},duration:650});
+</script></body></html>
+
+
+

@@ -10,13 +10,14 @@
   "license_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
   "dataset": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-ORTHO",
   "acquisition_dates": "https://data.geopf.fr/annexes/ressources/fiches/photographies-aeriennes-RVB/geoportail_dates_des_prises_de_vues_aeriennes-RVB.pdf",
-  "verified_at": "2026-09-13T15:48:46.178Z",
-  "delivery": "Images streamed on demand from IGN; bounded memory cache. No claim of offline imagery or real-time capture.",
+  "verified_at": "2026-09-13T19:26:04.801Z",
+  "local_template": "./data/imagery/ign/{z}/{x}/{y}.jpg",
+  "delivery": "IGN is requested first by the browser. On failure or after 2500 ms, the saved same-origin JPEG is used silently. Originals remain permanently with the project. The Node server acquires missing originals once; successful IGN images are not served a second time to visitors. Static hosting provides fallback for the preloaded coverage.",
   "roof_projection": "Georeferenced aerial photos projected on flat roof polygons triangulated from OSM, clipped at WMTS tile boundaries. Original courtyard holes retained. No facade photography or measured roof shapes.",
   "sample": {
     "zoom": 17,
     "x": 67124,
     "y": 45037,
-    "cors": "*"
+    "local": true
   }
 }

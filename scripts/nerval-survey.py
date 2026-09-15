@@ -136,3 +136,172 @@ FENCES=[
 ([112,115],2,'bars',1.3,'#2c5946',5.0),([106,108],3,'hedge',1.4,'#526b3d',5.1),
 ([101,105],26,'hedge',1.4,'#596b3c',5.0),([92,94,99],25,'hedge',1.65,'#627842',5.2),
 ([80,83,84,87],24,'hedge',1.65,'#68854a',5.0),([79],21,'hedge',1.6,'#6c823d',5.3)]
+
+# Revision after comparison of the model with the original panoramas.
+# Keep photo roof observations as provenance/material evidence, never as a
+# partially stretched aerial picture on a whole roof.
+FOCUS_PARTS=[80,83,84,87,92,94,99,101,105,106,108,112,115,
+ 100,102,103,104,107,109,110,111,113,114,116,117,118]
+# Complete the volumes around the selected turning court. Unseen elevations
+# remain simple plaster; only the bungalow clearly visible in 25 has openings.
+BUILDINGS += [
+ ([77],2.9,2.1,'hip',[28],'Maison au nord de la boucle, volume interprété sur la vue aérienne'),
+ ([78],3.0,2.5,'gable',[28],'Maison derrière la boucle, façades non documentées'),
+ ([81],3.0,2.0,'hip',[28],'Maison en retrait, façades non documentées'),
+ ([86],2.9,2.1,'gable',[25,28],'Maison basse sur la cour, enduit clair et volets bois'),
+ ([97,98],2.9,3.5,'gable',[25,28],'Maison en retrait de la boucle, toiture et fenêtres de toit visibles')]
+OVERRIDES[98]=(2.6,.5)
+FOCUS_PARTS += [77,78,81,86,97,98]
+FENCES += [([86],25,'hedge',.85,'#647548',5.0),([97,98],25,'hedge',1.5,'#647548',4.5)]
+ROOF_OBSERVATIONS=[p for p in PATCHES if p['side']=='roof' and p['part'] in FOCUS_PARTS]
+PATCHES[:]=[p for p in PATCHES if not (p['side']=='roof' and p['part'] in FOCUS_PARTS)]
+ROOF_PROFILES={99:{'roof':'gable'},83:{'frontFlat':3.0},106:{'eaves':2.7,'rise':.8},112:{'roofEnd':2.6}}
+
+def replace(part,photo=None,side=None):
+    PATCHES[:]=[p for p in PATCHES if not (p['part']==part and (photo is None or p['photo']==photo) and (side is None or p['side']==side))]
+
+def observed(part,photo,quad,**kwargs):
+    # Coordinates on the unwarped 1600px reference, easier to audit.
+    masks=kwargs.pop('mask',[])
+    face(part,photo,[[x*1.28,y*1.28] for x,y in quad],mask=[[[x*1.28,y*1.28] for x,y in m] for m in masks],**kwargs)
+
+# The large gable seen in 26 faces the main street, whereas the two-storey
+# adjoining volume in 25 faces the loop. They are different planes.
+replace(99)
+observed(99,25,[[578,207],[784,211],[784,249],[579,246]],bottom=1.35,height=3.0)
+observed(99,3,[[1307,176],[1345,176],[1323,228],[1282,229]],side='left',span=[.32,.69],height=5.85,bottom=3.8,
+ note='Ouverture du pignon côté rue principale ; plan distinct de la façade sur la boucle')
+observed(99,26,[[1077,207],[1145,207],[1138,250],[1065,250]],side='left',span=[.62,.88],height=2.55,bottom=1.2,
+ mask=[[[1060,239],[1149,239],[1149,255],[1060,255]]])
+
+# Full low facade comes from 27. The sharper window in 03 is calibrated with
+# its shutter edges, rather than mapping a skewed crop over the entire wall.
+replace(112)
+observed(112,27,[[737,218],[940,217],[936,284],[736,287]],bottom=.25,height=3.0,
+ mask=[[[816,259],[945,245],[945,288],[816,288]]])
+observed(112,3,[[120,247],[379,244],[405,355],[163,385]],span=[.53,.92],height=2.52,bottom=.87,
+ note='Fenêtre redressée sur les quatre coins des volets, position estimée sur la façade')
+replace(115)
+observed(115,2,[[929,131],[973,121],[978,165],[935,176]],span=[.14,.34],height=5.10,bottom=4.0)
+observed(115,2,[[1063,107],[1111,92],[1104,152],[1057,156]],span=[.62,.84],height=5.10,bottom=4.0)
+observed(115,2,[[915,249],[972,244],[969,342],[912,334]],span=[.16,.44],height=2.55,bottom=.15)
+
+# A cropped opening previously stretched across the whole front is replaced
+# by the actual visible front band plus the visible gable opening.
+replace(108)
+observed(108,3,[[837,241],[974,239],[972,292],[839,294]],bottom=1.1,height=3.0,
+ mask=[[[836,240],[921,240],[925,298],[836,298]],[[946,271],[978,257],[978,299],[946,299]]])
+observed(108,3,[[638,149],[670,140],[669,221],[645,231]],side='left',span=[.35,.57],height=5.6,bottom=3.6)
+
+# Correct the garage-facing narrow strips inside the selected zone.
+replace(113)
+observed(113,4,[[1000,87],[1228,51],[1168,340],[966,336]],bottom=1.0,height=5.5)
+replace(114)
+observed(114,4,[[1218,198],[1572,193],[1460,426],[1158,379]],bottom=.2,height=3.0,
+ mask=[[[1200,330],[1300,328],[1380,428],[1150,390]]])
+
+# Small skylights are geometry on the correct roof slope; no tree, shadow or
+# blurred aerial object is transferred onto those roof surfaces.
+SKYLIGHTS=[(108,.39,.52,.7,.9),(83,.38,.55,.75,1.0),(99,.26,.53,.75,1.0)]
+observed(117,1,[[600,191],[721,191],[720,258],[601,260]],side='right',span=[.27,.57],height=2.55,bottom=.9,
+ note='Fenêtre et volets visibles depuis le passage du fond de l’impasse')
+SKYLIGHTS.append((117,.42,.50,.8,1.0,1))
+SKYLIGHTS += [(97,.38,.55,.8,1.0),(97,.73,.55,.95,1.0)]
+
+# Openings with clear outlines are modelled as frames, glazing and shutters.
+# This avoids baking the panorama's skew into their silhouette.
+OPENINGS=[
+ dict(part=99,side='left',along=.5,bottom=3.7,width=1.65,height=1.75,shutters='brown',rail=True,photo=26),
+ dict(part=108,side='left',along=.47,bottom=3.65,width=.95,height=1.55,shutters='brown',photo=3),
+ dict(part=112,side='front',along=.73,bottom=.95,width=1.55,height=1.40,shutters='brown',photo=3),
+ dict(part=115,side='front',along=.25,bottom=4.0,width=.95,height=1.0,shutters=None,roller=True,photo=2),
+ dict(part=115,side='front',along=.74,bottom=4.0,width=.95,height=1.0,shutters=None,roller=True,photo=2),
+ dict(part=105,side='front',along=.27,bottom=3.8,width=.90,height=1.25,shutters='blue',photo=26),
+ dict(part=105,side='front',along=.73,bottom=3.8,width=.90,height=1.25,shutters='blue',photo=26)]
+OPENING_OBSERVATIONS=[]
+for p in list(PATCHES):
+    modeled=(p['part']==99 and p['side']=='left' and p['bottom']>3) or (p['part']==108 and p['side']=='left') or (p['part']==112 and p['photo']==3) or (p['part']==115 and p['bottom']>=4) or p['part']==105
+    if modeled:OPENING_OBSERVATIONS.append(p);PATCHES.remove(p)
+
+# Revision requested by the user: photographs are references, never facade
+# decals in the selected impasse/loop. Elements below are actual mesh geometry.
+# Width/height/along are visual estimates, not measurements from panoramas.
+OPENINGS += [
+ dict(part=86,side='front',along=.20,bottom=.80,width=.9,height=1.35,shutters='brown',closed=True,photo=25),
+ dict(part=86,side='front',along=.52,bottom=.12,width=.9,height=2.10,kind='door',color='#795537',glazed=True,photo=25),
+ dict(part=86,side='front',along=.81,bottom=.8,width=.9,height=1.35,shutters='brown',closed=True,photo=25),
+ dict(part=99,side='left',along=.73,bottom=.95,width=1.25,height=1.45,shutters='brown',photo=26),
+ dict(part=99,side='front',along=.52,bottom=.15,width=2.20,height=2.35,kind='patio',frame='wood',photo=25),
+ dict(part=94,side='front',along=.26,bottom=3.75,width=.95,height=1.30,shutters='brown',closed=True,photo=25),
+ dict(part=94,side='front',along=.74,bottom=3.75,width=.95,height=1.30,shutters='red',photo=25),
+ dict(part=94,side='front',along=.55,bottom=.15,width=2.55,height=2.20,kind='garage',color='#8c3740',photo=25),
+ dict(part=92,side='front',along=.54,bottom=.80,width=1.10,height=1.40,shutters='red',photo=25),
+ dict(part=101,side='front',along=.53,bottom=3.55,width=.90,height=1.30,shutters='brown',photo=3),
+ dict(part=105,side='front',along=.49,bottom=.3,width=2.35,height=2.20,kind='garage',color='#9c9d91',photo=26,visibility='Partie basse masquée, restitution simplifiée'),
+ dict(part=108,side='front',along=.56,bottom=.85,width=1.45,height=1.55,shutters='brown',photo=27),
+ dict(part=108,side='front',along=.85,bottom=.12,width=.82,height=2.10,kind='door',color='#c4c4b8',glazed=True,photo=3),
+ dict(part=112,side='front',along=.21,bottom=.95,width=1.15,height=1.40,shutters='brown',photo=3),
+ dict(part=115,side='front',along=.30,bottom=.15,width=1.50,height=2.25,kind='patio',frame='wood',photo=2),
+ dict(part=106,side='front',along=.5,bottom=.1,width=2.25,height=2.15,kind='garage',color='#554338',photo=3),
+ dict(part=113,side='front',along=.51,bottom=3.45,width=1.10,height=1.40,shutters='brown',lintel='brown',photo=4),
+ dict(part=113,side='front',along=.52,bottom=.12,width=2.40,height=2.12,kind='garage',color='#716b60',photo=4,visibility='Bas masqué par la haie'),
+ dict(part=114,side='front',along=.54,bottom=.15,width=1.70,height=2.30,kind='door',color='#795332',glazed=True,lintel='brown',leaves=2,photo=4),
+ dict(part=117,side='right',along=.42,bottom=.88,width=1.40,height=1.45,shutters='brown',frame='wood',grid=True,photo=1),
+ dict(part=100,side='front',along=.55,bottom=.18,width=1.45,height=2.20,kind='patio',shutters='brown',photo=4),
+ dict(part=102,side='front',along=.53,bottom=3.6,width=.95,height=1.35,shutters='brown',photo=4),
+ dict(part=103,side='front',along=.48,bottom=3.6,width=.95,height=1.35,shutters='brown',photo=4),
+ dict(part=102,side='front',along=.53,bottom=.12,width=2.30,height=2.15,kind='garage',color='#66574a',photo=4),
+ dict(part=103,side='front',along=.48,bottom=.12,width=2.30,height=2.15,kind='garage',color='#706b61',photo=4),
+ dict(part=104,side='front',along=.51,bottom=.18,width=1.35,height=2.15,kind='patio',shutters='brown',photo=4),
+ dict(part=109,side='front',along=.48,bottom=3.6,width=.95,height=1.35,shutters='brown',photo=4,visibility='Partiellement masquée par le bouleau'),
+ dict(part=110,side='front',along=.53,bottom=3.6,width=.95,height=1.35,shutters='brown',photo=4,visibility='Partiellement masquée par le bouleau'),
+ dict(part=109,side='front',along=.48,bottom=.12,width=2.30,height=2.15,kind='garage',color='#776c5e',photo=4,visibility='Niveau bas interprété'),
+ dict(part=110,side='front',along=.53,bottom=.12,width=2.30,height=2.15,kind='garage',color='#776c5e',photo=4,visibility='Niveau bas interprété'),
+ dict(part=111,side='front',along=.51,bottom=.18,width=1.4,height=2.15,kind='patio',shutters='brown',photo=4,visibility='Partiellement masquée'),
+ dict(part=83,side='front',along=.23,bottom=.1,width=.85,height=2.10,kind='door',color='#8d9992',glazed=True,photo=24),
+ dict(part=83,side='front',along=.68,bottom=.7,width=1.25,height=1.65,shutters='ochre',photo=24),
+]
+for p in list(PATCHES):
+    if p['part'] in FOCUS_PARTS:
+        OPENING_OBSERVATIONS.append(p)
+        PATCHES.remove(p)
+
+# Close survey of the end of the impasse, references 01, 02, 03 and 27.
+# 119–121 are across the pedestrian path. The awning and timber window in 01
+# belong there, not to 117, the last house on the opposite street frontage.
+BUILDINGS += [([119,120,121],3.0,4.0,'gable',[1,2,27,28],
+              'Maison derrière la haie du passage piéton, fenêtre bois et auvent')]
+FOCUS_PARTS += [119,120,121]
+ROOF_PROFILES.update({
+ 112:dict(roofEnd=2.6,rearRoof=True,rearRise=1.05),
+ 115:dict(eaves=5.25,rise=1.7),
+ 119:dict(eaves=2.45,rise=.8,roof='lean-to',roofAxis=0,openStructure=True),
+ 121:dict(eaves=2.6,rise=.65),
+})
+OPENINGS[:]=[o for o in OPENINGS if o['part'] not in [112,115] and not(o['part']==117 and o.get('photo')==1)]
+OPENINGS += [
+ dict(part=115,side='front',along=.25,bottom=3.85,width=1.12,height=1.18,
+      frame='metal',awning=True,rack=True,photo=2),
+ dict(part=115,side='front',along=.74,bottom=3.85,width=1.12,height=1.18,
+      frame='metal',awning=True,rack=True,photo=2),
+ dict(part=115,side='front',along=.25,bottom=.16,width=1.32,height=2.25,
+      kind='patio',shutters='brown',photo=2),
+ dict(part=115,side='front',along=.84,bottom=.12,width=1.82,height=2.70,
+      kind='entrance',bayDepth=1.18,frame='wood',photo=2),
+ dict(part=112,side='front',along=.26,bottom=.85,width=1.02,height=1.43,
+      shutters='brown',closed=True,barred=True,rack=True,photo=2),
+ dict(part=112,side='front',along=.706,bottom=.85,width=1.42,height=1.43,
+      shutters='brown',rack=True,photo=2),
+ dict(part=112,side='front',depth=8.55,span=[4.65,8.05],along=.50,
+      bottom=.1,width=2.55,height=2.25,kind='garage',color='#514235',photo=3),
+ dict(part=120,side='front',along=.72,bottom=.85,width=1.45,height=1.40,
+      shutters='brown',shutterStyle='louvres',frame='wood',grid=True,photo=1),
+]
+SKYLIGHTS[:]=[s for s in SKYLIGHTS if s[0]!=117]
+SKYLIGHTS += [(115,.25,.58,1.1,.75),(115,.74,.58,1.1,.75),(120,.72,.55,1.15,.75)]
+END_SITE=dict(
+ references=['01','02','03','25','27','28'],
+ pathOsmId='way/119936729',
+ photoToParts={'01':[119,120,121],'02':[112,115],'03':[112,115,108],'25':[83,86,92,94,99]},
+ accuracy='Tracé du chemin et emprises OSM. Haies, ouvertures, bornes et jardin placés par observation, dimensions estimées.'
+)

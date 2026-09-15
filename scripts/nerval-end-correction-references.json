@@ -1,0 +1,44 @@
+[
+  {
+    "id": "nerval-end-20260914-cul-de-sac-reference",
+    "file": "artifacts/nerval/end-corrections/cul-de-sac-reference.png",
+    "sha256": "dae086eb320640f50e3642c47daeec712ae79575d22625c2600653d63cc07888",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Correction des ouvertures, plantations, éclairage et volumes lointains ; dimensions estimées."
+  },
+  {
+    "id": "nerval-end-20260914-garden-doors-reference",
+    "file": "artifacts/nerval/end-corrections/garden-doors-reference.png",
+    "sha256": "ea129bd50b4f0db8747a622316a2d4d0ec1d23f0f4040e2e10b4ec0fa8456912",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Correction des ouvertures, plantations, éclairage et volumes lointains ; dimensions estimées."
+  },
+  {
+    "id": "nerval-end-20260914-garden-doors-before",
+    "file": "artifacts/nerval/end-corrections/garden-doors-before.png",
+    "sha256": "9c45671b258d633d75375464f0d40a9dc9ae39816cf96df1b8d0dc090d4bb577",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Correction des ouvertures, plantations, éclairage et volumes lointains ; dimensions estimées."
+  },
+  {
+    "id": "nerval-end-20260914-cul-de-sac-before",
+    "file": "artifacts/nerval/end-corrections/cul-de-sac-before.png",
+    "sha256": "aaa359b5919eb10627d8b45a8b81adb7f6c93874e5fbd67ae55bb913dbcaba41",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Correction des ouvertures, plantations, éclairage et volumes lointains ; dimensions estimées."
+  },
+  {
+    "id": "nerval-end-20260914-roof-street-reference",
+    "file": "artifacts/nerval/end-corrections/roof-street-reference.png",
+    "sha256": "9a4fdd954ee3b3a60612454224a87ccafa6fa07865df19541c6086a793bc5ad0",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Sens du faîtage, pente et fenêtre du pignon après rotation du toit à 90 degrés."
+  },
+  {
+    "id": "nerval-end-20260914-roof-before",
+    "file": "artifacts/nerval/end-corrections/roof-before.png",
+    "sha256": "dce6d6cef59bd89464424242e279e22f2c385ef968aa44ed3859c9c0d7356de0",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Sens du faîtage, pente et fenêtre du pignon après rotation du toit à 90 degrés."
+  }
+]

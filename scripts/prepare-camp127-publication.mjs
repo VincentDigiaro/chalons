@@ -1,0 +1,31 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import {installCamp127Data} from './install-camp127-data.mjs';
+
+const work='artifacts/camp127/publication',source=work+'/source',live='C:/nginx/html/chalons';
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+const read=(root,file)=>fs.readFile(path.join(root,file));
+const json=async(root,file)=>JSON.parse(await read(root,file));
+const modules=['app.js','camp127-ui.js','camp127-preview.html','camp127-references.html'];
+for(const file of ['nerval-layer.js','facade-layer.js','walk-core.js','walk-config.js','walk-renderer.js','custom-model-residency.js'])
+  assert.equal(sha(await read(live,file)),sha(await read('dist',file)),'Public runtime differs: '+file);
+const preservedFiles=['nerval','attila','buirette','parc14'].flatMap(id=>['index.json','mesh.bin'].map(file=>'data/'+id+'/'+file));
+const preservedHashes=Object.fromEntries(await Promise.all(preservedFiles.map(async file=>[file,sha(await read(live,file))])));
+await fs.mkdir(source,{recursive:true});
+const installation=await installCamp127Data({root:live,output:source});
+await fs.cp('dist/data/camp127',source+'/data/camp127',{recursive:true});
+for(const file of modules)await fs.copyFile('dist/'+file,source+'/'+file);
+const before=await json(live,'data/walk/index.json'),after=await json(source,'data/walk/index.json');
+const model=await json(source,'data/camp127/index.json');
+assert.deepEqual(after.materials,before.materials);
+assert.deepEqual(after.origin,before.origin);
+assert.deepEqual(after.scale,before.scale);
+const replaced=file=>model.excludeIds.some(id=>file.endsWith('/'+id.replace('/','-')+'.bin'));
+assert.deepEqual(after.nodes.filter(n=>!n[0].startsWith('camp127/')),before.nodes.filter(n=>!n[0].startsWith('camp127/')&&!replaced(n[0])));
+const nodes=after.nodes.filter(n=>n[0].startsWith('camp127/'));
+for(const [file]of nodes)assert.equal(sha(await read(source,'data/walk/'+file)),sha(await read('dist','data/walk/'+file)),'Published model differs from validated model: '+file);
+for(const [file,hash]of Object.entries(preservedHashes))assert.equal(sha(await read(live,file)),hash,'Public model changed while preparing');
+await fs.writeFile(work+'/installation.json',JSON.stringify({...installation,preservedHashes,publicOtherWalkNodesPreserved:true,publicMaterialsPreserved:true,localAndReleasedModelIdentical:true},null,2));
+console.log(JSON.stringify({prepared:true,source,camp127Packets:nodes.length,preservedPublicModels:preservedFiles.length/2,changed:installation.changed.length}));

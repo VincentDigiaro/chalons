@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "method": "Catalogue original de 16 textures, inspiré visuellement des 30 captures fournies. Attribution indicative par secteur, usage OSM, emprise, hauteur et orientation de façade ; aucune correspondance photographique exacte revendiquée.",
+  "version": 2,
+  "method": "Catalogue de 48 textures originales inspirées des 30 vues fournies. Familles et proportions choisies selon usage, hauteur, emprise et dimensions de façade ; attribution approximative, sans reconstitution par adresse.",
   "referenceArchive": "google-earth-chalons-30-cliches.zip",
   "referenceDate": "2026-09-13",
   "materials": [
@@ -273,6 +273,570 @@
         17,
         18
       ]
+    },
+    {
+      "id": "17-house-blue-shutters",
+      "label": "Pavillon · volets bleu grisé",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "18-house-green-shutters",
+      "label": "Pavillon · volets vert sauge",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "19-house-brick-trim",
+      "label": "Pavillon · encadrements de brique",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "20-house-rubble-stone",
+      "label": "Maison · moellons et pierre claire",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "21-house-contemporary",
+      "label": "Pavillon · baies contemporaines",
+      "family": "house",
+      "moduleWidth": 6,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "22-house-red-brick",
+      "label": "Maison · brique rouge",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "23-house-grey-shutters",
+      "label": "Pavillon · volets gris perle",
+      "family": "house",
+      "moduleWidth": 5.5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "24-house-1960",
+      "label": "Pavillon · soubassement des années 1960",
+      "family": "house",
+      "moduleWidth": 6,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "25-town-iron-balconies",
+      "label": "Centre ancien · garde-corps ouvragés",
+      "family": "town",
+      "moduleWidth": 5.5,
+      "floorHeight": 3.3,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "26-town-grey-stone",
+      "label": "Centre ancien · pierre grise",
+      "family": "town",
+      "moduleWidth": 5.2,
+      "floorHeight": 3.3,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "27-town-brick-lintels",
+      "label": "Faubourg · brique et linteaux",
+      "family": "town",
+      "moduleWidth": 5.5,
+      "floorHeight": 3.2,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "28-town-pale-rose",
+      "label": "Centre ancien · enduit rosé",
+      "family": "town",
+      "moduleWidth": 5.2,
+      "floorHeight": 3.2,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "29-town-timber-cream",
+      "label": "Centre ancien · colombages clairs",
+      "family": "town",
+      "moduleWidth": 5.5,
+      "floorHeight": 3.1,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "30-town-classical-white",
+      "label": "Centre ancien · moulures claires",
+      "family": "town",
+      "moduleWidth": 5.5,
+      "floorHeight": 3.3,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "31-apartment-ochre",
+      "label": "Collectif · panneaux ocre clair",
+      "family": "apartment",
+      "moduleWidth": 6,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "id": "32-apartment-brick-bands",
+      "label": "Collectif · bandeaux de brique",
+      "family": "apartment",
+      "moduleWidth": 6,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "id": "33-apartment-ribbon",
+      "label": "Collectif · fenêtres en bande",
+      "family": "apartment",
+      "moduleWidth": 6.2,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ],
+      "bays": 3
+    },
+    {
+      "id": "34-apartment-loggia",
+      "label": "Collectif · loggias crème",
+      "family": "apartment",
+      "moduleWidth": 6,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "id": "35-apartment-blue-panels",
+      "label": "Collectif · panneaux bleu grisé",
+      "family": "apartment",
+      "moduleWidth": 6,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "id": "36-apartment-beige-balconies",
+      "label": "Collectif · balcons beige clair",
+      "family": "apartment",
+      "moduleWidth": 6.2,
+      "floorHeight": 2.9,
+      "references": [
+        7,
+        8,
+        9,
+        25,
+        26,
+        27
+      ],
+      "bays": 3
+    },
+    {
+      "id": "37-shop-glazing",
+      "label": "Commerce · vitrines",
+      "family": "shop",
+      "moduleWidth": 7,
+      "floorHeight": 3.3,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "38-office-glass",
+      "label": "Bureaux · façade vitrée",
+      "family": "office",
+      "moduleWidth": 6,
+      "floorHeight": 3.3,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "39-school-brick",
+      "label": "Équipement · brique et grandes fenêtres",
+      "family": "institution",
+      "moduleWidth": 6.5,
+      "floorHeight": 3.5,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "bays": 3
+    },
+    {
+      "id": "40-institution-cream",
+      "label": "Équipement · pierre claire et baies hautes",
+      "family": "institution",
+      "moduleWidth": 6.2,
+      "floorHeight": 3.5,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "id": "41-workshop-window-band",
+      "label": "Atelier · bardage et fenêtres",
+      "family": "industrial",
+      "moduleWidth": 7,
+      "floorHeight": 4,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ],
+      "bays": 3
+    },
+    {
+      "id": "42-warehouse-brick-windows",
+      "label": "Entrepôt · brique et baies hautes",
+      "family": "industrial",
+      "moduleWidth": 7,
+      "floorHeight": 4.5,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ],
+      "bays": 3
+    },
+    {
+      "id": "43-gym-metal-windows",
+      "label": "Équipement sportif · bardage et bandeau",
+      "family": "industrial",
+      "moduleWidth": 7,
+      "floorHeight": 4.5,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ],
+      "bays": 3
+    },
+    {
+      "id": "44-industrial-concrete",
+      "label": "Activité · travées de béton et vitrage",
+      "family": "industrial",
+      "moduleWidth": 7,
+      "floorHeight": 4,
+      "references": [
+        4,
+        5,
+        6,
+        13,
+        14,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "45-church-gothic",
+      "label": "Édifice religieux · baies ogivales",
+      "family": "church",
+      "moduleWidth": 9,
+      "floorHeight": 7,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "46-church-romanesque",
+      "label": "Édifice religieux · baies en plein cintre",
+      "family": "church",
+      "moduleWidth": 8,
+      "floorHeight": 6,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "47-civic-arches",
+      "label": "Bâtiment ancien · fenêtres cintrées",
+      "family": "historic",
+      "moduleWidth": 6.5,
+      "floorHeight": 4,
+      "references": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "48-annex-small-windows",
+      "label": "Annexe · petites fenêtres",
+      "family": "annex",
+      "moduleWidth": 5,
+      "floorHeight": 3,
+      "references": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
     }
   ],
   "sectors": [
@@ -402,7 +966,7 @@
           3
         ]
       ],
-      "observation": "Tissu urbain serré : façades crème, calcaire clair, ouvertures verticales, quelques briques et pans de bois. Monuments traités en maçonnerie sobre."
+      "observation": "Tissu urbain serré : pierre claire, enduits crème, briques, colombages et ouvertures verticales. Les édifices religieux reçoivent des baies cintrées ou ogivales."
     },
     {
       "id": 5,
@@ -612,6 +1176,6 @@
   "preservation": {
     "roofs": "Aucune géométrie ni texture de toit écrite.",
     "existingTextures": "Seule la source des extrusions unies OSM reçoit la nouvelle couche ; sources détaillées et propriétés de texture explicites exclues.",
-    "nerval": "Exclusion des identifiants du modèle détaillé et de tout bâtiment intersectant son emprise, avec marge de 15 mètres."
+    "nerval": "Tous les identifiants du modèle détaillé restent exclus. Les bâtiments voisins sans habillage reçoivent les façades du catalogue, même à proximité immédiate de la rue."
   }
 }

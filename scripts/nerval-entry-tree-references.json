@@ -1,0 +1,16 @@
+[
+  {
+    "id": "user-nerval-entry-trees-20260914-1",
+    "file": "artifacts/nerval/entry-tree-fixes-20260914/reference-1.png",
+    "sha256": "fad22a09f3fec4ddf23ebd8c17727ce441ebb7f7f6424f1d66dfd6ff63929c94",
+    "source": "Référence fournie par l’utilisateur",
+    "usage": "Arbres dans les jardins, à côté des accès aux portes"
+  },
+  {
+    "id": "user-nerval-entry-trees-20260914-2",
+    "file": "artifacts/nerval/entry-tree-fixes-20260914/reference-2.png",
+    "sha256": "0a0e4f865c3233cb1051c12bb05bd77e3b4ed4d597b1ae6ff455f169f5adde93",
+    "source": "Référence fournie par l’utilisateur",
+    "usage": "Arbres du modèle à déplacer hors des allées"
+  }
+]

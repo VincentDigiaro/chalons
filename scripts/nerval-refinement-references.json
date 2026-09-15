@@ -1,0 +1,93 @@
+[
+  {
+    "id": "nerval-refinement-aerial-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/aerial.png",
+    "sha256": "11a834b6bcdc7b0ebd4e9b2f56e16058efdf965f7bcd1411127b741ea4c5a4f6",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-45-entry-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/45-entry.jpg",
+    "sha256": "723fec9bf3bfd263219a7e665118de29188c14138ffa331a7661d68eae0894a6",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-loop-corner-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/loop-corner.jpg",
+    "sha256": "46d20573c62ff72c5fb0860b2ecab237d21c2022af00e57baa3eff02fc1361ac",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-45-garage-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/45-garage.png",
+    "sha256": "cc2e3234f10e28d736243fa4ff9f725dadefdfa73a4d17bff3414e3efaa1fec1",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-blue-house-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/blue-house.png",
+    "sha256": "e70ddcf9659fb382a2f84a81fd6960631b231245bcc2af6e49ab8f6ad723c525",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-loop-east-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/loop-east.png",
+    "sha256": "bed1bb87ed814996988e7096a82e2eeeb4d149dffd2245af505ea85d46285ee4",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-loop-west-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/loop-west.png",
+    "sha256": "c0b05d5e1d1ec08ee3a0e8ecd355e51dea8a783e35750af4301416c18978ed99",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-36-porch-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/36-porch.png",
+    "sha256": "cff741d5f1660469cbb917af15bf63143f4b89bd75f04b3d6a61f5bbcede1619",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-white-rails-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/white-rails.png",
+    "sha256": "3bb7ee1a95160a9e6a27ac31413ead62beab34e2c55092f9a69c816803fdea55",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Volumes, ouvertures et aménagements observés ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-french-door-example-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/french-door-example.png",
+    "sha256": "3f5cfde092073712e5656b6413ce847a4f7f2a026376a4bf6de3d8386e6eeb2c",
+    "source": "Correction explicite de l’utilisateur",
+    "usage": "Trois portes-fenêtres à deux vantaux avec volets bois ; porte arrière de l’aile basse en bois plein."
+  },
+  {
+    "id": "nerval-refinement-house42-door-styles-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/house42-door-styles.png",
+    "sha256": "68bb4616ffb64f903e9858017cef70597a1e2b4366afea35abd25fc9a92bcc7b",
+    "source": "Correction explicite de l’utilisateur",
+    "usage": "Trois portes-fenêtres à deux vantaux avec volets bois ; porte arrière de l’aile basse en bois plein."
+  },
+  {
+    "id": "nerval-refinement-house42-side-window-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/house42-side-window.png",
+    "sha256": "80cd58b2443e2dfa38be9668b40a373767bee9d543f02666b21dcf86721efdd4",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Fenêtre du mur latéral de l’aile basse, vers le garage ; dimensions estimées."
+  },
+  {
+    "id": "nerval-refinement-house42-side-window-position-2026-09-13",
+    "file": "artifacts/nerval/refinement-20260913/house42-side-window-position.png",
+    "sha256": "2ab944e314c67c2a4a2c4c992213419a4d224add05038507679047b68235f50b",
+    "source": "Cliché fourni par l’utilisateur",
+    "usage": "Position indiquée en rouge par l’utilisateur sur la maquette."
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "12_carte_repere20_imprecis",
+    "file": "12_carte_repere20_imprecis.png",
+    "source": "Google Maps",
+    "capture_date": "2026-09-14",
+    "image_date": null,
+    "display_address": "20 Rue Buirette de Verrières",
+    "latitude": 48.9611174,
+    "longitude": 4.3760568,
+    "coordinate_type": "Repère Google approximatif de l’adresse, pas une position de caméra ni un relevé du bâtiment",
+    "note": "Google indique explicitement : Le lieu affiché n’est pas précis. Repère situé au carrefour avec la rue Lamairesse.",
+    "url": "https://www.google.com/maps/place/20+Rue+Buirette+de+Verrières,+51000+Châlons-en-Champagne/@48.9611104,4.3765476,19.37z/data=!4m13!1m7!3m6!1s0x47ebde20d91839a1:0x34055fb3066494e!2s20+Rue+Buirette+de+Verrières,+51000+Châlons-en-Champagne!3b1!8m2!3d48.9611174!4d4.3760568!3m4!1s0x47ebde20d91839a1:0x34055fb3066494e!8m2!3d48.9611174!4d4.3760568?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
+    "title": "20 · repère cartographique imprécis",
+    "coordinate_reference_system": "WGS84 (EPSG:4326), degrés décimaux",
+    "pixel_width": 2560,
+    "pixel_height": 1305,
+    "image_processing": "Recadrage de la barre Chrome (87 px en haut) ; pixels de la vue conservés, aucune retouche géométrique. Source initiale JPEG, fichier livré PNG."
+  },
+  {
+    "id": "13_carte_repere18_imprecis",
+    "file": "13_carte_repere18_imprecis.png",
+    "source": "Google Maps",
+    "capture_date": "2026-09-14",
+    "image_date": null,
+    "display_address": "18 Rue Buirette de Verrières",
+    "latitude": 48.9611321,
+    "longitude": 4.3760439,
+    "coordinate_type": "Repère Google approximatif de l’adresse, pas une position de caméra ni un relevé du bâtiment",
+    "note": "Google indique explicitement : Le lieu affiché n’est pas précis. Repère très proche de celui du 20, au carrefour.",
+    "url": "https://www.google.com/maps/place/18+Rue+Buirette+de+Verrières/@48.9612105,4.3760439,18.39z/data=!4m6!3m5!1s0x47ebde212dba7c23:0x6748d07f4f203f11!4b1!8m2!3d48.9611321!4d4.3760439?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
+    "title": "18 · repère cartographique imprécis",
+    "coordinate_reference_system": "WGS84 (EPSG:4326), degrés décimaux",
+    "pixel_width": 2560,
+    "pixel_height": 1305,
+    "image_processing": "Recadrage de la barre Chrome (87 px en haut) ; pixels de la vue conservés, aucune retouche géométrique. Source initiale JPEG, fichier livré PNG."
+  }
+]

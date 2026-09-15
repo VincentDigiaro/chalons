@@ -1,5 +1,9 @@
 {
   "method": "OpenAI built-in image_gen; original facade modules inspired by the provided sector views. Technical Lanczos resizing and WebP encoding only.",
+  "promptFiles": [
+    "artifacts/facades/generation-prompts.json",
+    "artifacts/facades48/prompts.json"
+  ],
   "textures": [
     {
       "id": "01-house-ivory",
@@ -231,6 +235,486 @@
       "original": [
         1536,
         1024
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "17-house-blue-shutters",
+      "original": [
+        1695,
+        928
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "18-house-green-shutters",
+      "original": [
+        1695,
+        928
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "19-house-brick-trim",
+      "original": [
+        1842,
+        854
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "20-house-rubble-stone",
+      "original": [
+        1695,
+        928
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "21-house-contemporary",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "22-house-red-brick",
+      "original": [
+        1698,
+        926
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "23-house-grey-shutters",
+      "original": [
+        1698,
+        926
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "24-house-1960",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "25-town-iron-balconies",
+      "original": [
+        1619,
+        971
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "26-town-grey-stone",
+      "original": [
+        1787,
+        880
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "27-town-brick-lintels",
+      "original": [
+        1836,
+        857
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "28-town-pale-rose",
+      "original": [
+        1599,
+        984
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "29-town-timber-cream",
+      "original": [
+        1834,
+        858
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "30-town-classical-white",
+      "original": [
+        1640,
+        959
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "31-apartment-ochre",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "32-apartment-brick-bands",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "33-apartment-ribbon",
+      "original": [
+        1950,
+        807
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "34-apartment-loggia",
+      "original": [
+        1801,
+        873
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "35-apartment-blue-panels",
+      "original": [
+        1810,
+        869
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "36-apartment-beige-balconies",
+      "original": [
+        1837,
+        856
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "37-shop-glazing",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "38-office-glass",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "39-school-brick",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "40-institution-cream",
+      "original": [
+        1953,
+        805
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "41-workshop-window-band",
+      "original": [
+        1659,
+        948
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "42-warehouse-brick-windows",
+      "original": [
+        1659,
+        948
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "43-gym-metal-windows",
+      "original": [
+        1659,
+        948
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "44-industrial-concrete",
+      "original": [
+        1659,
+        948
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "45-church-gothic",
+      "original": [
+        1662,
+        946
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "46-church-romanesque",
+      "original": [
+        1580,
+        995
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "47-civic-arches",
+      "original": [
+        1774,
+        887
+      ],
+      "detail": [
+        512,
+        256
+      ],
+      "overview": [
+        128,
+        64
+      ]
+    },
+    {
+      "id": "48-annex-small-windows",
+      "original": [
+        1619,
+        971
       ],
       "detail": [
         512,

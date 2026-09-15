@@ -1,0 +1,23 @@
+[
+  {
+    "id": "user-nerval-second-house-doors-20260914-1",
+    "file": "artifacts/nerval/second-house-doors-20260914/reference-1.png",
+    "sha256": "041bd99e3cc1292ac6665104d15f0709da606c276cb91ff8076febfc4a499601",
+    "source": "Image annotée fournie par l’utilisateur",
+    "usage": "Deux portes-fenêtres au rez-de-chaussée de la deuxième maison : pignon gauche et façade avant."
+  },
+  {
+    "id": "user-nerval-second-house-doors-20260914-2",
+    "file": "artifacts/nerval/second-house-doors-20260914/reference-2.png",
+    "sha256": "d81bb575c02bef1c247a87f06ec180cf7f299c0f40ba0ef8dbfc9de1cdb3890d",
+    "source": "Image fournie par l’utilisateur",
+    "usage": "Maison du fond : deux portes-fenêtres côté rue, conserver les trois côté jardin."
+  },
+  {
+    "id": "user-nerval-second-house-doors-20260914-3",
+    "file": "artifacts/nerval/front-door-spacing-20260914/reference-1.png",
+    "sha256": "368fbcb09c363b496ac9c7650a87f40f389dd09849c6c5c74be8b39f031a81aa",
+    "source": "Correction demandée par l’utilisateur",
+    "usage": "Redistribuer harmonieusement les deux portes-fenêtres côté rue, avec des espaces réguliers après la porte d’entrée."
+  }
+]

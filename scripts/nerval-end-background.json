@@ -1,0 +1,98 @@
+[
+  {
+    "id": 201,
+    "osm_id": "way/156773476",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 202,
+    "osm_id": "way/156773977",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 203,
+    "osm_id": "way/156773004",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 204,
+    "osm_id": "way/156773117",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 205,
+    "osm_id": "way/156773595",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 206,
+    "osm_id": "way/156773941",
+    "eaves": 6.3,
+    "rise": 1.85,
+    "roof": "gable",
+    "type": "terrace",
+    "description": "Rangée à étage derrière le fond de l’impasse",
+    "color": "#d8bba5",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 207,
+    "osm_id": "way/156707248",
+    "eaves": 5.7,
+    "rise": 2.3,
+    "roof": "hip",
+    "type": "pavilion",
+    "description": "Pavillon et annexe derrière la haie du passage",
+    "color": "#dcd8c8",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  },
+  {
+    "id": 208,
+    "osm_id": "way/156688577",
+    "eaves": 2.6,
+    "rise": 0.65,
+    "roof": "lean-to",
+    "type": "annex",
+    "description": "Pavillon et annexe derrière la haie du passage",
+    "color": "#dcd8c8",
+    "reference": "nerval-end-20260914-cul-de-sac-reference",
+    "accuracy": "Volume et toiture interprétés sur le fond du cliché ; emprise OSM existante. Les ouvertures partiellement masquées sont simplifiées."
+  }
+]

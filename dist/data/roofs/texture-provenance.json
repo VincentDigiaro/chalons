@@ -1,0 +1,486 @@
+{
+  "method": "Original material swatches generated with built-in image_gen from aerial appearance references. Technical Lanczos resizing and WebP encoding only.",
+  "prompts": "artifacts/roofs/prompts.json",
+  "textures": [
+    {
+      "id": "01-clay-muted-red",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "02-clay-orange",
+      "originalSize": [
+        1174,
+        1340
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "03-clay-red-brown",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "04-clay-dark-brown",
+      "originalSize": [
+        1173,
+        1341
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "05-clay-weathered-grey",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "06-clay-flat-brown",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "07-clay-flat-red",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "08-concrete-charcoal",
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "09-concrete-brown",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "10-concrete-grey",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "11-clay-ochre",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "12-clay-aged",
+      "originalSize": [
+        1173,
+        1341
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "13-slate-blue",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "14-slate-anthracite",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "15-slate-silver",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "16-slate-green-grey",
+      "originalSize": [
+        1211,
+        1299
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "17-slate-small-dark",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "18-fibre-cement",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "19-zinc-light",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "20-zinc-patina",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "21-metal-white",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "22-metal-grey",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "23-metal-beige",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "24-metal-red",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "25-bitumen-dark",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "26-bitumen-grey",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "27-gravel-pale",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "28-gravel-brown",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "29-membrane-ivory",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "30-membrane-grey",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "31-bitumen-patched",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "32-mineral-sand",
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "detail": [
+        512,
+        512
+      ],
+      "overview": [
+        128,
+        128
+      ]
+    }
+  ]
+}
