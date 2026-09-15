@@ -184,7 +184,7 @@ export class WalkMode {
   this.updateStreet();this.updatePositionReadout();
   this.renderer.trim(this.position);if(!this.refreshed||now-this.refreshed>350){this.renderer.refresh(this.position);this.refreshed=now;}
   const camera=this.flight?.active?this.flight.camera():{position:this.position,height:EYE_HEIGHT+this.feet,yaw:this.yaw,pitch:this.pitch};
-  this.renderer.draw(camera.position,camera.height,camera.yaw,camera.pitch,this.piss?.getVisualState());this.frame=requestAnimationFrame(t=>this.tick(t));
+  this.renderer.draw(camera.position,camera.height,camera.yaw,camera.pitch,this.piss?.getVisualState(),this.position);this.frame=requestAnimationFrame(t=>this.tick(t));
  }
  exit(){this.keys.clear();this.setFlash(false);this.clearJump();this.piss?.dispose();this.music?.dispose();if(document.pointerLockElement===this.canvas)document.exitPointerLock();const url=clearWalkEntry(location.href);url.hash=walkReturnHash(this.position);history.replaceState(null,'',url.href);location.reload();}
  getState(){return {mode:this.phase,piss:this.piss?.getState(),flight:this.flight?.getState(),music:this.music?.getState(),streetName:this.streetName||null,flashEnabled:this.flash,turboSpeedKmh:Math.round(TURBO_SPEED*3.6),position:toLngLat(this.position),localPosition:[...this.position],arrivalCamera:this.arrivalCamera,eyeHeight:EYE_HEIGHT,feetHeight:this.feet,grounded:this.grounded,verticalSpeed:this.verticalSpeed,jumps:this.jumpCount||0,yaw:this.yaw,pitch:this.pitch,pointerLocked:document.pointerLockElement===this.canvas,mobile:this.touch,streaming:this.renderer?.getState()};}
