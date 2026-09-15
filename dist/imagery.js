@@ -1,5 +1,7 @@
 // Always use the saved same-origin original. Only the server contacts IGN,
 // and it saves a missing tile to disk before returning it to the visitor.
+import {createImageryPackLoader} from './imagery-pack-loader.js';
+export {createImageryPackLoader} from './imagery-pack-loader.js';
 export const IGN_LAYER = 'ORTHOIMAGERY.ORTHOPHOTOS';
 export const IGN_WMTS = 'https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM_0_19&TILEMATRIX={z}&TILECOL={x}&TILEROW={y}';
 export const LOCAL_IMAGERY = './data/imagery/ign/{z}/{x}/{y}.jpg';
@@ -26,10 +28,10 @@ export function createImageryLoader({fetchImage=(...args)=>globalThis.fetch(...a
     return {data:await read(localImageryURL(z,x,y),signal,localTimeout),source:'local'};
   };
 }
-export const loadImagery=createImageryLoader();
+export const loadImagery=createImageryPackLoader();
 export function installImageryProtocol(maplibre){
   maplibre.addProtocol('saved-ign',async(params,controller)=>{
     const tile=params.url.match(/^saved-ign:\/\/(\d+)\/(\d+)\/(\d+)$/);if(!tile)throw Error('Invalid image URL');
-    const {data}=await loadImagery(...tile.slice(1).map(Number),{signal:controller.signal});return {data};
+    const result=await loadImagery(...tile.slice(1).map(Number),{signal:controller.signal});return {data:await result.bitmap()};
   });
 }

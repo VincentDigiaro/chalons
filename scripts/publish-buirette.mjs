@@ -36,7 +36,7 @@ async function list(folder=''){
 async function checkInputs(){for(const [file,expected] of Object.entries(walk.sourceHashes))assert.equal(hash((await optional(child(source,file.replace(/^dist\//,''))))??await fs.readFile(child(live,file.replace(/^dist\//,'')))),expected,'Rebuild walk: '+file);}
 const guardFiles=[...(await fs.readdir(source,{withFileTypes:true})).filter(e=>e.isFile()&&!e.name.endsWith('.gz')).map(e=>e.name),'data/nerval/index.json','data/nerval/mesh.bin','data/attila/index.json','data/attila/mesh.bin','data/walk/index.json','data/facades/index.json','data/roofs/index.json'];
 async function guards(root){const result={};for(const file of guardFiles)result[file]=digest(await optional(child(root,file)));return result;}
-const priority=f=>f==='walk-geometry-loader.js'?1:f==='index.html'||f==='app.js'?4:f.endsWith('/index.json')||f==='data/custom-models.json'?3:!f.includes('/')?2:1;
+const priority=f=>['walk-geometry-loader.js','imagery-packs.js','imagery-pack-loader.js'].includes(f)?1:f==='index.html'||f==='app.js'?4:f.endsWith('/index.json')||f==='data/custom-models.json'?3:!f.includes('/')?2:1;
 await checkInputs();
 if(process.argv[2]==='prepare'){
  assert(!(await optional(manifestFile)),'This prepared release already exists');

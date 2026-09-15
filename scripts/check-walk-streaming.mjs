@@ -4,7 +4,9 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {WalkRenderer} from '../dist/walk-renderer.js';
 import {SPAWN,EYE_HEIGHT,LOAD_RADIUS,GROUND_LOAD_RADIUS,nodeLoadRadius,inRange,nearDistance,farDistance,tileAt,tileBounds} from '../dist/walk-core.js';
-import {localImageryURL as imageryURL} from '../dist/imagery.js';
+import {packURL,tilePack,encodeImageryPack} from '../dist/imagery-packs.js';
+const imageryConfig=JSON.parse(await fs.readFile('imagery-config.json','utf8'));
+const imageryURL=(z,x,y)=>packURL(tilePack(z,x,y,imageryConfig.tuilesParCotePaquet));
 
 globalThis.matchMedia=()=>({matches:false});globalThis.devicePixelRatio=1;
 const allocations=new Set(),drawCalls=[],uniforms={},enabled=new Set();let handle=0,constant=1,boundVAO,depthBias=[0,0];
@@ -31,9 +33,10 @@ globalThis.fetch=async(url,{signal}={})=>{
  if(signal?.aborted)throw new DOMException('Aborted','AbortError');
  if(/^https?:/.test(String(url))){remoteRequests++;return new Response('',{status:503});}
  const relative=String(url).replace('./','');
+ if(relative==='imagery-config.json')return new Response(JSON.stringify(imageryConfig));
  if(relative==='data/walk/index.json'&&++indexAttempts===1)return new Response('',{status:503});
  // Even missing local images must not put a warning over the promenade.
- if(relative.startsWith('data/imagery/ign/')){if(String(url)===recoveredURL)return new Response(await fs.readFile('.cache/ign/centre-sample.jpg'),{headers:{'content-type':'image/jpeg'}});missingImages++;return new Response('',{status:503});}
+ if(relative.startsWith('data/imagery/ign/')){if(String(url)===recoveredURL){const [side,z,x,y]=relative.match(/v1\/(\d+)\/(\d+)\/(\d+)\/(\d+)\.bin/).slice(1).map(Number),tiles=[];for(let dy=0;dy<side;dy++)for(let dx=0;dx<side;dx++)tiles.push([x+dx,y+dy,dy*side+dx,0,0]);return new Response(encodeImageryPack({z,x,y,side,tiles},Array(side**2).fill(await fs.readFile('.cache/ign/centre-sample.jpg'))));}missingImages++;return new Response('',{status:503});}
  if(relative.startsWith('data/walk/')&&relative.endsWith('.bin')){const file=relative.slice('data/walk/'.length),needed=(packMembers.get(file)||[file]).find(f=>bounds.has(f)&&inRange(bounds.get(f),position,nodeLoadRadius(f)));assert(needed,'An asset was requested without any needed building inside its category radius');requests++;failedBuilding??=relative;failedBuildingNode??=needed;if(relative===failedBuilding&&++buildingAttempts===1)throw TypeError('Failed to fetch');}
  const buffer=await fs.readFile(path.join('dist',relative));if(signal?.aborted)throw new DOMException('Aborted','AbortError');return new Response(buffer);
 };

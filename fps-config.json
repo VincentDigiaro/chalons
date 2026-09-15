@@ -1,13 +1,16 @@
 {
+  "debutBrouillardMetres": 700,
+  "finBrouillardMetres": 900,
   "rayonChargementBatimentsMetres": 1000,
   "rayonChargementSolMetres": 1000,
   "rayonChargementRoutesMetres": 1000,
-  "chargementsGeometrieSimultanes": 8,
-  "chargementsTexturesSimultanes": 6,
-  "debutBrouillardMetres": 500,
-  "finBrouillardMetres": 1000,
+  
+  
+  
+  "chargementsGeometrieSimultanes": 16,
+  "chargementsTexturesSimultanes": 12,
   "puissanceSautMps": 4.497199128346442,
-  "multiplicateurHauteurSautSpeed": 70,
+  "multiplicateurHauteurSautSpeed": 30,
   "delaiEntreSautsMs": 250,
   "vitesseMarcheMps": 3.3,
   "vitesseCourseMps": 6.4,

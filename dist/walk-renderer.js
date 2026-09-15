@@ -35,6 +35,7 @@ uniform int u_kind;
 uniform float u_load_radius;
 uniform vec2 u_fog;
 uniform vec2 u_player;
+uniform vec2 u_visibility_center;
 in vec3 v_position;in vec2 v_uv;in vec3 v_color;in float v_light;
 out vec4 fragColor;
 ${SKY_GLSL}
@@ -44,7 +45,8 @@ ${GROUND_GLSL}
 ${HOUSE_GLSL}
 ${ATTILA_GROUND_GLSL}
 void main(){
- float distance=length(v_position.xy-u_player);if(distance>u_load_radius)discard;
+ float visibilityDistance=length(v_position.xy-u_visibility_center);if(visibilityDistance>u_load_radius)discard;
+ float distance=length(v_position.xy-u_player);
  vec3 c=v_color;float light=.80+.20*(v_light-.72)/.28;
  if(u_kind==0)c*=v_light;
  // Match the removed solid ground's original colour and lighting, on the
@@ -78,7 +80,7 @@ export class WalkRenderer {
  setup(){
   const gl=this.gl,compile=(kind,source)=>{const shader=gl.createShader(kind);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(shader));return shader;};
   this.program=gl.createProgram();for(const [kind,source] of [[gl.VERTEX_SHADER,VERTEX],[gl.FRAGMENT_SHADER,FRAGMENT]]){const s=compile(kind,source);gl.attachShader(this.program,s);gl.deleteShader(s);}gl.linkProgram(this.program);if(!gl.getProgramParameter(this.program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(this.program));
-  this.uniforms=Object.fromEntries(['u_matrix','u_model','u_player','u_texture','u_ready','u_kind','u_load_radius','u_highwind_depth','u_highwind_shadow_ready','u_highwind_shadow_matrix','u_highwind_shadow_origin','u_highwind_shadow_texel','u_highwind_shadow_bias','u_fog','u_sky_horizon','u_sky_band'].map(k=>[k,gl.getUniformLocation(this.program,k)]));
+  this.uniforms=Object.fromEntries(['u_matrix','u_model','u_player','u_visibility_center','u_texture','u_ready','u_kind','u_load_radius','u_highwind_depth','u_highwind_shadow_ready','u_highwind_shadow_matrix','u_highwind_shadow_origin','u_highwind_shadow_texel','u_highwind_shadow_bias','u_fog','u_sky_horizon','u_sky_band'].map(k=>[k,gl.getUniformLocation(this.program,k)]));
   this.sky=new SceneSky(gl);
   this.highwindShadow=new HighwindShadow(gl);
   this.anisotropy=gl.getExtension('EXT_texture_filter_anisotropic');
@@ -143,18 +145,19 @@ export class WalkRenderer {
   if(key.startsWith('ign/'))this.textureQueue.push(entry);else this.textureQueue.unshift(entry);this.pumpTextures();return entry;
  }
  pumpTextures(){while(this.textureActive<FPS_CONFIG.chargementsTexturesSimultanes&&this.textureQueue.length&&!this.disposed){const entry=this.textureQueue.shift();if(entry.controller.signal.aborted)continue;this.textureActive++;entry.attempts++;const aerial=entry.key.startsWith('ign/'),url='./data/walk/'+entry.key;
-  const timeout=setTimeout(()=>{entry.timedOut=true;entry.controller.abort();},10000);
-  const request=aerial?loadImagery(...entry.key.split('/').slice(1).map(Number),{signal:entry.controller.signal}).then(({data})=>new Response(data,{headers:{'content-type':'image/jpeg'}})):fetch(url,{signal:entry.controller.signal});
-  request.then(async r=>{if(!r.ok)throw Error(`Texture ${r.status}`);const bitmap=await createImageBitmap(await r.blob(),{imageOrientation:'none',premultiplyAlpha:'none'});if(this.disposed||entry.controller.signal.aborted){bitmap.close();return;}const gl=this.gl,t=gl.createTexture();entry.gpu=t;gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bitmap);bitmap.close();gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);if(this.anisotropy)gl.texParameterf(gl.TEXTURE_2D,this.anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(this.anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
-  }).catch(error=>{if(error.name!=='AbortError'||entry.timedOut){entry.failed=true;entry.retryAt=Date.now()+30000*entry.attempts;this.errors++;}}).finally(()=>{clearTimeout(timeout);this.textureActive--;this.pumpTextures();});
+  // Imagery has its own JSON timeout and shared packet cancellation.
+  const timeout=aerial?null:setTimeout(()=>{entry.timedOut=true;entry.controller.abort();},10000);
+  const request=aerial?loadImagery(...entry.key.split('/').slice(1).map(Number),{signal:entry.controller.signal}).then(result=>result.bitmap()):fetch(url,{signal:entry.controller.signal}).then(async r=>{if(!r.ok)throw Error(`Texture ${r.status}`);return createImageBitmap(await r.blob(),{imageOrientation:'none',premultiplyAlpha:'none'});});
+  request.then(bitmap=>{if(this.disposed||entry.controller.signal.aborted){bitmap.close();return;}const gl=this.gl,t=gl.createTexture();entry.gpu=t;gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bitmap);bitmap.close();gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);if(this.anisotropy)gl.texParameterf(gl.TEXTURE_2D,this.anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(this.anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+  }).catch(error=>{if(error.name!=='AbortError'||entry.timedOut||(aerial&&!entry.controller.signal.aborted)){entry.failed=true;entry.retryAt=Date.now()+30000*entry.attempts;this.errors++;}}).finally(()=>{clearTimeout(timeout);this.textureActive--;this.pumpTextures();});
  }}
  pruneTextures(){const used=new Set([...this.ground.keys(),...this.highwind.textureKeys()]);for(const n of this.nodes.values())for(const [id] of n.ranges||[]){const key=this.material(id).texture;if(key)used.add(key);}for(const [key,t] of this.textures)if(!used.has(key)){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);this.textures.delete(key);}this.textureQueue=this.textureQueue.filter(t=>!t.controller.signal.aborted);}
  collisions(position){return [...this.nodes.values()].filter(n=>n.gpu&&nearDistance(n.bounds,position)<3).flatMap(n=>n.segments||[]);}
  collisionScene(position){const nodes=[...this.nodes.values()].filter(n=>n.gpu&&nearDistance(n.bounds,position)<3),ship=this.highwind.playerCollisionScene();return {segments:nodes.flatMap(n=>n.collision?.segments||[]).concat(ship.segments).filter(s=>segmentDistance(position,s)<3),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[]).concat(ship.surfaces).filter(s=>nearDistance(s.bounds,position)<3)};}
  safeToMove(position){return ![...this.nodes.values()].some(n=>nearDistance(n.bounds,position)<12&&!n.gpu);}
  vehicleScene(position,radius){const nodes=[...this.nodes.values()].filter(n=>nearDistance(n.bounds,position)<radius);return {ready:nodes.every(n=>n.gpu),segments:nodes.flatMap(n=>n.collision?.segments||[]),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[])};}
- draw(position,height,yaw,pitch,piss=null){
-  if(this.disposed)return;const gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);
+ draw(position,height,yaw,pitch,piss=null,visibilityPosition=position){
+  if(this.disposed)return;const gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);gl.uniform2f(this.uniforms.u_visibility_center,...visibilityPosition);
   // Project nearby XY coordinates to avoid cancellation several kilometres
   // from the city origin. World positions still drive materials and culling.
   gl.uniformMatrix4fv(this.uniforms.u_matrix,false,viewProjection([0,0,height],yaw,pitch,width/heightPx));
@@ -165,11 +168,11 @@ export class WalkRenderer {
   // at altitude. Bias only the photo pass, preserving mesh heights, collisions
   // and normal occlusion between roads, buildings and the Highwind.
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,4);
-  for(const [id,tile] of this.ground)if(nearDistance(tile.bounds,position)<GROUND_LOAD_RADIUS)draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);
+  for(const [id,tile] of this.ground)if(nearDistance(tile.bounds,visibilityPosition)<GROUND_LOAD_RADIUS)draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);
   gl.disable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(0,0);
   // Submit every loaded object in range, regardless of the camera direction.
   let draws=0,visible=0;
-  for(const node of this.nodes.values())if(node.gpu&&inRange(node.bounds,position,nodeLoadRadius(node.file))){
+  for(const node of this.nodes.values())if(node.gpu&&inRange(node.bounds,visibilityPosition,nodeLoadRadius(node.file))){
    // Generic catalogue facades already provide the complete exterior wall.
    // Keep the original mesh for collisions, but never draw its solid backing.
    const hasFacades=node.ranges.some(([id])=>typeof id==='number'&&id>=this.index.facadeBase&&id<this.index.roofBase);
@@ -178,6 +181,6 @@ export class WalkRenderer {
   this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visible;this.culledAssets=0;gl.bindVertexArray(null);
   if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position),viewProjection([0,0,height],yaw,pitch,width/heightPx),height);}
  }
- getState(){return {geometryTransport:this.geometryLoader.getState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
+ getState(){return {imageryTransport:loadImagery.getState(),geometryTransport:this.geometryLoader.getState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
  dispose(){this.disposed=true;this.geometryLoader.dispose();this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.textures.clear();this.ground.clear();}
 }

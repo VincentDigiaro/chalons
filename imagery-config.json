@@ -1,0 +1,13 @@
+{
+  "tuilesParCotePaquet": 4,
+  "cachePaquetsNavigateurOctets": 67108864,
+  "delaiRequeteNavigateurMs": 75000,
+  "chargementsPaquetsIGNSimultanes": 4,
+  "intervalleRequetesIGNMs": 125,
+  "delaiRequeteIGNMs": 20000,
+  "nouvellesTentativesIGN": 2,
+  "delaiNouvelleTentativeIGNMs": 500,
+  "delaiApresEchecIGNMs": 30000,
+  "paquetsIGNEnAttenteMax": 512,
+  "octetsMaxImageIGN": 33554432
+}

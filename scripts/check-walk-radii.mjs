@@ -66,7 +66,7 @@ if(!process.argv.includes('--probe')){
  assert.deepEqual([...renderer.ground.keys()].sort(),expectedGround.sort());
  assert.deepEqual([...renderer.textures.keys()].sort(),expectedPhotos.sort(),'Photo downloads only depend on the ground radius');
  renderer.draw([0,0],1.4,0,0);
- assert(sources.some(s=>s.includes('if(distance>u_load_radius)discard;')&&s.includes('smoothstep(u_fog.x,u_fog.y,distance)')));
+ assert(sources.some(s=>s.includes('visibilityDistance>u_load_radius')&&s.includes('smoothstep(u_fog.x,u_fog.y,distance)')));
  for(const node of renderer.nodes.values()){
   const draws=calls.filter(c=>c.vao===node.gpu.vao);assert(draws.length>0,'Longer-radius assets must survive camera clipping');
   assert(draws.every(c=>c.radius===radii[node.file.split('/')[0]]));
@@ -75,6 +75,10 @@ if(!process.argv.includes('--probe')){
  const groundDraws=calls.filter(c=>groundVAOs.has(c.vao));if(ground>0)assert(groundDraws.length>0);
  assert(groundDraws.every(c=>c.radius===ground));
  assert.deepEqual(uniforms.u_fog,[125.25,975.75],'Fog remains independent and preserves decimal settings');
+ calls.length=0;const distantCamera=[0,-2000],shipCenter=[0,0];renderer.draw(distantCamera,300,0,0,null,shipCenter);
+ assert.deepEqual(uniforms.u_player,distantCamera,'Projection and fog retain the real camera position');
+ assert.deepEqual(uniforms.u_visibility_center,shipCenter,'The visible radius follows the ship center instead of its chase camera');
+ for(const node of renderer.nodes.values())assert(calls.some(c=>c.vao===node.gpu.vao),'Ship-centered assets remain submitted with a distant chase camera');
  assert.deepEqual(renderer.getState().radii,radii);
  if(Math.max(buildings,ground,roads)>0){const d=Math.max(buildings,ground,roads)-2;assert(inFrustum([-1,d,1,d+1],[0,2],frustumPlanes(viewProjection([0,0,1.4],0,0,4/3))));}
  const p=[0,700];renderer.trim(p);
