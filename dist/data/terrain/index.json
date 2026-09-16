@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "width": 1229,
+  "height": 1448,
+  "bounds": [
+    4.150170870626526,
+    48.800112223756905,
+    4.569829129373475,
+    49.12488777624309
+  ],
+  "encoding": "int16-le-centimetres",
+  "file": "elevations.bin",
+  "referenceAltitude": 84.05,
+  "resolutionMetres": 25,
+  "minAltitude": 71.42,
+  "maxAltitude": 285.93,
+  "source": "IGN RGE ALTI",
+  "license": "Licence Ouverte 2.0",
+  "sourceURL": "https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES&STYLES=normal&FORMAT=image/geotiff&CRS=EPSG:4326&BBOX=48.80,4.15,49.125,4.57&WIDTH=1229&HEIGHT=1448",
+  "acquiredAt": "2026-09-16T09:53:05.673532+00:00"
+}

@@ -1,3 +1,5 @@
+import {loadTerrain,terrainHeight,terrainMaxHeight,flightTerrainHeight,terrainState,drapeVertices,terrainTile,subdivideRoads} from './terrain.js';
+import {SpatialIndex,nearbyCollision,movementBounds,WALK_COLLISION_RADIUS} from './walk-collision-index.js';
 import {ATTILA_GROUND_GLSL} from './attila-ground-materials.js';
 import {excludeReplacedWalkNodes} from './walk-replacements.js';
 import {SceneSky,SKY_GLSL} from './scene-sky.js';
@@ -69,7 +71,7 @@ void main(){
 
 export class WalkRenderer {
  constructor(canvas){
-  this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.textures=new Map();this.ground=new Map();this.queue=[];this.active=0;this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
+  this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.collisionIndex=new SpatialIndex();this.textures=new Map();this.ground=new Map();this.queue=[];this.active=0;this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
   this.gl=canvas.getContext('webgl2',{alpha:false,antialias:!matchMedia('(pointer:coarse)').matches,powerPreference:'high-performance'});
   if(!this.gl)throw Error('Le mode promenade nécessite WebGL 2.');
   this.abort=new AbortController();this.setup();this.highwind=new FPSHighwind(this,FPS_CONFIG.highwind);
@@ -88,6 +90,10 @@ export class WalkRenderer {
   const options={signal:this.abort.signal,cache:'no-store',onRetry:()=>onProgress({loaded:0,total:0,retrying:true})};
   const [buffer,replacements]=await Promise.all([fetchWalkBuffer('./data/walk/index.json',options),fetchWalkBuffer('./data/custom-models.json',options)]);
   const decode=buffer=>JSON.parse(new TextDecoder().decode(buffer));
+  await loadTerrain({signal:this.abort.signal,fetchBuffer:fetchWalkBuffer});
+  if(this.disposed)return;
+  if(this.highwind.pose&&!this.highwind.terrainPlaced){const p=this.highwind.pose.position;p.z+=terrainHeight(p.x,p.y);this.highwind.terrainPlaced=true;}
+  if(this.highwind.enabled)flightTerrainHeight(...position);
   this.index=excludeReplacedWalkNodes(decode(buffer),decode(replacements));this.refresh(position);
   // Initial scene must be complete around the player before walking is enabled.
   await new Promise((resolve,reject)=>{const check=()=>{
@@ -105,18 +111,18 @@ export class WalkRenderer {
  }
  geometry(vertices){const gl=this.gl,vao=gl.createVertexArray(),buffer=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);for(const [a,size,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);let bottom=Infinity,top=-Infinity;for(let i=2;i<vertices.length;i+=11){bottom=Math.min(bottom,vertices[i]);top=Math.max(top,vertices[i]);}return {vao,buffer,count:vertices.length/11,bytes:vertices.byteLength,zBounds:[bottom,top]};}
  drop(gpu){if(gpu){this.gl.deleteVertexArray(gpu.vao);this.gl.deleteBuffer(gpu.buffer);}}
- trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);}for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){this.drop(tile.gpu);this.ground.delete(key);}}
+ trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);this.collisionIndex?.delete(key);}for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){this.drop(tile.gpu);this.ground.delete(key);}}
  refresh(position){
   if(!this.index||this.disposed)return;this.position=[...position];
   this.highwind.refresh(position);
   const wanted=new Set();
-  for(const record of this.index.nodes){const bounds=record.slice(1);if(!inRange(bounds,position,nodeLoadRadius(record[0])))continue;wanted.add(record[0]);if(!this.nodes.has(record[0]))this.nodes.set(record[0],{file:record[0],bounds,controller:new AbortController()});}
-  for(const [key,node] of this.nodes)if(!wanted.has(key)){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);}
+  for(const record of this.index.nodes){const bounds=record.slice(1);if(!inRange(bounds,position,nodeLoadRadius(record[0])))continue;wanted.add(record[0]);if(!this.nodes.has(record[0])){const node={file:record[0],bounds,controller:new AbortController()};this.nodes.set(record[0],node);this.collisionIndex.set(record[0],bounds,node);}}
+  for(const [key,node] of this.nodes)if(!wanted.has(key)){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);this.collisionIndex?.delete(key);}
   this.queue=[...this.nodes.values()].filter(n=>!n.gpu&&!n.loading&&!n.failed).sort((a,b)=>nearDistance(a.bounds,position)-nearDistance(b.bounds,position));this.pump();
   const [tx,ty]=tileAt(position,18),groundWanted=new Set(),tile=tileBounds(18,tx,ty),reach=Math.ceil(GROUND_LOAD_RADIUS/Math.min(tile[2]-tile[0],tile[3]-tile[1]))+1;
   for(let x=tx-reach;x<=tx+reach;x++)for(let y=ty-reach;y<=ty+reach;y++){
    const b=tileBounds(18,x,y);if(nearDistance(b,position)>=GROUND_LOAD_RADIUS)continue;const key=`ign/18/${x}/${y}`;groundWanted.add(key);
-   if(!this.ground.has(key)){const [w,s,e,n]=b,points=[[w,s],[e,s],[e,n],[w,s],[e,n],[w,n]],uv=[[0,1],[1,1],[1,0],[0,1],[1,0],[0,0]],v=new Float32Array(points.flatMap((p,i)=>[...p,-.025,0,0,1,...uv[i],1,1,1]));this.ground.set(key,{bounds:b,gpu:this.geometry(v)});}
+   if(!this.ground.has(key)){const v=terrainTile(b);this.ground.set(key,{bounds:b,gpu:this.geometry(v)});}
    // Boundary tiles fill the horizon without requesting photos beyond the
    // streaming radius. Their outer fragments are clipped by the shader.
    if(inRange(b,position,GROUND_LOAD_RADIUS))this.texture(key);
@@ -125,7 +131,7 @@ export class WalkRenderer {
   this.pruneTextures();
  }
  pump(){while(this.active<FPS_CONFIG.chargementsGeometrieSimultanes&&this.queue.length&&!this.disposed){const node=this.queue.shift();if(node.controller.signal.aborted)continue;node.loading=true;this.active++;
-  fetchWalkBuffer('./data/walk/'+node.file,{signal:node.controller.signal,onRetry:()=>{node.retrying=true;this.retries=(this.retries||0)+1;}}).then(buffer=>{node.retrying=false;if(node.controller.signal.aborted||this.disposed)return;const length=new DataView(buffer).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length))),vertices=new Float32Array(buffer,4+length);node.ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+this.index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,this.index,this.roofMode);node.collision=collisionGeometry(vertices);node.segments=node.collision.segments;node.gpu=this.geometry(vertices);for(const [material] of node.ranges)this.texture(material);
+  fetchWalkBuffer('./data/walk/'+node.file,{signal:node.controller.signal,onRetry:()=>{node.retrying=true;this.retries=(this.retries||0)+1;}}).then(buffer=>{node.retrying=false;if(node.controller.signal.aborted||this.disposed)return;const length=new DataView(buffer).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length)));let vertices=new Float32Array(buffer,4+length);node.ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+this.index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,this.index,this.roofMode);if(header.cityRoads){const road=subdivideRoads(vertices,node.ranges);vertices=road.vertices;node.ranges=road.ranges;}drapeVertices(vertices);node.collision=collisionGeometry(vertices);node.segments=node.collision.segments;node.gpu=this.geometry(vertices);if(!this.collisionIndex.entries.has(node.file))this.collisionIndex.set(node.file,node.bounds,node);for(const [material] of node.ranges)this.texture(material);
   }).catch(error=>{if(error.name!=='AbortError'){this.errors++;node.failed=true;console.warn('Promenade :',error.message);}}).finally(()=>{this.active--;node.loading=false;this.pump();});
  }}
  material(id){return typeof id==='string'?{kind:1,texture:id}:this.index.materials[id];}
@@ -145,9 +151,22 @@ export class WalkRenderer {
   }).catch(error=>{if(error.name!=='AbortError'||entry.timedOut){entry.failed=true;entry.retryAt=Date.now()+30000*entry.attempts;this.errors++;}}).finally(()=>{clearTimeout(timeout);this.textureActive--;this.pumpTextures();});
  }}
  pruneTextures(){const used=new Set([...this.ground.keys(),...this.highwind.textureKeys()]);for(const n of this.nodes.values())for(const [id] of n.ranges||[]){const key=this.material(id).texture;if(key)used.add(key);}for(const [key,t] of this.textures)if(!used.has(key)){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);this.textures.delete(key);}this.textureQueue=this.textureQueue.filter(t=>!t.controller.signal.aborted);}
- collisions(position){return [...this.nodes.values()].filter(n=>n.gpu&&nearDistance(n.bounds,position)<3).flatMap(n=>n.segments||[]);}
- collisionScene(position){const nodes=[...this.nodes.values()].filter(n=>n.gpu&&nearDistance(n.bounds,position)<3),ship=this.highwind.playerCollisionScene();return {segments:nodes.flatMap(n=>n.collision?.segments||[]).concat(ship.segments).filter(s=>segmentDistance(position,s)<3),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[]).concat(ship.surfaces).filter(s=>nearDistance(s.bounds,position)<3)};}
- safeToMove(position){return ![...this.nodes.values()].some(n=>nearDistance(n.bounds,position)<12&&!n.gpu);}
+ groundHeight(position){return terrainHeight(...position)+.022;}
+ groundMaxHeight(bounds){return terrainMaxHeight(bounds)+.022;}
+ flightGroundHeight(position){return flightTerrainHeight(position[0],position[1])+.022;}
+ nearbyNodes(bounds){
+  if(!this.collisionIndex){this.collisionIndex=new SpatialIndex();for(const [key,node] of this.nodes)this.collisionIndex.set(key,node.bounds,node);}
+  return this.collisionIndex.query(bounds);
+ }
+ collisions(position){return this.collisionScene(position).segments;}
+ collisionScene(position,delta=[0,0],radius=WALK_COLLISION_RADIUS){
+  const bounds=movementBounds(position,delta,radius),nodes=this.nearbyNodes(bounds),scene={groundHeight:this.groundHeight,segments:[],surfaces:[]};
+  for(const node of nodes)if(node.gpu){const local=nearbyCollision(node.collision,bounds);scene.segments.push(...local.segments);scene.surfaces.push(...local.surfaces);}
+  const ship=this.highwind.playerCollisionScene(bounds);scene.segments.push(...ship.segments);scene.surfaces.push(...ship.surfaces);
+  this.collisionStats={radius,travel:Math.hypot(...delta),nearbyNodes:nodes.length,segments:scene.segments.length,surfaces:scene.surfaces.length};
+  return scene;
+ }
+ safeToMove(position,delta=[0,0]){return !this.nearbyNodes(movementBounds(position,delta,12)).some(n=>!n.gpu);}
  vehicleScene(position,radius){const nodes=[...this.nodes.values()].filter(n=>nearDistance(n.bounds,position)<radius);return {ready:nodes.every(n=>n.gpu),segments:nodes.flatMap(n=>n.collision?.segments||[]),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[])};}
  draw(position,height,yaw,pitch,piss=null,visibilityPosition=position){
   if(this.disposed)return;const gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);gl.uniform2f(this.uniforms.u_visibility_center,...visibilityPosition);
@@ -174,8 +193,8 @@ export class WalkRenderer {
    visible++;for(const [material,first,count] of node.ranges){if(hasFacades&&material===this.index.facadeBase-1)continue;if(draw(node.gpu,material,first,count,IDENTITY,false,nodeLoadRadius(node.file)))draws++;}
   }
   this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visible;this.culledAssets=0;gl.bindVertexArray(null);
-  if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position),projection,height);}
+  if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position,[0,0],3),projection,height);}
  }
- getState(){return {sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
- dispose(){this.disposed=true;this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.textures.clear();this.ground.clear();}
+ getState(){return {collisions:this.collisionStats,terrain:terrainState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values(),...this.ground.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
+ dispose(){this.disposed=true;this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.collisionIndex?.clear();this.textures.clear();this.ground.clear();}
 }

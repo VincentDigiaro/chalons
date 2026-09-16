@@ -1,3 +1,4 @@
+import {drapeRoofBuffer} from './terrain.js';
 const VERTEX=`#version 300 es
 precision highp float;
 in vec3 a_position;in vec2 a_uv;in float a_material;in vec3 a_color;
@@ -30,7 +31,7 @@ export class RoofCatalogueLayer {
    if(this.abort.signal.aborted)return;
    if(mesh.byteLength!==index.vertexCount*12||surface.byteLength!==index.vertexCount*12||catalogue.vertexCount!==index.vertexCount)throw Error('Géométrie de toiture incohérente');
    if(catalogue.textures.length>Math.min(64,gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS)))throw Error('Catalogue de toiture trop grand');
-   this.index=index;this.catalogue=catalogue;this.vertices=mesh;this.surfaces=surface;this.n=2**index.zoom;
+   this.index=index;this.catalogue=catalogue;this.vertices=drapeRoofBuffer(mesh,index);this.surfaces=surface;this.n=2**index.zoom;
    this.detailSize=this.mobile?[256,256]:catalogue.textureSize;this.textureSize=catalogue.overviewSize;
    for(const t of index.tiles){const lat=Math.atan(Math.sinh(Math.PI*(1-2*(t.y+.5)/this.n)))*180/Math.PI;t.zScale=1/(40075016.68557849*Math.cos(lat*Math.PI/180));}
    this.bitmaps=await this.loadImages(catalogue.overviewTextures,this.textureSize);if(!this.bitmaps)return;

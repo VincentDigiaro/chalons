@@ -99,8 +99,10 @@ assert.deepEqual(recoveredDraws[0].bias,[1,4],'The photo uses the same geometry 
 position=[SPAWN[0]+500,SPAWN[1]];
 const evictedHandles=[...renderer.nodes.values()].filter(n=>n.gpu&&!inRange(n.bounds,position,nodeLoadRadius(n.file))).flatMap(n=>[n.gpu.vao,n.gpu.buffer]);
 renderer.trim(position);assert(evictedHandles.every(h=>!allocations.has(h)),'Moving away must release the old GPU resources');renderer.refresh(position);
+assert.equal(renderer.collisionIndex.entries.size,renderer.nodes.size,'Collision indexing follows node residency');
 assert([...renderer.nodes.values()].every(n=>inRange(n.bounds,position,nodeLoadRadius(n.file))),'A distant asset was retained');
 await new Promise(resolve=>setTimeout(resolve,500));renderer.draw(position,EYE_HEIGHT+.022,0,0);
 assert.equal(renderer.getState().outsideRadius,0);
 renderer.dispose();await new Promise(resolve=>setTimeout(resolve,50));assert.equal(allocations.size,0,'GPU objects leaked after leaving pedestrian mode');
+assert.equal(renderer.collisionIndex.entries.size,0);assert.equal(renderer.collisionIndex.cells.size,0);
 assert(missingImages>0);assert(remoteRequests>0);assert.deepEqual(notices,[]);console.log(JSON.stringify({streaming:'passed',initialAssets,buildingRequests:requests,radius:LOAD_RADIUS,visibleAssets:forward.visibleAssets,culledAssets:forward.culledAssets,forwardDrawCalls:forwardCalls,outerGroundTiles:outerGround,outsideRequests:0,ignOutage:'local fallback attempted',missingImages:'playable without banners',silentRecovery:true,gpuResourcesAfterExit:allocations.size}));

@@ -31,11 +31,25 @@ export function trianglesIntersect(a,b){
  for(const y of eb)if(separated(cross(nb,y)))return false;return true;
 }
 export function worldBounds(collider,pose){const b=collider.root.b,m=shipMatrix(pose),p=[];for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])p.push(transform(m,[x,y,z]));return bounds(p);}
-// Vehicle motion only collides with the flat ground. Walking on the hull uses
-// walkingGeometry independently and retains the model's complete fixed surface.
-export function shipHitsGround(collider,pose){
- const box=worldBounds(collider,pose);
- if(box[2]<GROUND_HEIGHT){const m=shipMatrix(pose),v=collider.triangles;for(let i=0;i<v.length;i+=3)if(transform(m,v.subarray(i,i+3))[2]<GROUND_HEIGHT)return true;}
+// A coarse lower envelope, at most 32 supports across the ship's length and
+// width. Extract it once; flight never intersects individual hull triangles.
+export function groundSupports(collider){
+ if(collider.groundSupports)return collider.groundSupports;
+ const b=collider.root.b,dx=(b[3]-b[0])||1,dy=(b[4]-b[1])||1,cells=new Array(32),v=collider.triangles;
+ for(let i=0;i<v.length;i+=3){
+  const col=Math.max(0,Math.min(3,Math.floor((v[i]-b[0])/dx*4))),row=Math.max(0,Math.min(7,Math.floor((v[i+1]-b[1])/dy*8))),key=row*4+col;
+  if(!cells[key]||v[i+2]<cells[key][2])cells[key]=[v[i],v[i+1],v[i+2]];
+ }
+ return collider.groundSupports=cells.filter(Boolean);
+}
+// Ground height is the smoothed cell average supplied by the flight renderer.
+// Walking on decks still uses the complete fixed mesh via walkingGeometry.
+export function shipHitsGround(collider,pose,groundHeight=null){
+ const supports=groundSupports(collider),m=shipMatrix(pose),point=[0,0,0];
+ for(const [x,y,z] of supports){
+  point[0]=m[0]*x+m[4]*y+m[8]*z+m[12];point[1]=m[1]*x+m[5]*y+m[9]*z+m[13];point[2]=m[2]*x+m[6]*y+m[10]*z+m[14];
+  if(point[2]<(groundHeight?groundHeight(point):GROUND_HEIGHT))return true;
+ }
  return false;
 }
 // Keep already cached flight modules compatible during a game update.

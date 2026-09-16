@@ -91,7 +91,7 @@ export class HighwindFlight{
  }
  tick(dt,input,renderer){
   const ship=this.ship;if(!this.active||!ship.residency?.data)return null;
-  this.status='';const old=ship.pose,collider=ship.residency.data.collider,hits=pose=>shipHitsGround(collider,pose),seconds=Math.max(0,Math.min(dt,.05));
+  this.status='';const old=ship.pose,collider=ship.residency.data.collider,hits=pose=>shipHitsGround(collider,pose,renderer?.flightGroundHeight),seconds=Math.max(0,Math.min(dt,.05));
   if(seconds===0)return null;
   {
    // Mouse events describe this frame's target speed, never a heading debt.

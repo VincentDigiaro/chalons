@@ -1,3 +1,4 @@
+import {drapeRoofBuffer} from './terrain.js';
 import {loadImagery} from './imagery.js';
 
 const VERTEX=`#version 300 es
@@ -45,7 +46,7 @@ export class RoofTextures {
       return file.endsWith('.json')?r.json():r.arrayBuffer();
     })).then(([index,mesh])=>{
       if(this.abort.signal.aborted)return;
-      this.index=index;this.vertices=new Float32Array(mesh);this.n=2**index.zoom;
+      this.index=index;this.vertices=new Float32Array(drapeRoofBuffer(mesh,index));this.n=2**index.zoom;
       for(const tile of index.tiles){
         const lat=Math.atan(Math.sinh(Math.PI*(1-2*(tile.y+.5)/this.n)))*180/Math.PI;
         tile.zScale=maplibregl.MercatorCoordinate.fromLngLat([0,lat],1).z;

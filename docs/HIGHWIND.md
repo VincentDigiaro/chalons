@@ -1,5 +1,11 @@
 # Hautvent en FPS
 
+Le contact avec le terrain privilégie la fluidité : 22 points d’appui sur le
+modèle actuel comparent la coque aux altitudes moyennes lissées des cellules
+IGN d’environ 25 m. Les bosses peuvent légèrement pénétrer le vaisseau.
+Les tests détaillés de triangles sont réservés à la marche sur les ponts et
+à l’embarquement. Voir [les collisions et performances](terrain.md#collisions-et-performances).
+
 Ajouter `ff7` à l’URL, par exemple `/chalons/?fps=1&ff7`. Le vaisseau apparaît seulement si `highwind.present` vaut aussi `true` dans le fichier racine `fps-config.json`.
 
 - **E** ou bouton **Monter** : entrer à moins de 40 mètres de la structure ; en vol, sortir immédiatement sur le pont inférieur sous la coque centrale. Le vaisseau conserve sa position, son orientation et son inclinaison. Sur mobile, **Monter** apparaît au-dessus des commandes à proximité, puis devient **Sortir** pendant le pilotage.

@@ -1,5 +1,10 @@
 # Promenade en première personne
 
+Les collisions à pied utilisent une grille spatiale et une marge de 75 cm
+autour du déplacement prévu, étendue dans le sens du mouvement en mode Flash.
+Le Hautvent compare des points d’appui aux altitudes moyennes lissées du terrain.
+Voir [le fonctionnement et les compromis](../docs/terrain.md#collisions-et-performances).
+
 Le bouton **Jouer** prépare la scène puis effectue un seul zoom jusqu'à la position du FPS, après la haie, à hauteur des yeux. La caméra et la première image FPS ont la même position, orientation et champ de vision. Cette image est dessinée avant la bascule, sans fondu, écran vide ou seconde descente. Le rendu WebGL 2 piéton reprend la géométrie et les matériaux existants. La carte MapLibre est retirée à la bascule : ses sources, requêtes et ressources graphiques sont libérées. Le bouton Carte recharge la vue cartographique centrée sur Nerval.
 
 - PC : ZQSD, WASD ou flèches ; souris verrouillée pour regarder ; Maj pour courir ; Espace pour sauter ; Échap pour la pause. Le verrouillage demande les mouvements bruts de la souris, avec repli sur le verrouillage classique si cette option n’est pas prise en charge. Si le verrouillage n'est pas disponible, glisser la souris permet de regarder. Les mouvements relatifs et le glissement ne sont jamais appliqués simultanément ; la pause et les changements de capture effacent l’ancien point de glissement. `node scripts/check-walk-look.mjs` vérifie ces transitions et la continuité de la caméra.

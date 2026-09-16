@@ -52,6 +52,8 @@ export class WalkMode {
    // Prepare the scene before the approach so the zoom never stops to wait at its endpoint.
    await this.renderer.load(this.position);
    if(!current())return;
+   this.feet=this.renderer.groundHeight(this.position);this.verticalSpeed=0;this.grounded=true;
+   Object.assign(this,advancePlayer(this,0,0,.016,this.renderer.collisionScene(this.position)));
    this.loadingButton(false);this.playButton.classList.add('is-entering');
    if(entry){
     // Direct links open the requested camera immediately, without a map fly-in.
@@ -176,7 +178,8 @@ export class WalkMode {
    // Use the frame clock, independent of the keyboard's native repeat delay.
    if(this.jumpInputs.size&&now>=this.nextJumpAt)this.jump(now);
    const has=(...codes)=>codes.some(c=>this.keys.has(c)),forward=Number(has('KeyW','KeyZ','ArrowUp'))-Number(has('KeyS','ArrowDown'))+this.stick[1],right=Number(has('KeyD','ArrowRight'))-Number(has('KeyA','KeyQ','ArrowLeft'))+this.stick[0];
-   if(this.renderer.safeToMove(this.position)){const speedActive=this.flash||has('ControlLeft','ControlRight'),delta=movement(this.yaw,forward,right,dt,has('ShiftLeft','ShiftRight')||this.stick.some(value=>value!==0),speedActive);if(this.jumpQueued)this.jumpCount=(this.jumpCount||0)+1;Object.assign(this,advancePlayer(this,...delta,dt,this.renderer.collisionScene(this.position),this.jumpQueued,speedActive));}
+   const speedActive=this.flash||has('ControlLeft','ControlRight'),delta=movement(this.yaw,forward,right,dt,has('ShiftLeft','ShiftRight')||this.stick.some(value=>value!==0),speedActive);
+   if(this.renderer.safeToMove(this.position,delta)){if(this.jumpQueued)this.jumpCount=(this.jumpCount||0)+1;Object.assign(this,advancePlayer(this,...delta,dt,this.renderer.collisionScene(this.position,delta),this.jumpQueued,speedActive));}
    this.jumpQueued=false;cameraHeight=EYE_HEIGHT+this.feet;
   }
   if(this.phase==='playing'){this.renderer.highwind?.animate(dt);if(this.flight&&!this.flight.active)this.updateHighwindContact();}

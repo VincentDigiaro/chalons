@@ -2,7 +2,8 @@ import {ModelResidency} from './custom-model-residency.js';
 import {LOAD_RADIUS,nearDistance,toLngLat} from './walk-core.js';
 import {fetchWalkBuffer} from './walk-loading.js';
 import {shipMatrix,multiply,transform,inversePoint,rotorMatrix} from './highwind-math.js';
-import {meshCollider,trianglePositions,walkingGeometry,meshDistance} from './highwind-collision.js';
+import {meshCollider,trianglePositions,walkingGeometry,meshDistance,worldBounds,groundSupports} from './highwind-collision.js';
+import {nearbyCollision,overlaps} from './walk-collision-index.js';
 
 export function placeHighwind(vertices,config){
  const angle=(config.angleDegres%360)*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),scale=config.longueurMetres,{x,y,z}=config.position;
@@ -52,10 +53,11 @@ export class FPSHighwind{
   if(Number.isFinite(dt)&&dt>0)for(const [part,speed] of Object.entries(this.config?.vitessesHelicesToursParSeconde||{}))this.rotorAngles[part]=((this.rotorAngles[part]||0)+(dt*speed%1)*Math.PI*2)%(Math.PI*2);
   this.updateBounds();
  }
- playerCollisionScene(){
+ playerCollisionScene(bounds){
   const data=this.residency?.data;if(!data?.collider)return {segments:[],surfaces:[]};
+  if(bounds){let b=this.bounds?.horizontal;if(!b){const world=worldBounds(data.collider,this.pose);b=[world[0],world[1],world[3],world[4]];}if(!overlaps(bounds,b))return {segments:[],surfaces:[]};}
   const p=this.pose,key=[p.position.x,p.position.y,p.position.z,p.angleDegres,p.pitch,p.longueurMetres].join(',');
-  if(data.walkingKey!==key){data.walking=walkingGeometry(data.collider,p);data.walkingKey=key;}return data.walking;
+  if(data.walkingKey!==key){data.walking=walkingGeometry(data.collider,p);data.walkingKey=key;}return bounds?nearbyCollision(data.walking,bounds):data.walking;
  }
  contactDistance(player){
   const collider=this.residency?.data?.collider;if(!collider)return Infinity;
@@ -83,7 +85,7 @@ export class FPSHighwind{
    load:async signal=>{
     const buffer=await fetchWalkBuffer('./data/highwind/'+index.mesh,{signal});
     if(buffer.byteLength!==index.vertexCount*index.stride)throw Error('Géométrie Highwind tronquée.');
-    const vertices=new Float32Array(buffer);return {vertices,collider:meshCollider(trianglePositions(vertices,index.ranges))};
+    const vertices=new Float32Array(buffer),collider=meshCollider(trianglePositions(vertices,index.ranges));groundSupports(collider);return {vertices,collider};
    },
    onLoad:data=>{data.gpu=this.renderer.geometry(data.vertices);for(const id of this.materialIds)this.renderer.texture(id);},
    onUnload:()=>{this.lastDraws=0;},disposeData:data=>this.renderer.drop(data.gpu),

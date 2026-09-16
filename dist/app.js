@@ -1,3 +1,5 @@
+import {loadTerrain} from './terrain.js';
+import {installMapTerrain} from './terrain-map.js';
 import {CAMP127,installCamp127UI} from './camp127-ui.js';
 import {PARC14,installParc14UI} from "./parc14-ui.js";
 import {BUIRETTE,BUIRETTE_ODD,BUIRETTE_15,installBuiretteUI} from './buirette-ui.js';
@@ -209,7 +211,8 @@ async function boot(){
     map.getCanvas().addEventListener('webglcontextlost',()=>status('Rendu interrompu. Restauration en cours…','loading'));
     map.getCanvas().addEventListener('webglcontextrestored',()=>status('Rendu restauré'));
     // Register the event promise before awaiting metadata, so an early map load cannot be missed.
-    await Promise.all([map.once('load'),loadMetadata()]);
+    await Promise.all([map.once('load'),loadMetadata(),loadTerrain()]);
+    installMapTerrain(map,maplibregl);
     map.setSky({...SKY_STYLE});
     map.addLayer(new MapSkyLayer());
     map.setPadding(cameraPadding());addLayers();initialized=true;setLayer('labels',false);setPhotoMode(photoMode);wireControls();syncCamera();

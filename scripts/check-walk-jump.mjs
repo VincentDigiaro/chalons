@@ -24,7 +24,8 @@ for(const fps of [20,30,60,120]){
  for(let i=0;i<fps*2;i++){s=advancePlayer(s,0,0,1/fps,empty,i===0);peak=Math.max(peak,s.feet-GROUND_HEIGHT);if(i===Math.floor(fps*.2)){const ordinary=advancePlayer(s,0,0,1/fps,empty),again=advancePlayer(s,0,0,1/fps,empty,true);assert(again.verticalSpeed>ordinary.verticalSpeed,'A fresh press restarts ascent in the air');}}
  assert(Math.abs(peak-expectedPeak)<.01);close(s.feet,GROUND_HEIGHT);assert(s.grounded);close(s.verticalSpeed,0);peaks.push(peak);
  let fast=body(),fastPeak=0;
- for(let i=0;i<fps*3;i++){fast=advancePlayer(fast,0,0,1/fps,empty,i===0,true);fastPeak=Math.max(fastPeak,fast.feet-GROUND_HEIGHT);}
+ const flightSeconds=Math.max(3,2*JUMP_SPEED*Math.sqrt(speedHeightMultiplier)/GRAVITY+1);
+ for(let i=0;i<fps*flightSeconds;i++){fast=advancePlayer(fast,0,0,1/fps,empty,i===0,true);fastPeak=Math.max(fastPeak,fast.feet-GROUND_HEIGHT);}
  assert(Math.abs(fastPeak-speedHeightMultiplier*expectedPeak)<.01,'Speed jump reaches the configured height multiplier');
  close(fast.feet,GROUND_HEIGHT);assert(fast.grounded);speedPeaks.push(fastPeak);
  const descending={...body([0,0],5),grounded:false,verticalSpeed:-2};

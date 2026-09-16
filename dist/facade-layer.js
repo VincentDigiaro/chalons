@@ -1,3 +1,4 @@
+import {terrainLngLat} from './terrain.js';
 const VERTEX=`#version 300 es
 precision highp float;
 precision highp int;
@@ -5,6 +6,7 @@ in vec4 a_endpoints;
 in vec4 a_vertical;
 in vec4 a_material;
 in uint a_building;
+in vec2 a_terrain;
 uniform mat4 u_matrix;
 out vec2 v_uv;
 flat out vec3 v_material;
@@ -12,7 +14,7 @@ flat out uint v_building;
 void main(){
  const vec2 corners[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(1,1),vec2(0,0),vec2(1,1),vec2(0,1));
  vec2 q=corners[gl_VertexID];
- gl_Position=u_matrix*vec4(mix(a_endpoints.xy,a_endpoints.zw,q.x),mix(a_vertical.x,a_vertical.y,q.y),1.0);
+ gl_Position=u_matrix*vec4(mix(a_endpoints.xy,a_endpoints.zw,q.x),mix(a_vertical.x,a_vertical.y,q.y)+mix(a_terrain.x,a_terrain.y,q.x),1.0);
  v_uv=q*a_vertical.zw;v_material=a_material.xyz;v_building=a_building;
 }`;
 const FRAGMENT=`#version 300 es
@@ -53,7 +55,7 @@ export class FacadeLayer {
   this.onStyle=()=>{const active=this.isActive();if(active!==this.lastActive){this.lastActive=active;this.refresh();}};
   this.onClick=e=>{const f=map.queryRenderedFeatures(e.point,{layers:['buildings-3d','buildings-flat']})[0];this.selected=f?.properties.osm_id||null;map.triggerRepaint();};
   map.on('move',this.onMove);map.on('moveend',this.onEnd);map.on('styledata',this.onStyle);map.on('click',this.onClick);
-  this.restore=()=>{try{this.texture=null;for(const tile of this.cache.values()){tile.buffer=null;tile.vao=null;}this.setupGL();this.map.triggerRepaint();}catch(error){this.fail(error);}};
+  this.restore=()=>{try{this.texture=null;for(const tile of this.cache.values()){tile.buffer=null;tile.vao=null;tile.terrainBuffer=null;}this.setupGL();this.map.triggerRepaint();}catch(error){this.fail(error);}};
   map.getCanvas().addEventListener('webglcontextrestored',this.restore);
   this.request('index.json').then(r=>r.json()).then(async index=>{
    this.index=index;this.n=2**index.zoom;if(index.textures.length>Math.min(64,gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS)))throw Error('Catalogue de façades trop grand');
@@ -82,7 +84,7 @@ export class FacadeLayer {
   gl.attachShader(program,vertex);gl.attachShader(program,fragment);gl.linkProgram(program);gl.deleteShader(vertex);gl.deleteShader(fragment);
   if(!gl.getProgramParameter(program,gl.LINK_STATUS)){const message=gl.getProgramInfoLog(program);gl.deleteProgram(program);throw Error(message);}
   this.program=program;this.uniforms=Object.fromEntries(['u_matrix','u_catalogue','u_selected','u_hasSelected'].map(k=>[k,gl.getUniformLocation(program,k)]));
-  this.attributes=Object.fromEntries(['a_endpoints','a_vertical','a_material','a_building'].map(k=>[k,gl.getAttribLocation(program,k)]));this.matrix=new Float32Array(16);
+  this.attributes=Object.fromEntries(['a_endpoints','a_vertical','a_material','a_building','a_terrain'].map(k=>[k,gl.getAttribLocation(program,k)]));this.matrix=new Float32Array(16);
  }
  isActive(){return this.map.getLayer('buildings-3d')&&this.map.getLayoutProperty('buildings-3d','visibility')!=='none'&&this.map.getLayoutProperty('ign-ground','visibility')!=='none'&&this.map.getZoom()>=14;}
  refresh(){
@@ -114,7 +116,7 @@ export class FacadeLayer {
    bytes-=entry.bytes?.byteLength||0;this.release(entry);this.cache.delete(entry.tile.file);
   }
  }
- release(entry){if(entry.vao)this.gl.deleteVertexArray(entry.vao);if(entry.buffer)this.gl.deleteBuffer(entry.buffer);entry.bytes=null;entry.vao=null;entry.buffer=null;}
+ release(entry){if(entry.vao)this.gl.deleteVertexArray(entry.vao);if(entry.buffer)this.gl.deleteBuffer(entry.buffer);if(entry.terrainBuffer)this.gl.deleteBuffer(entry.terrainBuffer);entry.terrainBuffer=null;entry.bytes=null;entry.vao=null;entry.buffer=null;}
  uploadTexture(){
   const gl=this.gl,[width,height]=this.textureSize;this.texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,this.texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
@@ -128,6 +130,9 @@ export class FacadeLayer {
   const gl=this.gl;entry.vao=gl.createVertexArray();gl.bindVertexArray(entry.vao);entry.buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,entry.buffer);gl.bufferData(gl.ARRAY_BUFFER,entry.bytes,gl.STATIC_DRAW);
   for(const [name,offset] of [['a_endpoints',0],['a_vertical',16],['a_material',32]]){const a=this.attributes[name];gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,4,gl.FLOAT,false,52,offset);gl.vertexAttribDivisor(a,1);}
   const a=this.attributes.a_building;gl.enableVertexAttribArray(a);gl.vertexAttribIPointer(a,1,gl.UNSIGNED_INT,52,48);gl.vertexAttribDivisor(a,1);
+  const heights=new Float32Array(entry.tile.count*2),data=new DataView(entry.bytes),t=entry.tile;
+  for(let i=0;i<t.count;i++)for(let j=0;j<2;j++){const u=data.getFloat32(i*52+j*8,true),v=data.getFloat32(i*52+j*8+4,true),lng=(t.x+u)/this.n*360-180,lat=Math.atan(Math.sinh(Math.PI*(1-2*(t.y+v)/this.n)))*180/Math.PI;heights[i*2+j]=terrainLngLat(lng,lat);}
+  entry.terrainBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,entry.terrainBuffer);gl.bufferData(gl.ARRAY_BUFFER,heights,gl.STATIC_DRAW);const loc=this.attributes.a_terrain;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,8,0);gl.vertexAttribDivisor(loc,1);
  }
  render(gl,options){
   this.stats.draws=0;this.stats.visibleFacades=0;if(!this.stats.loaded||!this.program||!this.isActive())return;

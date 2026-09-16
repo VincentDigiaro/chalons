@@ -1,3 +1,4 @@
+import {drapeVertices,subdivideRoads} from './terrain.js';
 // A bounded, shared-material tile cache; geometry uses the same metre frame and
 // binary packets as the pedestrian renderer. No OSM requests in the browser.
 const VS=`#version 300 es
@@ -47,7 +48,8 @@ export class CityRoadsLayer{
    if(this.pending.size>=6)break;if(this.cache.has(file)||this.pending.has(file)||this.failed.has(file))continue;
    this.pending.add(file);fetch('./data/city-roads/'+file,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road tile HTTP '+r.status);return r.arrayBuffer();}).then(raw=>{
     if(this.abort.signal.aborted||gl.isContextLost())return;
-    const size=new DataView(raw).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(raw,4,size))),data=new Float32Array(raw,4+size);
+    const size=new DataView(raw).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(raw,4,size)));
+    const road=subdivideRoads(new Float32Array(raw,4+size),header.ranges),data=drapeVertices(road.vertices,{origin,scale});header.ranges=road.ranges;
     // Reproject the city-wide metre grid to Mercator before uploading. A
     // tangent plane alone drifts several metres at the extraction's edges.
     for(let i=0;i<data.length;i+=11){const coordinate=maplibregl.MercatorCoordinate.fromLngLat([origin[0]+data[i]/scale[0],origin[1]+data[i+1]/scale[1]]);data[i]=(coordinate.x-this.origin.x)/this.metres;data[i+1]=(this.origin.y-coordinate.y)/this.metres;}

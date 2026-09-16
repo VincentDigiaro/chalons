@@ -15,7 +15,8 @@ const mix=(a,b,t)=>a.map((x,i)=>x+(b[i]-x)*t);
 function contact(a,b,scene){
  let hit=null;
  const accept=(t,normal)=>{if(t>=0&&t<=1&&(!hit||t<hit.t))hit={t,point:mix(a,b,t),normal};};
- if(a[2]>=.025&&b[2]<.025)accept((a[2]-.025)/(a[2]-b[2]),[0,0,1]);
+ const ha=(scene.groundHeight?.(a)??.022)+.003,hb=(scene.groundHeight?.(b)??.022)+.003;
+ if(a[2]>=ha&&b[2]<hb)accept((a[2]-ha)/((a[2]-ha)-(b[2]-hb)),[0,0,1]);
  for(const s of scene.surfaces){
   if(Math.max(a[0],b[0])<s.bounds[0]||Math.min(a[0],b[0])>s.bounds[2]||Math.max(a[1],b[1])<s.bounds[1]||Math.min(a[1],b[1])>s.bounds[3])continue;
   const [p,q,r]=s.p,normal=unit(cross(q.map((v,i)=>v-p[i]),r.map((v,i)=>v-p[i])));

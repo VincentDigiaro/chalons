@@ -1,3 +1,4 @@
+import {drapeVertices,terrainLngLat} from './terrain.js';
 import {ModelResidency} from './custom-model-residency.js';
 import {ATTILA_GROUND_GLSL} from './attila-ground-materials.js';
 import {GROUND_GLSL} from './nerval-ground-materials.js';
@@ -80,7 +81,10 @@ export class NervalLayer {
   const bitmaps=images.filter(r=>r.status==='fulfilled').map(r=>r.value),failed=images.find(r=>r.status==='rejected');
   if(failed||signal.aborted){bitmaps.forEach(b=>b.close());throw failed?.reason||new DOMException('Cancelled','AbortError');}
   if(buffer.byteLength!==index.vertexCount*44){bitmaps.forEach(b=>b.close());throw Error('Invalid custom model geometry');}
-  return {index,vertices:new Float32Array(buffer),bitmaps};
+  const scale=index.scale||[111320*Math.cos(index.origin[1]*Math.PI/180),111320];
+  const vertices=drapeVertices(new Float32Array(buffer),{origin:index.origin,scale});
+  for(const triangle of index.pickTriangles||[])for(const p of triangle.points)p[2]+=terrainLngLat(index.origin[0]+p[0]/scale[0],index.origin[1]+p[1]/scale[1]);
+  return {index,vertices,bitmaps};
  }
  releaseGPU(){const gl=this.gl;this.textureObjects?.forEach(t=>gl.deleteTexture(t));if(this.vao)gl.deleteVertexArray(this.vao);if(this.buffer)gl.deleteBuffer(this.buffer);if(this.program)gl.deleteProgram(this.program);this.textureObjects=[];this.vao=null;this.buffer=null;this.program=null;}
  setupGL(){

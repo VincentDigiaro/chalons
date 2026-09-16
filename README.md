@@ -48,3 +48,7 @@ ne sont pas à lancer pour une simple installation. Certains nécessitent des
 originaux ou des outils supplémentaires. Voir [les commandes du Hautvent](docs/HIGHWIND.md),
 [la documentation de la promenade](scripts/README-walk.md) et
 [les réglages FPS](docs/fps-config.md).
+
+Le [relief IGN](docs/terrain.md) est intégré aux données locales et activé sur
+la carte comme en promenade. Les routes suivent le terrain, les déplacements
+et les sauts tiennent compte des pentes, et le Hautvent respecte le sol.
