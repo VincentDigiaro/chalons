@@ -6,11 +6,22 @@ import {execFileSync,spawn} from 'node:child_process';
 import {FPS_CONFIG,validateFPSConfig,validateHighwindConfig} from '../dist/walk-config.js';
 const root=fileURLToPath(new URL('..',import.meta.url));
 assert.deepEqual(FPS_CONFIG,validateFPSConfig(JSON.parse(await fs.readFile(new URL('../fps-config.json',import.meta.url)))));
+for(const value of [0,1.5,257,'40',null])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,batimentsParTelechargement:value}),/batimentsParTelechargement/);
+for(const value of [1,2,40,256])assert.equal(validateFPSConfig({...FPS_CONFIG,batimentsParTelechargement:value}).batimentsParTelechargement,value);
 for(const key of ['chargementsGeometrieSimultanes','chargementsTexturesSimultanes']){
  for(const value of [0,.5,1.5,Number.MAX_SAFE_INTEGER+1])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,[key]:value}),new RegExp(key));
  for(const value of [1,2,16,64])assert.equal(validateFPSConfig({...FPS_CONFIG,[key]:value})[key],value);
 }
-for(const key of Object.keys(FPS_CONFIG).filter(key=>key!=='highwind'))for(const value of [undefined,null,'12',-1,Infinity,NaN])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,[key]:value}),new RegExp(key));
+for(const key of Object.keys(FPS_CONFIG).filter(key=>key!=='highwind'&&key!=='preparation'))for(const value of [undefined,null,'12',-1,Infinity,NaN])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,[key]:value}),new RegExp(key));
+const withoutPreparation={...FPS_CONFIG};delete withoutPreparation.preparation;
+assert.deepEqual(validateFPSConfig(withoutPreparation).preparation,{budgetParImageMs:4,budgetInitialParImageMs:8});
+for(const preparation of [undefined,null,[],1,'4'])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,preparation}),/preparation/);
+for(const key of ['budgetParImageMs','budgetInitialParImageMs']){
+ for(const value of [0,.5,4,20,1000])assert.equal(validateFPSConfig({...FPS_CONFIG,preparation:{[key]:value}}).preparation[key],value);
+ for(const value of [undefined,null,-1,'4',NaN,Infinity])assert.throws(()=>validateFPSConfig({...FPS_CONFIG,preparation:{[key]:value}}),new RegExp('preparation.'+key));
+}
+assert.throws(()=>validateFPSConfig({...FPS_CONFIG,preparation:{typo:4}}),/preparation.typo/);
+assert(Object.isFrozen(FPS_CONFIG.preparation));
 const highwind={present:true,longueurMetres:237,position:{x:20,y:60,z:140},angleDegres:135,dureeAccelerationSecondes:.3,dureeFreinageSecondes:.18};
 assert.deepEqual(validateFPSConfig({...FPS_CONFIG,highwind}).highwind,highwind);
 for(const [key,values] of Object.entries({present:[undefined,1,'true'],longueurMetres:[undefined,0,-2,'237',Infinity],angleDegres:[undefined,'90',NaN],position:[undefined,null,[]]}))for(const value of values)assert.throws(()=>validateHighwindConfig({...highwind,[key]:value}),/highwind/);
@@ -72,6 +83,18 @@ for(const factor of [4,1,0]){
 for(const delay of [430,0]){
  await fs.writeFile(path.join(temp,'fps-config.json'),JSON.stringify({...variant,delaiEntreSautsMs:delay}));
  console.log(execFileSync(process.execPath,['scripts/check-walk-controls.mjs'],{cwd:temp,encoding:'utf8'}).trim());
+}
+// The renderer must use both JSON budgets verbatim, with no hidden draw-time cap.
+const preparationProbe=`
+import assert from 'node:assert/strict';
+import {WalkRenderer} from './dist/walk-renderer.js';
+const [initial,playing]=process.argv.slice(1).map(Number),renderer=Object.assign(Object.create(WalkRenderer.prototype),{entered:false,lastDrawMs:999});
+assert.equal(renderer.preparationBudget(),initial);renderer.entered=true;assert.equal(renderer.preparationBudget(),playing);
+console.log(JSON.stringify({jsonPreparationBudget:true,initial,playing}));
+`;
+for(const [initial,playing] of [[8,4],[20,12],[.5,1],[0,0]]){
+ await fs.writeFile(path.join(temp,'fps-config.json'),JSON.stringify({...variant,preparation:{budgetInitialParImageMs:initial,budgetParImageMs:playing}}));
+ console.log(execFileSync(process.execPath,['--input-type=module','--eval',preparationProbe,String(initial),String(playing)],{cwd:temp,encoding:'utf8'}).trim());
 }
 // Read altered JSON in a fresh process and measure actual flight, not just fields.
 const flightProbe=`

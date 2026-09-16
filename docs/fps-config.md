@@ -1,6 +1,27 @@
 Les réglages FPS se trouvent uniquement dans `fps-config.json`, à la racine du projet.
 
-Les limites de chargement sont indépendantes : `chargementsGeometrieSimultanes` (8 au départ) et `chargementsTexturesSimultanes` (6 au départ). Elles fixent le nombre de fichiers traités en même temps dans chaque file d'attente, pas le nombre de bâtiments affichés. Dès qu'un fichier termine, le suivant démarre. Les deux clés sont obligatoires et acceptent des entiers supérieurs ou égaux à 1, sans valeur de remplacement dans le chargeur. Aucun rapport entre ces nombres n'est imposé. Recharger la page après modification.
+`batimentsParTelechargement` fixe le nombre maximal de fichiers d'immeubles reçus dans une requête (entier de **1 à 256**, valeur initiale **1**). À `1`, le moteur demande exactement les fichiers individuels existants, sans charger de manifeste de regroupement. À `40`, il reçoit jusqu'à 40 immeubles voisins déjà demandés par le rayon de chargement. Une fin de groupe ou une zone incomplète peut en contenir moins. Les routes et modèles détaillés conservent leurs fichiers individuels. Recharger la page après une modification.
+
+Les archives statiques de `dist/data/walk-downloads/` contiennent les fichiers d'origine, compressés individuellement sans perte. `npm run walk:downloads` les régénère après une modification des données d'immeubles. Le nombre configuré peut ensuite changer sans reconstruction. Le serveur local et Nginx servent les portions demandées avec HTTP Range. Un hébergement sans ce support ou des archives absentes/périmées entraînent un retour aux fichiers individuels. Les diagnostics `streaming.downloads` indiquent les requêtes groupées, individuelles et les replis.
+
+Les paquets ne fusionnent pas les maillages. La préparation conserve les mêmes sommets, matériaux, textures et collisions. Les transferts géométriques sont fractionnés également. Le sous-objet `preparation` contrôle le temps consacré à cette file et aux transferts de textures, indépendamment des trois réglages de téléchargement :
+
+```json
+"preparation": {
+  "budgetParImageMs": 4,
+  "budgetInitialParImageMs": 8
+}
+```
+
+`budgetParImageMs` s'applique pendant le jeu ; `budgetInitialParImageMs` s'applique avant l'entrée dans la scène. Ces valeurs acceptent les nombres positifs, y compris décimaux, et **0 pour supprimer le plafond de temps**. `20` autorise 20 ms, sans réduction automatique à 4 ms ni ajustement caché selon le temps de dessin. `0` traite toute la file déjà prête dans le même passage ; cela peut figer temporairement l'affichage. Une nouvelle arrivée réseau attend toujours le prochain passage de préparation, et un téléchargement ou décompactage encore en cours ne peut pas être terminé par ce réglage.
+
+Les valeurs initiales sont 4 et 8 ms ; un ancien JSON sans ce sous-objet conserve ces valeurs. Recharger la page après une modification. Une opération WebGL ou une pause du navigateur ne peut pas être interrompue : une étape peut dépasser le budget visé. Les objets proches passent en premier et une géométrie partielle n'est jamais affichée. `streaming.preparation.budgetMs` expose le budget réellement appliqué ; `0` signifie sans plafond.
+
+Les autres limites et attentes du chargement FPS sont inventoriées dans [limites-chargement-fps.md](limites-chargement-fps.md). Elles sont distinctes du budget par image.
+
+Le filtrage hors champ affecte uniquement les commandes de dessin. Les objets et textures restent chargés à 360° dans les rayons configurés ; tourner la caméra ne déclenche ni déchargement ni reconstruction. Les boîtes calculées depuis les sommets déplacés par le relief et la véritable caméra du Hautvent sont utilisées pour conserver les objets qui débordent dans l'écran.
+
+Les limites de chargement sont indépendantes : `chargementsGeometrieSimultanes` (8 au départ) et `chargementsTexturesSimultanes` (6 au départ). Elles fixent le nombre de chargements en cours dans chaque file d'attente, pas le nombre de bâtiments affichés. Un chargement géométrique contient un fichier à `batimentsParTelechargement: 1`, ou un groupe lorsque le regroupement est actif. Il garde sa place jusqu'à la fin de sa préparation pour ne pas accumuler des données reçues en attente. Les textures gardent leur place jusqu'au transfert graphique. Dès qu'une place se libère, le chargement suivant démarre. Les deux clés sont obligatoires et acceptent des entiers supérieurs ou égaux à 1, sans valeur de remplacement dans le chargeur. Aucun rapport entre ces nombres n'est imposé. Recharger la page après modification.
 
 `node scripts/check-walk-concurrency.mjs` modifie ces valeurs dans des JSON isolés et vérifie les limites effectives des deux files, leur reprise après une fin de chargement et leur vidage complet.
 
@@ -48,6 +69,8 @@ Ces valeurs sont appliquées à chaque chargement de page, sans reconstruire le 
 Import reproductible : `scripts/import-highwind.py` produit `dist/data/highwind` à partir de l'archive Collada. `node scripts/check-highwind.mjs` vérifie l'échelle, les rotations, la désactivation, le chargement à proximité et la libération des ressources.
 
 Au contact de la coque (2,2 m), `E` ou le bouton mobile **Entrer** embarque. La caméra suit derrière le vaisseau. ZQSD/WASD déplacent, les flèches gauche/droite tournent, Espace monte et Ctrl descend. Sur mobile : joystick gauche pour avancer/reculer et se déplacer latéralement, droit pour tourner et monter/descendre. Les axes se combinent. L'inclinaison atteint ±10° en montée/descente puis revient à plat.
+
+En vol, maintenir un bouton de souris permet de tourner la caméra autour du Hautvent. Relâcher le bouton droit mémorise l'angle horizontal et vertical comme nouvelle position de suivi, relative au vaisseau. Relâcher le bouton gauche revient doucement à cet angle mémorisé. Le réglage reste pendant le pilotage et les pauses ; remonter aux commandes restaure la caméra initiale. La molette conserve son rôle de zoom.
 
 Un second `E` ou **Sortir** lance une descente automatique à 45 m/s, arrêtée par le sol ou les obstacles chargés. La sortie cherche un emplacement libre à côté du vaisseau. Si le terrain manque, le vol attend son chargement. Les collisions du vaisseau utilisent une enveloppe de coque échantillonnée ; celles du joueur restent inchangées.
 

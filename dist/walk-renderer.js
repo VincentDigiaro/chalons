@@ -1,13 +1,14 @@
-import {loadTerrain,terrainHeight,terrainMaxHeight,flightTerrainHeight,terrainState,drapeVertices,terrainTile,subdivideRoads} from './terrain.js';
+import {loadTerrain,terrainHeight,terrainMaxHeight,flightTerrainHeight,terrainState,terrainTile} from './terrain.js';
 import {SpatialIndex,nearbyCollision,movementBounds,WALK_COLLISION_RADIUS} from './walk-collision-index.js';
+import {frustumPlanes,inFrustum} from './walk-visibility.js';
+import {WalkPreparation,prepareWalkGeometry} from './walk-preparation.js';
+import {WalkDownloads} from './walk-downloads.js';
 import {ATTILA_GROUND_GLSL} from './attila-ground-materials.js';
 import {excludeReplacedWalkNodes} from './walk-replacements.js';
 import {SceneSky,SKY_GLSL} from './scene-sky.js';
 import {loadImagery} from './imagery.js';
 import {getRoofMode} from './roof-mode.js';
-import {applyRoofMode} from './roof-walk-mode.js';
 import {LOAD_RADIUS,BUILDING_LOAD_RADIUS,GROUND_LOAD_RADIUS,ROAD_LOAD_RADIUS,FOG_START,FOG_END,nodeLoadRadius,FPS_FOV,inRange,nearDistance,segmentDistance,tileAt,tileBounds,viewProjection} from './walk-core.js';
-import {collisionGeometry} from './walk-physics.js';
 import {GROUND_GLSL} from './nerval-ground-materials.js';
 import {HOUSE_GLSL} from './nerval-house-materials.js';
 import {fetchWalkBuffer} from './walk-loading.js';
@@ -72,10 +73,13 @@ void main(){
 export class WalkRenderer {
  constructor(canvas){
   this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.collisionIndex=new SpatialIndex();this.textures=new Map();this.ground=new Map();this.queue=[];this.active=0;this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
+  this.cullOutsideView=true;this.entered=false;this.downloads=new WalkDownloads(FPS_CONFIG.batimentsParTelechargement);
+  this.preparation=new WalkPreparation({budget:()=>this.preparationBudget(),priority:node=>node.bounds?nearDistance(node.bounds,this.position||[0,0]):-1});
   this.gl=canvas.getContext('webgl2',{alpha:false,antialias:!matchMedia('(pointer:coarse)').matches,powerPreference:'high-performance'});
   if(!this.gl)throw Error('Le mode promenade nécessite WebGL 2.');
   this.abort=new AbortController();this.setup();this.highwind=new FPSHighwind(this,FPS_CONFIG.highwind);
  }
+ preparationBudget(){return this.entered?FPS_CONFIG.preparation.budgetParImageMs:FPS_CONFIG.preparation.budgetInitialParImageMs;}
  setup(){
   const gl=this.gl,compile=(kind,source)=>{const shader=gl.createShader(kind);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(shader));return shader;};
   this.program=gl.createProgram();for(const [kind,source] of [[gl.VERTEX_SHADER,VERTEX],[gl.FRAGMENT_SHADER,FRAGMENT]]){const s=compile(kind,source);gl.attachShader(this.program,s);gl.deleteShader(s);}gl.linkProgram(this.program);if(!gl.getProgramParameter(this.program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(this.program));
@@ -91,6 +95,7 @@ export class WalkRenderer {
   const [buffer,replacements]=await Promise.all([fetchWalkBuffer('./data/walk/index.json',options),fetchWalkBuffer('./data/custom-models.json',options)]);
   const decode=buffer=>JSON.parse(new TextDecoder().decode(buffer));
   await loadTerrain({signal:this.abort.signal,fetchBuffer:fetchWalkBuffer});
+  await this.downloads.load(this.abort.signal,buffer);
   if(this.disposed)return;
   if(this.highwind.pose&&!this.highwind.terrainPlaced){const p=this.highwind.pose.position;p.z+=terrainHeight(p.x,p.y);this.highwind.terrainPlaced=true;}
   if(this.highwind.enabled)flightTerrainHeight(...position);
@@ -107,7 +112,7 @@ export class WalkRenderer {
    onProgress({loaded,total:near.length,retrying:near.some(n=>n.retrying)});
    if(loaded===near.length&&localTextures.every(t=>t.gpu||t.failed))return resolve();
    setTimeout(check,80);
-  };check();});
+  };check();});this.entered=true;
  }
  geometry(vertices){const gl=this.gl,vao=gl.createVertexArray(),buffer=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);for(const [a,size,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);let bottom=Infinity,top=-Infinity;for(let i=2;i<vertices.length;i+=11){bottom=Math.min(bottom,vertices[i]);top=Math.max(top,vertices[i]);}return {vao,buffer,count:vertices.length/11,bytes:vertices.byteLength,zBounds:[bottom,top]};}
  drop(gpu){if(gpu){this.gl.deleteVertexArray(gpu.vao);this.gl.deleteBuffer(gpu.buffer);}}
@@ -130,9 +135,37 @@ export class WalkRenderer {
   for(const [key,tile] of this.ground)if(!groundWanted.has(key)){this.drop(tile.gpu);this.ground.delete(key);}
   this.pruneTextures();
  }
- pump(){while(this.active<FPS_CONFIG.chargementsGeometrieSimultanes&&this.queue.length&&!this.disposed){const node=this.queue.shift();if(node.controller.signal.aborted)continue;node.loading=true;this.active++;
-  fetchWalkBuffer('./data/walk/'+node.file,{signal:node.controller.signal,onRetry:()=>{node.retrying=true;this.retries=(this.retries||0)+1;}}).then(buffer=>{node.retrying=false;if(node.controller.signal.aborted||this.disposed)return;const length=new DataView(buffer).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length)));let vertices=new Float32Array(buffer,4+length);node.ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+this.index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,this.index,this.roofMode);if(header.cityRoads){const road=subdivideRoads(vertices,node.ranges);vertices=road.vertices;node.ranges=road.ranges;}drapeVertices(vertices);node.collision=collisionGeometry(vertices);node.segments=node.collision.segments;node.gpu=this.geometry(vertices);if(!this.collisionIndex.entries.has(node.file))this.collisionIndex.set(node.file,node.bounds,node);for(const [material] of node.ranges)this.texture(material);
-  }).catch(error=>{if(error.name!=='AbortError'){this.errors++;node.failed=true;console.warn('Promenade :',error.message);}}).finally(()=>{this.active--;node.loading=false;this.pump();});
+ *prepareNode(node,buffer){
+  const prepared=yield* prepareWalkGeometry(buffer,this.index,this.roofMode);
+  const gpu=yield* this.uploadGeometry(prepared.vertices);
+  node.ranges=prepared.ranges;node.collision=prepared.collision;node.segments=prepared.collision.segments;node.gpu=gpu;
+  if(!this.collisionIndex.entries.has(node.file))this.collisionIndex.set(node.file,node.bounds,node);
+  for(const [material] of node.ranges)this.texture(material);
+ }
+ *uploadGeometry(vertices){
+  const gl=this.gl,gpu={vao:gl.createVertexArray(),buffer:gl.createBuffer(),count:vertices.length/11,bytes:vertices.byteLength,zBounds:[Infinity,-Infinity],xyBounds:[Infinity,Infinity,-Infinity,-Infinity]};let complete=false;
+  try{
+   gl.bindVertexArray(gpu.vao);gl.bindBuffer(gl.ARRAY_BUFFER,gpu.buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices.byteLength,gl.STATIC_DRAW);
+   for(const [a,size,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);yield;
+   for(let offset=0;offset<vertices.length;offset+=11264){
+    const chunk=vertices.subarray(offset,offset+11264);gl.bindBuffer(gl.ARRAY_BUFFER,gpu.buffer);gl.bufferSubData(gl.ARRAY_BUFFER,offset*4,chunk);
+    for(let i=0;i<chunk.length;i+=11){const x=chunk[i],y=chunk[i+1],z=chunk[i+2];gpu.xyBounds[0]=Math.min(gpu.xyBounds[0],x);gpu.xyBounds[1]=Math.min(gpu.xyBounds[1],y);gpu.xyBounds[2]=Math.max(gpu.xyBounds[2],x);gpu.xyBounds[3]=Math.max(gpu.xyBounds[3],y);gpu.zBounds[0]=Math.min(gpu.zBounds[0],z);gpu.zBounds[1]=Math.max(gpu.zBounds[1],z);}yield;
+   }
+   complete=true;return gpu;
+  }finally{if(!complete)this.drop(gpu);}
+ }
+ pump(){while(this.active<FPS_CONFIG.chargementsGeometrieSimultanes&&this.queue.length&&!this.disposed){
+  if(this.queue[0].controller.signal.aborted){this.queue.shift();continue;}
+  const nodes=this.downloads.take(this.queue),controller=new AbortController();
+  const cancel=()=>{if(nodes.every(n=>n.controller.signal.aborted))controller.abort();};
+  for(const node of nodes){node.loading=true;node.controller.signal.addEventListener('abort',cancel);}
+  this.active++;
+  this.downloads.read(nodes,{signal:controller.signal,onRetry:()=>{for(const node of nodes)node.retrying=true;this.retries=(this.retries||0)+1;}}).then(buffers=>Promise.allSettled(nodes.map(async(node,i)=>{
+   node.retrying=false;if(node.controller.signal.aborted||this.disposed)return;
+   await this.preparation.add(node,this.prepareNode(node,buffers[i]));
+  })).then(results=>{results.forEach((result,i)=>{if(result.status==='rejected'&&result.reason.name!=='AbortError'&&!nodes[i].controller.signal.aborted){this.errors++;nodes[i].failed=true;console.warn('Promenade :',result.reason.message);}});})).catch(error=>{if(error.name!=='AbortError'){for(const node of nodes)if(!node.gpu&&!node.controller.signal.aborted){this.errors++;node.failed=true;}console.warn('Promenade :',error.message);}}).finally(()=>{
+   this.active--;for(const node of nodes){node.loading=false;node.controller.signal.removeEventListener('abort',cancel);}this.pump();
+  });
  }}
  material(id){return typeof id==='string'?{kind:1,texture:id}:this.index.materials[id];}
  texture(id){
@@ -147,9 +180,12 @@ export class WalkRenderer {
  pumpTextures(){while(this.textureActive<FPS_CONFIG.chargementsTexturesSimultanes&&this.textureQueue.length&&!this.disposed){const entry=this.textureQueue.shift();if(entry.controller.signal.aborted)continue;this.textureActive++;entry.attempts++;const aerial=entry.key.startsWith('ign/'),url='./data/walk/'+entry.key;
   const timeout=setTimeout(()=>{entry.timedOut=true;entry.controller.abort();},10000);
   const request=aerial?loadImagery(...entry.key.split('/').slice(1).map(Number),{signal:entry.controller.signal}).then(({data})=>new Response(data,{headers:{'content-type':'image/jpeg'}})):fetch(url,{signal:entry.controller.signal});
-  request.then(async r=>{if(!r.ok)throw Error(`Texture ${r.status}`);const bitmap=await createImageBitmap(await r.blob(),{imageOrientation:'none',premultiplyAlpha:'none'});if(this.disposed||entry.controller.signal.aborted){bitmap.close();return;}const gl=this.gl,t=gl.createTexture();entry.gpu=t;gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bitmap);bitmap.close();gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);if(this.anisotropy)gl.texParameterf(gl.TEXTURE_2D,this.anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(this.anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+  request.then(async r=>{if(!r.ok)throw Error(`Texture ${r.status}`);const bitmap=await createImageBitmap(await r.blob(),{imageOrientation:'none',premultiplyAlpha:'none'});clearTimeout(timeout);if(this.disposed||entry.controller.signal.aborted){bitmap.close();return;}try{await this.preparation.add(entry,this.uploadTexture(entry,bitmap));}finally{bitmap.close();}
   }).catch(error=>{if(error.name!=='AbortError'||entry.timedOut){entry.failed=true;entry.retryAt=Date.now()+30000*entry.attempts;this.errors++;}}).finally(()=>{clearTimeout(timeout);this.textureActive--;this.pumpTextures();});
  }}
+ *uploadTexture(entry,bitmap){
+  const gl=this.gl,t=gl.createTexture();entry.gpu=t;try{gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bitmap);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,entry.mirror?gl.MIRRORED_REPEAT:entry.repeat?gl.REPEAT:gl.CLAMP_TO_EDGE);if(this.anisotropy)gl.texParameterf(gl.TEXTURE_2D,this.anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(this.anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));}catch(error){entry.gpu=null;gl.deleteTexture(t);throw error;}
+ }
  pruneTextures(){const used=new Set([...this.ground.keys(),...this.highwind.textureKeys()]);for(const n of this.nodes.values())for(const [id] of n.ranges||[]){const key=this.material(id).texture;if(key)used.add(key);}for(const [key,t] of this.textures)if(!used.has(key)){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);this.textures.delete(key);}this.textureQueue=this.textureQueue.filter(t=>!t.controller.signal.aborted);}
  groundHeight(position){return terrainHeight(...position)+.022;}
  groundMaxHeight(bounds){return terrainMaxHeight(bounds)+.022;}
@@ -169,11 +205,16 @@ export class WalkRenderer {
  safeToMove(position,delta=[0,0]){return !this.nearbyNodes(movementBounds(position,delta,12)).some(n=>!n.gpu);}
  vehicleScene(position,radius){const nodes=[...this.nodes.values()].filter(n=>nearDistance(n.bounds,position)<radius);return {ready:nodes.every(n=>n.gpu),segments:nodes.flatMap(n=>n.collision?.segments||[]),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[])};}
  draw(position,height,yaw,pitch,piss=null,visibilityPosition=position){
-  if(this.disposed)return;const gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);gl.uniform2f(this.uniforms.u_visibility_center,...visibilityPosition);
+  if(this.disposed)return;const drawStart=performance.now(),gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);gl.uniform2f(this.uniforms.u_visibility_center,...visibilityPosition);
   // Project nearby XY coordinates to avoid cancellation several kilometres
   // from the city origin. World positions still drive materials and culling.
   const centerOffset=Math.hypot(position[0]-visibilityPosition[0],position[1]-visibilityPosition[1]);
   const projection=viewProjection([0,0,height],yaw,pitch,width/heightPx,undefined,centerOffset);
+  const planes=this.cullOutsideView?frustumPlanes(projection):null;
+  // Use the actual displaced vertex bounds and the exact camera transform.
+  // Residency, texture loading and collisions never depend on these planes.
+  if(planes)for(const p of planes)p[3]-=p[0]*position[0]+p[1]*position[1];
+  const visible=(gpu,bounds)=>!planes||inFrustum(gpu.xyBounds||bounds,gpu.zBounds,planes);
   gl.uniformMatrix4fv(this.uniforms.u_matrix,false,projection);
   gl.uniform2f(this.uniforms.u_fog,FOG_START,FOG_END);
   this.highwindShadow.apply(this.uniforms);
@@ -182,19 +223,20 @@ export class WalkRenderer {
   // at altitude. Bias only the photo pass, preserving mesh heights, collisions
   // and normal occlusion between roads, buildings and the Highwind.
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,4);
-  for(const [id,tile] of this.ground)if(nearDistance(tile.bounds,visibilityPosition)<GROUND_LOAD_RADIUS)draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);
+  for(const [id,tile] of this.ground)if(nearDistance(tile.bounds,visibilityPosition)<GROUND_LOAD_RADIUS&&visible(tile.gpu,tile.bounds))draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);
   gl.disable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(0,0);
-  // Submit every loaded object in range, regardless of the camera direction.
-  let draws=0,visible=0;
+  let draws=0,visibleCount=0,culled=0;
   for(const node of this.nodes.values())if(node.gpu&&inRange(node.bounds,visibilityPosition,nodeLoadRadius(node.file))){
+   if(!visible(node.gpu,node.bounds)){culled++;continue;}
    // Generic catalogue facades already provide the complete exterior wall.
    // Keep the original mesh for collisions, but never draw its solid backing.
    const hasFacades=node.ranges.some(([id])=>typeof id==='number'&&id>=this.index.facadeBase&&id<this.index.roofBase);
-   visible++;for(const [material,first,count] of node.ranges){if(hasFacades&&material===this.index.facadeBase-1)continue;if(draw(node.gpu,material,first,count,IDENTITY,false,nodeLoadRadius(node.file)))draws++;}
+   visibleCount++;for(const [material,first,count] of node.ranges){if(hasFacades&&material===this.index.facadeBase-1)continue;if(draw(node.gpu,material,first,count,IDENTITY,false,nodeLoadRadius(node.file)))draws++;}
   }
-  this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visible;this.culledAssets=0;gl.bindVertexArray(null);
+  this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visibleCount;this.culledAssets=culled;gl.bindVertexArray(null);
   if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position,[0,0],3),projection,height);}
+  this.lastDrawMs=performance.now()-drawStart;
  }
- getState(){return {collisions:this.collisionStats,terrain:terrainState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},frustumCulling:false,visibleAssets:this.visibleAssets||0,culledAssets:0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values(),...this.ground.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
- dispose(){this.disposed=true;this.abort.abort();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.collisionIndex?.clear();this.textures.clear();this.ground.clear();}
+ getState(){return {collisions:this.collisionStats,terrain:terrainState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},downloads:this.downloads?.getState(),preparation:this.preparation?.getState(),frustumCulling:!!this.cullOutsideView,visibleAssets:this.visibleAssets||0,culledAssets:this.culledAssets||0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values(),...this.ground.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
+ dispose(){this.disposed=true;this.abort.abort();this.preparation.dispose();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.collisionIndex?.clear();this.textures.clear();this.ground.clear();}
 }

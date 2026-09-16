@@ -2,8 +2,13 @@
   "rayonChargementBatimentsMetres": 1000,
   "rayonChargementSolMetres": 1000,
   "rayonChargementRoutesMetres": 1000,
-  "chargementsGeometrieSimultanes": 16,
-  "chargementsTexturesSimultanes": 12,
+  "chargementsGeometrieSimultanes": 10,
+  "chargementsTexturesSimultanes": 10,
+  "batimentsParTelechargement": 50,
+  "preparation": {
+    "budgetParImageMs": 10,
+    "budgetInitialParImageMs": 10
+  },
   "debutBrouillardMetres": 600,
   "finBrouillardMetres": 900,
   "puissanceSautMps": 4.497199128346442,

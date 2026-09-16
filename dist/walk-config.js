@@ -1,6 +1,14 @@
 // The root JSON is the only source of gameplay tuning, in Node and the browser.
 // Accept older JSON files during deployment; explicit values always take priority.
 const renderingDefaults={rayonChargementBatimentsMetres:600,rayonChargementSolMetres:600,rayonChargementRoutesMetres:600,debutBrouillardMetres:450,finBrouillardMetres:600};
+const preparationDefaults={budgetParImageMs:4,budgetInitialParImageMs:8};
+export function validatePreparationConfig(value){
+ if(!value||typeof value!=='object'||Array.isArray(value))throw Error('fps-config.json : preparation doit être un objet.');
+ for(const key of Object.keys(value))if(!Object.hasOwn(preparationDefaults,key))throw Error(`fps-config.json : réglage inconnu preparation.${key}.`);
+ const config={...preparationDefaults,...value};
+ for(const [key,n] of Object.entries(config))if(typeof n!=='number'||!Number.isFinite(n)||n<0)throw Error(`fps-config.json : preparation.${key} doit être un nombre positif ou nul (0 = sans limite).`);
+ return Object.freeze(config);
+}
 export function validateFPSConfig(value){
  const keys=['puissanceSautMps','multiplicateurHauteurSautSpeed','delaiEntreSautsMs','vitesseMarcheMps','vitesseCourseMps','superVitesseKmh','graviteMps2'];
  const loadingKeys=['chargementsGeometrieSimultanes','chargementsTexturesSimultanes'];
@@ -10,11 +18,12 @@ export function validateFPSConfig(value){
   const n=value[key];
   if(typeof n!=='number'||!Number.isFinite(n)||n<0||(key==='graviteMps2'&&n===0))throw Error(`fps-config.json : valeur invalide pour ${key}.`);
  }
- const config={...renderingDefaults,...value};
+ const config={...renderingDefaults,batimentsParTelechargement:1,...value};
+ if(!Number.isSafeInteger(config.batimentsParTelechargement)||config.batimentsParTelechargement<1||config.batimentsParTelechargement>256)throw Error('fps-config.json : batimentsParTelechargement doit être un entier entre 1 et 256.');
  for(const key of Object.keys(renderingDefaults))if(typeof config[key]!=='number'||!Number.isFinite(config[key])||config[key]<0)throw Error(`fps-config.json : valeur invalide pour ${key}.`);
  if(config.finBrouillardMetres<=config.debutBrouillardMetres)throw Error('fps-config.json : finBrouillardMetres doit dépasser debutBrouillardMetres.');
- for(const key of Object.keys(value))if(!keys.includes(key)&&!loadingKeys.includes(key)&&!Object.hasOwn(renderingDefaults,key)&&key!=='highwind')throw Error(`fps-config.json : réglage inconnu « ${key} ».`);
- return Object.freeze({...config,...(value.highwind===undefined?{}:{highwind:validateHighwindConfig(value.highwind)})});
+ for(const key of Object.keys(value))if(!keys.includes(key)&&!loadingKeys.includes(key)&&!Object.hasOwn(renderingDefaults,key)&&key!=='batimentsParTelechargement'&&key!=='highwind'&&key!=='preparation')throw Error(`fps-config.json : réglage inconnu « ${key} ».`);
+ return Object.freeze({...config,preparation:validatePreparationConfig(Object.hasOwn(value,'preparation')?value.preparation:preparationDefaults),...(value.highwind===undefined?{}:{highwind:validateHighwindConfig(value.highwind)})});
 }
 export function validateHighwindConfig(value){
  const invalid=key=>{throw Error(`fps-config.json : valeur invalide pour highwind.${key}.`);};

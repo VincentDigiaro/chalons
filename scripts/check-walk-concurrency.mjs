@@ -50,7 +50,7 @@ if(!process.argv.includes('--probe')){
  };
  const renderer=new WalkRenderer({getContext:()=>gl});
  renderer.index={materials:[{kind:2}],cityRoadMaterialBase:0};
- const turn=()=>new Promise(resolve=>setImmediate(resolve));
+ const turn=()=>new Promise(resolve=>setTimeout(resolve,2));
  const until=async predicate=>{for(let i=0;i<100&&!predicate();i++)await turn();assert(predicate(),'Loader did not settle');};
  try{
   for(let i=0;i<count;i++)renderer.nodes.set(String(i),{file:`probe/${i}.bin`,bounds:[0,0,1,1],controller:new AbortController()});
@@ -68,8 +68,9 @@ if(!process.argv.includes('--probe')){
   await until(()=>started.textures===limits.textures+1);
   assert.equal([...renderer.textures.values()].filter(t=>t.gpu).length,1);
   assert.equal(pending.textures.length,limits.textures,'A completed texture immediately frees one slot');
-  for(let wave=0;renderer.active||renderer.textureActive;wave++){
-   assert(wave<count+5,'Queues failed to drain');
+  const drainStart=performance.now();
+  while(renderer.active||renderer.textureActive){
+   assert(performance.now()-drainStart<5000,'Queues failed to drain');
    for(const type of ['geometry','textures'])for(const finish of pending[type].splice(0))finish();
    await turn();
   }

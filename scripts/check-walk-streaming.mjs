@@ -62,17 +62,18 @@ for(const n of backedNodes){
  assert(n.collision.segments.length>0,'Hiding the backing must preserve building collisions');
 }
 assert(drawCalls.some(c=>c.kind===2),'Detailed solid surfaces such as real walls and kerbs must remain visible');
-assert.equal(forward.visibleAssets,forwardFiles.length);assert.equal(forward.culledAssets,0);
+assert.equal(forward.visibleAssets,forwardFiles.length);assert(forward.culledAssets>0);
 assert.equal(forward.visibleAssets+forward.culledAssets,forward.loadedAssets);
-assert.equal(forward.frustumCulling,false);
-const beforeTurn=[...renderer.nodes.keys()],collisionBefore=renderer.collisionScene(position);
+assert.equal(forward.frustumCulling,true);
+const beforeTurn=[...renderer.nodes.keys()],collisionBefore=renderer.collisionScene(position),requestsBeforeTurn=requests;
 drawCalls.length=0;renderer.draw(position,EYE_HEIGHT+.022,Math.PI,0);
 const backwardFiles=renderedBuildings();assert(backwardFiles.length>0);
-assert.deepEqual(backwardFiles,forwardFiles,'Turning must keep every loaded mesh in the render submissions');
+assert.notDeepEqual(backwardFiles,forwardFiles,'Turning must immediately change submitted meshes');
+assert.equal(requests,requestsBeforeTurn,'Drawing must not initiate geometry downloads');
 assert.deepEqual([...renderer.nodes.keys()],beforeTurn,'Turning must not unload buildings');
 assert.deepEqual(renderer.collisionScene(position),collisionBefore,'Offscreen collision geometry must remain available');
 renderer.canvas.clientWidth=390;renderer.canvas.clientHeight=844;
-drawCalls.length=0;renderer.draw(position,EYE_HEIGHT+.022,0,0);assert.deepEqual(renderedBuildings(),forwardFiles,'Portrait must retain all loaded buildings');
+drawCalls.length=0;renderer.draw(position,EYE_HEIGHT+.022,0,0);assert(renderedBuildings().length>0);assert.deepEqual([...renderer.nodes.keys()],beforeTurn,'Portrait must retain every loaded building');
 renderer.draw(position,25,0,-.8);assert(renderer.getState().visibleAssets>0,'Flight camera should still render buildings below it');
 renderer.canvas.clientWidth=800;renderer.canvas.clientHeight=600;
 // Ground tile coverage must grow with the radius, including the new outer ring.

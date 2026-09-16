@@ -142,7 +142,7 @@ export class WalkMode {
   on(document,'mousemove',e=>{if(this.phase==='playing'&&document.pointerLockElement===this.canvas)this.look(e.movementX,e.movementY,.0022);});
   on(this.canvas,'contextmenu',e=>e.preventDefault());
   on(this.canvas,'wheel',e=>{if(this.phase!=='playing'||!this.flight?.active)return;e.preventDefault();const scale=e.deltaMode===1?16:e.deltaMode===2?(this.canvas.clientHeight||800):1;this.flight.zoom(e.deltaY*scale);},{passive:false});
-  const orbitButton=(e,down)=>{if(e.button!==0&&e.button!==2)return;const bit=e.button===0?1:2;this.mouseOrbitButtons=down?(this.mouseOrbitButtons||0)|bit:(this.mouseOrbitButtons||0)&~bit;this.mouseOrbit=!!this.mouseOrbitButtons;if(this.mouseOrbit&&this.flight)this.flight.resetMouseTurn();};
+  const orbitButton=(e,down)=>{if(e.button!==0&&e.button!==2)return;const bit=e.button===0?1:2,previous=this.mouseOrbitButtons||0;if(!down&&bit===2&&(previous&bit)&&this.phase==='playing')this.flight?.rememberCamera();this.mouseOrbitButtons=down?previous|bit:previous&~bit;this.mouseOrbit=!!this.mouseOrbitButtons;if(this.mouseOrbit&&this.flight)this.flight.resetMouseTurn();};
   on(this.canvas,'mousedown',e=>{if(this.phase==='playing'&&this.flight?.active)orbitButton(e,true);});
   on(document,'mouseup',e=>orbitButton(e,false));
   this.lookPointer=null;this.flightTouch=new HighwindTouchCamera(this);

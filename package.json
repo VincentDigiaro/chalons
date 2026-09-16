@@ -13,7 +13,7 @@
     "check:roofs": "node scripts/check-roofs.mjs && node scripts/check-roof-overlaps.mjs && node scripts/check-roof-rollback.mjs",
     "nerval:build": "node scripts/build-nerval.mjs && node scripts/build-custom-model-registry.mjs",
     "facades:build": "node scripts/build-facades.mjs",
-    "walk:build": "node scripts/build-walk.mjs",
+    "walk:build": "node scripts/build-walk.mjs && node scripts/build-walk-downloads.mjs",
     "roads:build": "node scripts/build-city-roads.mjs",
     "check:roads": "node scripts/check-city-roads.mjs",
     "check:walk": "node scripts/check-collision-performance.mjs && node scripts/check-fps-config.mjs && node scripts/check-walk-concurrency.mjs && node scripts/check-walk.mjs && node scripts/check-walk-jump.mjs && node scripts/check-walk-controls.mjs && node scripts/check-walk-look.mjs && node scripts/check-walk-piss.mjs && node scripts/check-walk-url.mjs && node scripts/check-walk-loading.mjs && node scripts/check-walk-replacements.mjs && node scripts/check-walk-streaming.mjs && node scripts/check-walk-radii.mjs && node scripts/check-walk-visibility.mjs",
@@ -39,7 +39,9 @@
     "check:highwind-pinch": "node scripts/check-highwind-pinch.mjs",
     "check:highwind-inertia": "node scripts/check-highwind-inertia.mjs && node scripts/check-highwind-controls.mjs && node scripts/check-highwind-collision.mjs",
     "camp127:build": "node scripts/build-camp127.mjs && node scripts/install-camp127-data.mjs",
-    "check:camp127": "node scripts/check-camp127.mjs"
+    "check:camp127": "node scripts/check-camp127.mjs",
+    "walk:downloads": "node scripts/build-walk-downloads.mjs",
+    "check:walk-streaming": "node scripts/check-walk-preparation.mjs && node scripts/check-walk-downloads.mjs && node scripts/check-walk-streaming.mjs && node scripts/check-walk-concurrency.mjs && node scripts/check-walk-visibility.mjs"
   },
   "devDependencies": {
     "earcut": "3.2.3",

@@ -65,7 +65,7 @@ export function deckExitPosition(ship){
  return null;
 }
 export class HighwindFlight{
- constructor(ship){this.ship=ship;this.mode='foot';this.resetMovement();this.contact=false;this.status='';this.mouseTurn=0;this.mouseTurnSpeed=0;this.orbit={yaw:0,pitch:0};this.cameraYaw=ship.pose?.angleDegres*Math.PI/180||0;this.cameraDistance=this.zoomDistance=initialCameraDistance(ship.pose);}
+ constructor(ship){this.ship=ship;this.mode='foot';this.resetMovement();this.contact=false;this.status='';this.mouseTurn=0;this.mouseTurnSpeed=0;this.orbit={yaw:0,pitch:0};this.cameraOffset={yaw:0,pitch:0};this.cameraYaw=ship.pose?.angleDegres*Math.PI/180||0;this.cameraDistance=this.zoomDistance=initialCameraDistance(ship.pose);}
  get active(){return this.mode!=='foot';}
  updateContact(player){this.distanceToShip=this.ship.enabled?this.ship.contactDistance(player):Infinity;this.contact=Number.isFinite(this.distanceToShip)&&this.distanceToShip<highwindBoardingDistance(this.ship.config);}
  resetMouseTurn(){this.mouseTurn=0;this.mouseTurnSpeed=0;}
@@ -83,11 +83,13 @@ export class HighwindFlight{
  }
  look(dx,dy,sensitivity,orbit){if(orbit){this.resetMouseTurn();this.orbit.yaw+=dx*sensitivity;this.orbit.pitch=Math.max(-.5,Math.min(1.05,this.orbit.pitch+dy*sensitivity));}else if(this.mode==='flying')this.mouseTurn+=dx*sensitivity*180/Math.PI;}
  zoom(delta){if(!this.active||!Number.isFinite(delta))return;const p=this.ship.pose,base=initialCameraDistance(p),min=Math.min(base,Math.max(12,p.longueurMetres*.6)),max=Math.max(base,p.longueurMetres*4);this.zoomDistance=Math.max(min,Math.min(max,this.zoomDistance*Math.exp(Math.max(-600,Math.min(600,delta))*.0015)));}
- updateCamera(dt,orbitActive=false){if(!this.active)return;const h=Math.max(0,Math.min(dt,.1));this.cameraDistance+=(this.zoomDistance-this.cameraDistance)*(1-Math.exp(-12*h));if(orbitActive)return;this.cameraYaw=followHeading(this.cameraYaw+this.orbit.yaw,this.ship.pose.angleDegres*Math.PI/180,dt);this.orbit.yaw=0;this.orbit.pitch*=Math.exp(-4.5*h);}
+ // Remember the visible angle relative to the ship, including any heading lag.
+ rememberCamera(){if(!this.active)return;this.cameraYaw+=this.orbit.yaw;this.orbit.yaw=0;const offset=this.cameraYaw-this.ship.pose.angleDegres*Math.PI/180;this.cameraOffset={yaw:Math.atan2(Math.sin(offset),Math.cos(offset)),pitch:this.orbit.pitch};}
+ updateCamera(dt,orbitActive=false){if(!this.active)return;const h=Math.max(0,Math.min(dt,.1));this.cameraDistance+=(this.zoomDistance-this.cameraDistance)*(1-Math.exp(-12*h));if(orbitActive)return;this.cameraYaw=followHeading(this.cameraYaw+this.orbit.yaw,this.ship.pose.angleDegres*Math.PI/180+this.cameraOffset.yaw,dt);this.orbit.yaw=0;this.orbit.pitch=this.cameraOffset.pitch+(this.orbit.pitch-this.cameraOffset.pitch)*Math.exp(-4.5*h);}
  camera(){return chaseCamera(this.ship.pose,this.orbit,this.cameraYaw,this.cameraDistance);}
  interact(player){
   if(this.mode==='flying'){const exit=deckExitPosition(this.ship);if(!exit){this.status='Pont indisponible';return false;}Object.assign(player,exit);this.mode='foot';this.resetMovement();this.resetMouseTurn();this.status='';this.updateContact(player);return 'exit';}
-  this.updateContact(player);if(!this.contact)return false;this.mode='flying';this.resetMovement();this.resetMouseTurn();this.orbit={yaw:0,pitch:0};this.cameraYaw=this.ship.pose.angleDegres*Math.PI/180;return 'board';
+  this.updateContact(player);if(!this.contact)return false;this.mode='flying';this.resetMovement();this.resetMouseTurn();this.orbit={yaw:0,pitch:0};this.cameraOffset={yaw:0,pitch:0};this.cameraYaw=this.ship.pose.angleDegres*Math.PI/180;return 'board';
  }
  tick(dt,input,renderer){
   const ship=this.ship;if(!this.active||!ship.residency?.data)return null;
