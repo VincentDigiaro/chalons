@@ -3,11 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import {createImageryCache} from './imagery-cache.mjs';
+import {CITIES} from '../dist/city-config.js';
+import {highwindRequestHandler} from './highwind-auto-export.mjs';
+const handleHighwind=highwindRequestHandler();
 const root=path.resolve('dist');
 const imagery=createImageryCache({root:path.join(root,'data/imagery/ign')});
+const niceImagery=createImageryCache({root:path.join(root,'data/cities/nice/imagery/ign'),bounds:CITIES.nice.navigationBounds.flat()});
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.geojson':'application/geo+json','.svg':'image/svg+xml','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png','.bin':'application/octet-stream','.wav':'audio/wav','.mp3':'audio/mpeg','.txt':'text/plain; charset=utf-8'};
 const server=http.createServer(async(req,res)=>{
   if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'}).end();return;}
+  if(await handleHighwind(req,res))return;
   let file;
   try{file=path.resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));}catch{res.writeHead(400).end();return;}
   if(file!==root && !file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
@@ -16,10 +21,10 @@ const server=http.createServer(async(req,res)=>{
     try{const bytes=await fs.promises.readFile(new URL('../fps-config.json',import.meta.url));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Content-Length':bytes.length});res.end(req.method==='HEAD'?undefined:bytes);}catch{res.writeHead(503,{'Cache-Control':'no-store'}).end('Configuration FPS indisponible');}
     return;
   }
-  const tile=path.relative(root,file).replaceAll(path.sep,'/').match(/^data\/imagery\/ign\/(\d+)\/(\d+)\/(\d+)\.jpg$/);
+  const tile=path.relative(root,file).replaceAll(path.sep,'/').match(/^data\/(cities\/nice\/)?imagery\/ign\/(\d+)\/(\d+)\/(\d+)\.jpg$/);
   if(tile){
     try{
-      const bytes=await imagery.get(...tile.slice(1).map(Number),{offline:process.env.IGN_OFFLINE==='1'});
+      const bytes=await (tile[1]?niceImagery:imagery).get(...tile.slice(2).map(Number),{offline:process.env.IGN_OFFLINE==='1'});
       res.writeHead(200,{'Content-Type':'image/jpeg','Content-Length':bytes.length,'Cache-Control':'public, max-age=31536000, immutable'});
       res.end(req.method==='HEAD'?undefined:bytes);
     }catch(error){res.writeHead(error.statusCode||503,{'Cache-Control':'no-store'}).end();}
@@ -50,4 +55,4 @@ const server=http.createServer(async(req,res)=>{
   });
 });
 const port=Number(process.env.PORT||5173);
-server.listen(port,'0.0.0.0',()=>console.log(`Local: http://localhost:${server.address().port}`));
+server.listen(port,process.env.HOST||'127.0.0.1',()=>console.log(`Local: http://localhost:${server.address().port}`));

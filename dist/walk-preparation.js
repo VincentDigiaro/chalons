@@ -1,6 +1,29 @@
 import {applyRoofMode} from './roof-walk-mode.js';
 import {drapeVertices,subdivideRoads} from './terrain.js';
 import {collisionGeometry} from './walk-physics.js';
+import {cutBombMesh,bombGround,bombRoad} from './bomb-building-cut.js';
+import {terrainBaseHeight} from './terrain.js';
+import {craterMesh,terrainCraterField} from './terrain-craters.js';
+import {cutBombRoads} from './bomb-road-cut.js';
+
+export function* prepareCraterGeometry(mesh,node,index,field=terrainCraterField()){
+ if(node.bounds&&!field.query(node.bounds).length)return mesh;
+ const cut=yield* craterMesh(mesh,{field,isGround:id=>node.file.startsWith('roads/')||bombGround(id,index)});
+ if(cut===mesh)return mesh;
+ const collision={segments:[],surfaces:[]};
+ for(let i=0;i<cut.vertices.length;i+=4224){const part=collisionGeometry(cut.vertices.subarray(i,i+4224));collision.segments.push(...part.segments);collision.surfaces.push(...part.surfaces);yield;}
+ return {...cut,collision};
+}
+
+export function* prepareBombGeometry(mesh,node,impacts,index){
+ const options={generic:/^\d+\//.test(node.file),groundHeight:p=>terrainBaseHeight(p[0],p[1])};
+ const buildings=node.file.startsWith('roads/')?mesh:yield* cutBombMesh(mesh,node.bounds,impacts,index,options);
+ const cut=yield* cutBombRoads(buildings,impacts,{...options,isRoad:id=>node.file.startsWith('roads/')||bombRoad(id,index)});
+ if(cut===mesh)return mesh;
+ const collision={segments:[],surfaces:[]};
+ for(let i=0;i<cut.vertices.length;i+=4224){const part=collisionGeometry(cut.vertices.subarray(i,i+4224));collision.segments.push(...part.segments);collision.surfaces.push(...part.surfaces);yield;}
+ return {...cut,collision};
+}
 
 // Retain the exact vertex order, materials and collision rules. Only the work
 // boundaries change; incomplete results are never installed in the live scene.
@@ -8,7 +31,7 @@ export function* prepareWalkGeometry(buffer,index,roofMode){
  const length=new DataView(buffer).getUint32(0,true);
  const header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,length)));
  let vertices=new Float32Array(buffer,4+length);
- let ranges=header.cityRoads?header.ranges.map(([id,first,count])=>[id+index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,index,roofMode);
+ let ranges=header.customModel?header.ranges.map(([id,first,count])=>[id+index.customModelMaterialBase,first,count]):header.cityRoads?header.ranges.map(([id,first,count])=>[id+index.cityRoadMaterialBase,first,count]):applyRoofMode(header,vertices,index,roofMode);
  yield;
  if(header.cityRoads){
   const chunks=[],nextRanges=[];let size=0;
@@ -52,13 +75,14 @@ export class WalkPreparation {
    node.controller.signal.addEventListener('abort',job.abort,{once:true});this.jobs.push(job);this.schedule();
   });
  }
- schedule(){if(this.frame===null&&this.jobs.length&&!this.disposed)this.frame=this.requestFrame(()=>{this.frame=null;this.flush();});}
- flush(){
+ schedule(){if(this.frame===null&&this.jobs.length&&!this.disposed)this.frame=this.requestFrame(deadline=>{this.frame=null;this.flush(deadline);});}
+ flush(deadline){
   if(this.disposed)return;
-  const start=this.now(),budget=this.budget();let steps=0;
+  const start=this.now(),budget=this.budget(),idle=typeof deadline?.timeRemaining==='function';let steps=0;
+  if(idle&&!deadline.didTimeout&&deadline.timeRemaining()<=0){this.schedule();return;}
   this.jobs.sort((a,b)=>this.priority(a.node)-this.priority(b.node));
   // Zero explicitly removes the time cap; drain every job already available.
-  while(this.jobs.length&&(budget===0||steps===0||this.now()-start<budget)){
+  while(this.jobs.length&&(budget===0||steps===0||this.now()-start<budget)&&(!idle||deadline.timeRemaining()>0||steps===0&&deadline.didTimeout)){
    const job=this.jobs[0],before=this.now();let done=false;
    try{const result=job.iterator.next();if(result.done){done=true;this.stats.completed++;job.resolve(result.value);}}
    catch(error){done=true;job.iterator.return();job.reject(error);}
@@ -69,4 +93,12 @@ export class WalkPreparation {
  }
  getState(){return {pending:this.pending,budgetMs:this.budget(),...this.stats};}
  dispose(){this.disposed=true;if(this.frame!==null)this.cancelFrame(this.frame);this.frame=null;for(const job of [...this.jobs])job.abort();}
+}
+
+// Destruction is optional work between rendered frames, separate from initial
+// loading. A timeout permits one small step under sustained load, never a drain.
+const backgroundFrame=fn=>typeof requestIdleCallback==='function'?requestIdleCallback(fn,{timeout:100}):setTimeout(fn,16);
+const cancelBackgroundFrame=id=>typeof cancelIdleCallback==='function'?cancelIdleCallback(id):clearTimeout(id);
+export class BackgroundPreparation extends WalkPreparation{
+ constructor(options={}){super({budget:()=>2,requestFrame:backgroundFrame,cancelFrame:cancelBackgroundFrame,...options});}
 }

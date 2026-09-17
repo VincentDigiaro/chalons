@@ -1,3 +1,4 @@
+import {cityDataURL} from './city-config.js';
 import {fetchWalkBuffer} from './walk-loading.js';
 
 // Static archives with byte ranges: the requested count can change without
@@ -7,7 +8,7 @@ export class WalkDownloads {
  async load(signal,indexBuffer){
   if(this.count===1)return;
   try{
-   const response=await fetch('./data/walk-downloads/index.json',{signal,cache:'no-cache'});
+   const response=await fetch(cityDataURL('walk-downloads/index.json'),{signal,cache:'no-cache'});
    if(!response.ok)throw Error('Archive index unavailable');
    const manifest=await response.json();if(manifest.version!==1||manifest.encoding!=='gzip')throw Error('Invalid archive index');
    if(indexBuffer){const digest=await crypto.subtle.digest('SHA-256',indexBuffer),hash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');if(hash!==manifest.sourceHash)throw Error('Stale archives');}
@@ -37,7 +38,7 @@ export class WalkDownloads {
  }
  async read(nodes,{signal,onRetry}){
   const first=this.entries.get(nodes[0].file),last=this.entries.get(nodes.at(-1).file);
-  if(nodes.length===1){this.stats.singleRequests++;return [await fetchWalkBuffer('./data/walk/'+nodes[0].file,{signal,onRetry})];}
+  if(nodes.length===1){this.stats.singleRequests++;return [await fetchWalkBuffer(cityDataURL('walk/'+nodes[0].file),{signal,onRetry})];}
   const start=first.offset,end=last.offset+last.bytes-1;
   try{
    const attempt=new AbortController(),abort=()=>attempt.abort(signal.reason),timer=setTimeout(()=>attempt.abort(),20000);
@@ -45,7 +46,7 @@ export class WalkDownloads {
    let buffer;
    try{
     if(signal.aborted)throw signal.reason;
-    const response=await fetch('./data/walk-downloads/'+first.pack.file,{signal:attempt.signal,headers:{Range:`bytes=${start}-${end}`}});
+    const response=await fetch(cityDataURL('walk-downloads/'+first.pack.file),{signal:attempt.signal,headers:{Range:`bytes=${start}-${end}`}});
     if(response.status!==206||!response.headers.get('content-range')?.startsWith(`bytes ${start}-${end}/`)){await response.body?.cancel();throw Error('Byte ranges unavailable');}
     buffer=await response.arrayBuffer();if(buffer.byteLength!==end-start+1)throw Error('Incomplete archive range');
    }finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
@@ -63,7 +64,7 @@ export class WalkDownloads {
    if(signal.aborted)throw error;
    // A static host without Range support, stale or absent archives remains usable.
    for(const node of nodes)this.entries.delete(node.file);this.stats.fallbacks++;
-   const buffers=[];for(const node of nodes){this.stats.singleRequests++;buffers.push(node.controller.signal.aborted?null:await fetchWalkBuffer('./data/walk/'+node.file,{signal,onRetry}));}return buffers;
+   const buffers=[];for(const node of nodes){this.stats.singleRequests++;buffers.push(node.controller.signal.aborted?null:await fetchWalkBuffer(cityDataURL('walk/'+node.file),{signal,onRetry}));}return buffers;
   }
  }
  getState(){return {objectsPerDownload:this.count,...this.stats};}

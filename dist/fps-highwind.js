@@ -4,6 +4,9 @@ import {fetchWalkBuffer} from './walk-loading.js';
 import {shipMatrix,multiply,transform,inversePoint,rotorMatrix} from './highwind-math.js';
 import {meshCollider,trianglePositions,walkingGeometry,meshDistance,worldBounds,groundSupports} from './highwind-collision.js';
 import {nearbyCollision,overlaps} from './walk-collision-index.js';
+import {shipModel,SHIP_ID} from './walk-config.js';
+import {shipIdFromSearch,shipLabel} from './ship-selection.js';
+import {cityHighwindConfig} from './city-config.js';
 
 export function placeHighwind(vertices,config){
  const angle=(config.angleDegres%360)*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),scale=config.longueurMetres,{x,y,z}=config.position;
@@ -25,7 +28,8 @@ export function highwindBounds(index,config){
 
 export const HIGHWIND_BOARDING_DISTANCE=40;
 export const highwindBoardingDistance=config=>config?.distanceEmbarquementMetres??HIGHWIND_BOARDING_DISTANCE;
-export const ff7Enabled=search=>new URLSearchParams(search).has('ff7');
+export const shipEnabled=search=>shipIdFromSearch(search)!==null;
+export const ff7Enabled=search=>shipIdFromSearch(search)==='highwind';
 export function hullProbes(vertices,ranges){
  const cells=new Map(),step=1/40;
  // Rasterize the hull's vertical envelope. Propeller discs are not boarding surfaces.
@@ -41,7 +45,7 @@ export function hullProbes(vertices,ranges){
 
 // The original model is immutable; placement comes only from the FPS JSON.
 export class FPSHighwind{
- constructor(renderer,config,{enabled=ff7Enabled(globalThis.location?.search||'')}={}){this.renderer=renderer;this.config=config;this.enabled=enabled&&!!config?.present;this.pose=config?{...config,position:{...config.position},pitch:0}:null;this.abort=new AbortController();this.materialIds=[];this.lastDraws=0;this.rotorAngles={};}
+ constructor(renderer,config,{shipId=SHIP_ID??'highwind',enabled=SHIP_ID!==null}={}){config=cityHighwindConfig(config);this.renderer=renderer;this.shipId=shipId;this.label=shipLabel(shipId);this.config=config;this.enabled=enabled&&!!config?.present;this.pose=config?{...config,position:{...config.position},pitch:0}:null;this.abort=new AbortController();this.materialIds=[];this.lastDraws=0;this.rotorAngles={};}
  updateBounds(){
   if(!this.index)return;const m=shipMatrix(this.pose),points=[];for(const x of [this.index.bounds[0][0],this.index.bounds[1][0]])for(const y of [this.index.bounds[0][1],this.index.bounds[1][1]])for(const z of [this.index.bounds[0][2],this.index.bounds[1][2]])points.push(transform(m,[x,y,z]));
   this.bounds={horizontal:[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1])),Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],vertical:[Math.min(...points.map(p=>p[2])),Math.max(...points.map(p=>p[2]))]};
@@ -56,7 +60,7 @@ export class FPSHighwind{
  playerCollisionScene(bounds){
   const data=this.residency?.data;if(!data?.collider)return {segments:[],surfaces:[]};
   if(bounds){let b=this.bounds?.horizontal;if(!b){const world=worldBounds(data.collider,this.pose);b=[world[0],world[1],world[3],world[4]];}if(!overlaps(bounds,b))return {segments:[],surfaces:[]};}
-  const p=this.pose,key=[p.position.x,p.position.y,p.position.z,p.angleDegres,p.pitch,p.longueurMetres].join(',');
+  const p=this.pose,key=[p.position.x,p.position.y,p.position.z,p.angleDegres,p.pitch,p.roll||0,p.longueurMetres].join(',');
   if(data.walkingKey!==key){data.walking=walkingGeometry(data.collider,p);data.walkingKey=key;}return bounds?nearbyCollision(data.walking,bounds):data.walking;
  }
  contactDistance(player){
@@ -70,21 +74,21 @@ export class FPSHighwind{
   // Read the small descriptor only when the configured ship could be nearby.
   const {x,y}=this.pose.position,r=this.config.longueurMetres;
   if(this.initializing||nearDistance([x-r,y-r,x+r,y+r],position)>=LOAD_RADIUS)return;
-  this.initializing=this.initialize().catch(error=>{if(!this.abort.signal.aborted){this.error=error.message;console.warn('Highwind :',error.message);}});
+  this.initializing=this.initialize().catch(error=>{if(!this.abort.signal.aborted){this.error=error.message;console.warn(this.label+' :',error.message);}});
  }
  async initialize(){
-  const signal=this.abort.signal,buffer=await fetchWalkBuffer('./data/highwind/index.json',{signal});
+  const model=shipModel(this.shipId,this.config.modele),base='./data/'+model.basePath,signal=this.abort.signal,buffer=await fetchWalkBuffer(base+'index.json',{signal,fatalStatuses:[404,422]});
   if(signal.aborted)return;
   const index=JSON.parse(new TextDecoder().decode(buffer));
-  if(index.stride!==44||index.normalisedLength!==1||!index.vertexCount||!index.materials?.length)throw Error('Modèle Highwind invalide.');
+  if(index.stride!==44||index.normalisedLength!==1||!index.vertexCount||!index.materials?.length)throw Error('Modèle '+this.label+' invalide.');
   this.index=index;
   this.updateBounds();
-  this.materialIds=index.materials.map(m=>{const id=this.renderer.index.materials.length;this.renderer.index.materials.push({...m,texture:'../highwind/'+m.texture});return id;});
+  this.materialIds=index.materials.map(m=>{const id=this.renderer.index.materials.length;this.renderer.index.materials.push({...m,texture:'../'+model.basePath+(model.textures[m.texture]??m.texture)});return id;});
   const b=this.bounds.horizontal,geographic=[...toLngLat(b.slice(0,2)),...toLngLat(b.slice(2,4))];
   this.residency=new ModelResidency({bounds:geographic,radius:LOAD_RADIUS,
    load:async signal=>{
-    const buffer=await fetchWalkBuffer('./data/highwind/'+index.mesh,{signal});
-    if(buffer.byteLength!==index.vertexCount*index.stride)throw Error('Géométrie Highwind tronquée.');
+    const buffer=await fetchWalkBuffer(base+index.mesh,{signal});
+    if(buffer.byteLength!==index.vertexCount*index.stride)throw Error('Géométrie '+this.label+' tronquée.');
     const vertices=new Float32Array(buffer),collider=meshCollider(trianglePositions(vertices,index.ranges));groundSupports(collider);return {vertices,collider};
    },
    onLoad:data=>{data.gpu=this.renderer.geometry(data.vertices);for(const id of this.materialIds)this.renderer.texture(id);},
@@ -100,6 +104,6 @@ export class FPSHighwind{
   for(const range of this.index.ranges){const rotor=this.index.rotors?.[range.part],matrix=rotor?multiply(model,rotorMatrix(rotor,this.rotorAngles[range.part]||0)):model;if(draw(data.gpu,this.materialIds[range.material],range.first,range.count,matrix))this.lastDraws++;}
   return this.lastDraws;
  }
- getState(){return {present:this.enabled,longueurMetres:this.pose?.longueurMetres,position:this.pose?.position,angleDegres:this.pose?.angleDegres,pitch:this.pose?.pitch,rotorAngles:{...this.rotorAngles},vitessesHelicesToursParSeconde:this.config?.vitessesHelicesToursParSeconde,...(this.residency?.getState()||{loaded:false,loading:!!this.initializing&&!this.index}),draws:this.lastDraws,gpuBytes:this.residency?.data?.gpu?.bytes||0,error:this.error||null};}
+ getState(){return {ship:this.shipId,label:this.label,present:this.enabled,modele:this.config?.modele??'original',longueurMetres:this.pose?.longueurMetres,position:this.pose?.position,angleDegres:this.pose?.angleDegres,pitch:this.pose?.pitch,...(this.shipId==='orca'?{roll:this.pose?.roll||0}:{}),rotorAngles:{...this.rotorAngles},vitessesHelicesToursParSeconde:this.config?.vitessesHelicesToursParSeconde,...(this.residency?.getState()||{loaded:false,loading:!!this.initializing&&!this.index}),draws:this.lastDraws,gpuBytes:this.residency?.data?.gpu?.bytes||0,error:this.error||null};}
  dispose(){this.abort.abort();this.residency?.dispose();}
 }

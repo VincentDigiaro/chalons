@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "name": "Highwind v3",
+  "mesh": "mesh.bin",
+  "stride": 44,
+  "vertexCount": 15492,
+  "normalisedLength": 1,
+  "forwardAxis": "+Y",
+  "upAxis": "+Z",
+  "positionAnchor": "bounding-box centre",
+  "bounds": [
+    [
+      -0.24767992763445645,
+      -0.5,
+      -0.13777944940397638
+    ],
+    [
+      0.24767992763445645,
+      0.5,
+      0.13777944940397638
+    ]
+  ],
+  "rotors": {
+    "PropL": {
+      "pivot": [
+        -0.1415023067282894,
+        -0.04871224988841642,
+        0.09658801693713803
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": 1
+    },
+    "PropR": {
+      "pivot": [
+        0.14150232145685027,
+        -0.04871224988841642,
+        0.09658806112282065
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": -1
+    },
+    "PropTail": {
+      "pivot": [
+        0.00040322449076378843,
+        -0.27817611988907154,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    },
+    "PropRear": {
+      "pivot": [
+        0.0004032238109691723,
+        -0.0851259268388785,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    }
+  },
+  "materials": [
+    {
+      "name": "Highwind1",
+      "kind": 17,
+      "texture": "Highwind1-redrawn-v3.webp"
+    },
+    {
+      "name": "Highwind2",
+      "kind": 17,
+      "texture": "Highwind2-redrawn-v3.webp"
+    },
+    {
+      "name": "Highwind3",
+      "kind": 17,
+      "texture": "Highwind3-redrawn-v3.webp"
+    },
+    {
+      "name": "Color",
+      "kind": 17,
+      "texture": "color.png"
+    }
+  ],
+  "ranges": [
+    {
+      "part": "Body",
+      "material": 0,
+      "first": 0,
+      "count": 4218
+    },
+    {
+      "part": "Body",
+      "material": 1,
+      "first": 4218,
+      "count": 6447
+    },
+    {
+      "part": "Body",
+      "material": 2,
+      "first": 10665,
+      "count": 63
+    },
+    {
+      "part": "Body",
+      "material": 3,
+      "first": 10728,
+      "count": 702
+    },
+    {
+      "part": "Turbine",
+      "material": 1,
+      "first": 11430,
+      "count": 642
+    },
+    {
+      "part": "PropRear",
+      "material": 1,
+      "first": 12072,
+      "count": 1296
+    },
+    {
+      "part": "PropR",
+      "material": 1,
+      "first": 13368,
+      "count": 792
+    },
+    {
+      "part": "PropL",
+      "material": 1,
+      "first": 14160,
+      "count": 792
+    },
+    {
+      "part": "PropTail",
+      "material": 1,
+      "first": 14952,
+      "count": 540
+    }
+  ],
+  "objects": [
+    {
+      "name": "Body",
+      "part": "Body",
+      "triangles": 3810
+    },
+    {
+      "name": "Turbine",
+      "part": "Turbine",
+      "triangles": 646
+    },
+    {
+      "name": "PropR",
+      "part": "PropR",
+      "triangles": 264
+    },
+    {
+      "name": "PropL",
+      "part": "PropL",
+      "triangles": 264
+    },
+    {
+      "name": "PropTail",
+      "part": "PropTail",
+      "triangles": 180
+    }
+  ],
+  "source": "assets/Highwind/Highwind-v3.blend",
+  "sourceSha256": "bdfb1f0e8314d3aff21a03f314a5367e20fb6513070fbf05d062b7e65a9fad1f",
+  "meshSha256": "adb929959f303f25f0e57c40499ae6063b345768bfcd3d8a0611ea8f5e13955d",
+  "textures": [
+    {
+      "file": "Highwind1-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "068f26af142065f0ca43c5e5ad4889c8f7b6067f108f0aece0342a05686f9cd0"
+    },
+    {
+      "file": "Highwind2-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "17d70ea563a96943f90c268a479c679c2362691bd0fce65d763198c04a275a8c"
+    },
+    {
+      "file": "Highwind3-redrawn-v3.webp",
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "19d3d871b1ff48be05bb2d97d12ddd94f13468a295981719e27857728bd2d600"
+    },
+    {
+      "file": "color.png",
+      "size": [
+        4,
+        4
+      ],
+      "sha256": "679425906d0d8e60012a80d4af3b5e9a52fe2c9a700d6fceaeee09d05aa4fbfe"
+    }
+  ],
+  "exporterSha256": "440a94f4fef53a510dadd429fae0f1e38a307c9cef6a89ef511c72db73c10deb"
+}

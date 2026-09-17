@@ -1,0 +1,166 @@
+{
+  "height_m": 1.8,
+  "bones": 53,
+  "meshes": [
+    {
+      "name": "Adrien_Body",
+      "vertices": 7840,
+      "triangles": 15500,
+      "max_influences": 4
+    },
+    {
+      "name": "Adrien_Brows",
+      "vertices": 124,
+      "triangles": 192,
+      "max_influences": 1
+    },
+    {
+      "name": "Adrien_Eyes",
+      "vertices": 96,
+      "triangles": 172,
+      "max_influences": 1
+    },
+    {
+      "name": "Adrien_Hair",
+      "vertices": 1755,
+      "triangles": 3344,
+      "max_influences": 3
+    },
+    {
+      "name": "Adrien_Lashes",
+      "vertices": 250,
+      "triangles": 368,
+      "max_influences": 1
+    },
+    {
+      "name": "Adrien_Shirt_Jeans",
+      "vertices": 8426,
+      "triangles": 16672,
+      "max_influences": 4
+    },
+    {
+      "name": "Adrien_Sneakers",
+      "vertices": 1594,
+      "triangles": 3064,
+      "max_influences": 3
+    },
+    {
+      "name": "Adrien_Teeth",
+      "vertices": 3868,
+      "triangles": 7120,
+      "max_influences": 1
+    },
+    {
+      "name": "Adrien_Tongue",
+      "vertices": 226,
+      "triangles": 448,
+      "max_influences": 1
+    }
+  ],
+  "textures": [
+    {
+      "name": "brown_eye.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": true
+    },
+    {
+      "name": "eyebrow007.png",
+      "size": [
+        512,
+        512
+      ],
+      "packed": true
+    },
+    {
+      "name": "eyelashes01.png",
+      "size": [
+        512,
+        512
+      ],
+      "packed": true
+    },
+    {
+      "name": "male_casualsuit01_diffuse.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "name": "male_casualsuit01_normal.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "name": "shoes05_diffuse.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": true
+    },
+    {
+      "name": "short02_diffuse.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "name": "teeth.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "name": "tongue01_diffuse.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": true
+    },
+    {
+      "name": "young_lightskinned_male_diffuse.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "packed": true
+    }
+  ],
+  "animations": [
+    {
+      "name": "Idle",
+      "frames": [
+        1.0,
+        121.0
+      ]
+    },
+    {
+      "name": "Walk",
+      "frames": [
+        1.0,
+        33.0
+      ]
+    },
+    {
+      "name": "Wave",
+      "frames": [
+        1.0,
+        81.0
+      ]
+    }
+  ],
+  "triangles": 46880
+}

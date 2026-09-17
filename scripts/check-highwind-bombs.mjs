@@ -1,0 +1,46 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import {HighwindBombs,BLAST_RADIUS,BLAST_SECONDS,MAX_BLASTS} from '../dist/highwind-bombs.js';
+import {BOMB_DEFAULTS} from '../dist/walk-config.js';
+import {WalkRenderer} from '../dist/walk-renderer.js';
+import {WalkMode} from '../dist/walk-mode.js';
+import {HighwindUI} from '../dist/highwind-ui.js';
+import {bombMesh} from '../dist/highwind-bomb-effects.js';
+import {readScorches,saveScorches} from '../dist/bomb-scorches.js';
+import {removeBombFacades,removeBombDetails,removeBombRoofs} from '../dist/bomb-map-damage.js';
+import {SpatialIndex} from '../dist/walk-collision-index.js';
+import {toLngLat} from '../dist/walk-core.js';
+
+const ship={enabled:true,residency:{data:{}},pose:{position:{x:0,y:0,z:90},pitch:0,angleDegres:0,longueurMetres:150}};
+const advance=(bombs,seconds)=>{for(let t=0;t<seconds;t+=.01)bombs.tick(.01);};
+let impacts=[];const bombs=new HighwindBombs({config:BOMB_DEFAULTS,groundHeight:p=>10+p[0]*.03,onImpact:b=>impacts.push(b)});
+assert(bombs.drop(ship,[24,0,0]));assert(!bombs.drop(ship),'Cooldown prevents repeated release');
+const frozen=structuredClone(bombs.getState());bombs.tick(0);bombs.tick(NaN);assert.deepEqual(bombs.getState(),frozen);
+advance(bombs,1);assert.equal(impacts.length,0);assert(bombs.bombs[0].position[0]>10,'Bomb inherits horizontal momentum');
+advance(bombs,3);assert.equal(impacts.length,1);const hit=impacts[0].position;assert(Math.abs(hit[2]-(10+hit[0]*.03))<.001);assert.equal(impacts[0].radius,100);
+const node=(x,y,w=0)=>({file:'0/way-1.bin',bounds:[hit[0]+x,hit[1]+y,hit[0]+x+w,hit[1]+y+w]});
+const inside=node(99,0),edge=node(100,0),outside=node(100.01,0),diagonal=node(80,80),overlap=node(99,-5,20),road={...inside,file:'roads/tile.bin'};
+assert(bombs.suppresses(inside));assert(!bombs.suppresses(edge),'An exterior tangent building survives');assert(!bombs.suppresses(outside));assert(!bombs.suppresses(diagonal),'Radius is circular, not a 200 m square');assert(bombs.affects(overlap)&&!bombs.suppresses(overlap),'A boundary building is cut instead of wholly suppressed');assert(bombs.suppresses(road),'Roads inside the destruction zone disappear too');
+advance(bombs,BLAST_SECONDS+1);assert.equal(bombs.blasts.length,0);assert(bombs.suppresses(inside),'Buildings never return when effects expire');assert(bombs.suppresses(node(30,30)),'Streamed-in buildings are also destroyed');
+const reloaded=new HighwindBombs({craters:bombs.craters});assert(reloaded.suppresses(node(30,30)),'Current-game impacts apply to a replacement renderer');
+const scene={segments:[[hit[0],0,hit[0]+5,0,10,25]],surfaces:[{p:[[hit[0],0,25],[hit[0]+5,0,25],[hit[0],5,25]],det:25,bounds:[hit[0],0,hit[0]+5,5]}]};
+inside.collision=scene;inside.gpu={};const renderer=Object.assign(Object.create(WalkRenderer.prototype),{bombs,nodes:new Map([['inside',inside]]),groundHeight:()=>10,highwind:{playerCollisionScene:()=>({segments:[],surfaces:[]})},nearbyNodes:()=>[inside]});
+assert.equal(renderer.collisionScene(hit).segments.length,0);assert.equal(renderer.collisionScene(hit).surfaces.length,0);assert.equal(renderer.vehicleScene(hit,200).segments.length,0);assert.deepEqual(scene,inside.collision,'Original collision data is not mutated');
+const far=new HighwindBombs({config:{...BOMB_DEFAULTS,dureeRechargeSecondes:.1}});const highShip={...ship,pose:{...ship.pose,position:{x:0,y:0,z:10000}}};for(let i=0;i<60;i++){assert(far.drop(highShip),'Falling bombs never block a ready reload');for(let j=0;j<10;j++)far.tick(.01);}assert.equal(far.bombs.length,60);
+const frames=[];for(const hz of [30,60,120]){let point;const b=new HighwindBombs({groundHeight:p=>3+p[0]*.1,onImpact:e=>point=e.position});b.drop(ship,[30,10,0]);for(let i=0;i<hz*5&&!point;i++)b.tick(1/hz);frames.push(point);}for(const p of frames)assert(Math.hypot(...p.map((v,i)=>v-frames[0][i]))<.05,'Frame-rate-independent terrain impact');
+saveScorches(bombs.craters);assert.deepEqual(readScorches(),bombs.craters);saveScorches({x:1});assert.deepEqual(readScorches(),[]);
+const mesh=bombMesh();assert(mesh.length>1000);assert([...mesh].every(Number.isFinite));assert.equal(mesh.length%24,0);assert(Math.max(...Array.from(mesh).filter((_,i)=>i%8===2))>4,'Tail fins extend beyond bulbous body');
+// Real control handlers: only flying/playing can drop, key repeat and pause cannot.
+globalThis.document=new EventTarget();globalThis.window=new EventTarget();globalThis.requestAnimationFrame=()=>0;
+const elements=new Map(),el=k=>{if(!elements.has(k))elements.set(k,Object.assign(new EventTarget(),{style:{},textContent:'',focus(){},setAttribute(){},setPointerCapture(){},getBoundingClientRect:()=>({left:0,top:0,width:120,height:120})}));return elements.get(k);};
+const root={querySelector:el,insertAdjacentHTML(){},classList:{toggle(){}}},control=new HighwindBombs(),mode=Object.assign(Object.create(WalkMode.prototype),{root,canvas:el('canvas'),events:new AbortController(),phase:'playing',keys:new Set(),stick:[0,0],touch:true,renderer:{highwind:ship,bombs:control,bombAudio:{unlock(){}}},flight:{active:false,ship,resetMouseTurn(){}},music:{},piss:{update(){}}});mode.bind();mode.highwindUI=new HighwindUI(mode);
+const key=(repeat=false)=>{const e=new Event('keydown',{cancelable:true});Object.assign(e,{code:'KeyB',repeat});document.dispatchEvent(e);};
+key();assert.equal(control.dropped,0);mode.flight.active=true;mode.highwindUI.update();assert(!el('#highwind-bomb').hidden);key();assert.equal(control.dropped,1);advance(control,2.6);key(true);assert.equal(control.dropped,1,'OS repeat does not release another bomb');
+const touch=new Event('pointerdown',{cancelable:true});Object.assign(touch,{pointerType:'touch',button:0,pointerId:7});el('#highwind-bomb').dispatchEvent(touch);assert.equal(control.dropped,2);assert(touch.defaultPrevented);mode.phase='paused';advance(control,2.6);key();el('#highwind-bomb').dispatchEvent(touch);assert.equal(control.dropped,2);mode.highwindUI.update();assert(el('#highwind-bomb').hidden);mode.events.abort();
+// Map runtime copies remove full facade instances and matching roof triangles.
+const bytes=new ArrayBuffer(104),view=new DataView(bytes);view.setUint32(48,123,true);view.setUint32(100,456,true);view.setFloat32(16,2,true);view.setFloat32(20,18,true);view.setFloat32(72,20,true);removeBombFacades(bytes,{hashes:new Set([123])});assert.equal(view.getFloat32(20,true),2);assert.equal(view.getFloat32(72,true),20);
+const damage={ids:['way/1'],bounds:new SpatialIndex(100)},ll=toLngLat([0,0]);damage.bounds.set('test',[-50,-50,50,50],true);const n=2**17,tx=(ll[0]+180)/360*n,ty=(1-Math.asinh(Math.tan(ll[1]*Math.PI/180))/Math.PI)/2*n,tile={x:Math.floor(tx),y:Math.floor(ty),first:0,count:3},roof=new Float32Array([tx-tile.x,ty-tile.y,20,tx-tile.x+.00001,ty-tile.y,20,tx-tile.x,ty-tile.y+.00001,20]);removeBombRoofs(roof,{zoom:17,tiles:[tile]},damage);assert.deepEqual([...roof.subarray(0,3)],[...roof.subarray(3,6)]);
+const custom=JSON.parse(await fs.readFile('dist/data/nerval/index.json')),raw=await fs.readFile('dist/data/nerval/mesh.bin'),v=new Float32Array(raw.buffer.slice(raw.byteOffset,raw.byteOffset+raw.byteLength)),r=custom.ranges.find(r=>![6,7,8,9,14,15,16].includes(custom.materials[r.material].kind)),offset=r.first*11,x=(v[offset]+v[offset+11]+v[offset+22])/3,y=(v[offset+1]+v[offset+12]+v[offset+23])/3;
+removeBombDetails(v,custom,'detail',{detailed:new Set([`detail/detail-${Math.floor(x/20)}-${Math.floor(y/20)}.bin`])});assert.deepEqual([...v.subarray(offset,offset+3)],[...v.subarray(offset+11,offset+14)]);
+assert.deepEqual(bombs.cameraEffect({position:[0,0],height:100,yaw:0,pitch:0},true).flash,0);
+console.log(JSON.stringify({highwindBombs:'passed',radius:BLAST_RADIUS,currentGameDamage:true,streamingAndRendererReplacement:true,roadsDestroyed:true,terrainImpact:true,frameRates:[30,60,120],keyboardAndTouch:true,pausedAndFootBlocked:true,boundedEffects:true,mapFacadesRoofsAndDetails:true,currentGameScorches:true}));

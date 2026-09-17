@@ -1,0 +1,5 @@
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+const root=path.resolve('dist'),files=new Map([['/qa/',path.resolve('scripts/check-bomb-building-render.html')],['/crater-qa/',path.resolve('scripts/check-crater-render.html')],['/qa/bomb-cut-fixtures.mjs',path.resolve('scripts/bomb-cut-fixtures.mjs')],['/fps-config.json',path.resolve('fps-config.json')]]),mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.css':'text/css','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png','.bin':'application/octet-stream'};
+http.createServer((req,res)=>{const url=new URL(req.url,'http://localhost').pathname,file=files.get(url)||path.resolve(root,'.'+decodeURIComponent(url));if(!files.has(url)&&!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}fs.stat(file,(e,s)=>{if(e||!s.isFile()){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});fs.createReadStream(file).pipe(res);});}).listen(5191,'127.0.0.1',()=>console.log('Bomb cut QA: http://127.0.0.1:5191/qa/'));

@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "name": "Highwind v4",
+  "mesh": "mesh.bin",
+  "stride": 44,
+  "vertexCount": 26499,
+  "normalisedLength": 1,
+  "forwardAxis": "+Y",
+  "upAxis": "+Z",
+  "positionAnchor": "bounding-box centre",
+  "bounds": [
+    [
+      -0.24767992763445645,
+      -0.5,
+      -0.13777944940397638
+    ],
+    [
+      0.24767992763445645,
+      0.5,
+      0.13777944940397638
+    ]
+  ],
+  "rotors": {
+    "PropL": {
+      "pivot": [
+        -0.1415023067282894,
+        -0.04871224988841642,
+        0.09658801693713803
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": 1
+    },
+    "PropR": {
+      "pivot": [
+        0.14150232145685027,
+        -0.04871224988841642,
+        0.09658806112282065
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": -1
+    },
+    "PropTail": {
+      "pivot": [
+        0.00040322449076378843,
+        -0.27817611988907154,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    },
+    "PropRear": {
+      "pivot": [
+        0.0004032238109691723,
+        -0.0851259268388785,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    }
+  },
+  "materials": [
+    {
+      "name": "Highwind1",
+      "kind": 17,
+      "texture": "Highwind1-redrawn-v3.webp"
+    },
+    {
+      "name": "Highwind2",
+      "kind": 17,
+      "texture": "Highwind2-redrawn-v3.webp"
+    },
+    {
+      "name": "Highwind3",
+      "kind": 17,
+      "texture": "Highwind3-redrawn-v3.webp"
+    },
+    {
+      "name": "Color",
+      "kind": 17,
+      "texture": "color.png"
+    },
+    {
+      "name": "V4 | Weathered walnut deck",
+      "kind": 17,
+      "texture": "wood-deck.png"
+    },
+    {
+      "name": "V4 | Riveted gunmetal",
+      "kind": 17,
+      "texture": "Highwind2-redrawn-v3.webp"
+    }
+  ],
+  "ranges": [
+    {
+      "part": "Body",
+      "material": 0,
+      "first": 0,
+      "count": 4104
+    },
+    {
+      "part": "Body",
+      "material": 1,
+      "first": 4104,
+      "count": 6447
+    },
+    {
+      "part": "Body",
+      "material": 2,
+      "first": 10551,
+      "count": 63
+    },
+    {
+      "part": "Body",
+      "material": 3,
+      "first": 10614,
+      "count": 543
+    },
+    {
+      "part": "Turbine",
+      "material": 1,
+      "first": 11157,
+      "count": 642
+    },
+    {
+      "part": "PropRear",
+      "material": 1,
+      "first": 11799,
+      "count": 1296
+    },
+    {
+      "part": "PropR",
+      "material": 1,
+      "first": 13095,
+      "count": 792
+    },
+    {
+      "part": "PropL",
+      "material": 1,
+      "first": 13887,
+      "count": 792
+    },
+    {
+      "part": "PropTail",
+      "material": 1,
+      "first": 14679,
+      "count": 540
+    },
+    {
+      "part": "Pont | 61 planches de bois",
+      "material": 4,
+      "first": 15219,
+      "count": 2268,
+      "collisionSurfaceOnly": true
+    },
+    {
+      "part": "Balustrade | acier et 31 montants",
+      "material": 5,
+      "first": 17487,
+      "count": 6912
+    },
+    {
+      "part": "PropTail",
+      "material": 5,
+      "first": 24399,
+      "count": 1368
+    },
+    {
+      "part": "Turbine | central connected hub",
+      "material": 5,
+      "first": 25767,
+      "count": 276
+    },
+    {
+      "part": "PropL",
+      "material": 5,
+      "first": 26043,
+      "count": 228
+    },
+    {
+      "part": "PropR",
+      "material": 5,
+      "first": 26271,
+      "count": 228
+    }
+  ],
+  "objects": [
+    {
+      "name": "Body",
+      "part": "Body",
+      "triangles": 3719
+    },
+    {
+      "name": "Turbine",
+      "part": "Turbine",
+      "triangles": 646
+    },
+    {
+      "name": "PropR",
+      "part": "PropR",
+      "triangles": 264
+    },
+    {
+      "name": "PropL",
+      "part": "PropL",
+      "triangles": 264
+    },
+    {
+      "name": "PropTail",
+      "part": "PropTail",
+      "triangles": 180
+    },
+    {
+      "name": "Pont | 61 planches de bois",
+      "part": "Pont | 61 planches de bois",
+      "triangles": 756
+    },
+    {
+      "name": "Balustrade | acier et 31 montants",
+      "part": "Balustrade | acier et 31 montants",
+      "triangles": 2304
+    },
+    {
+      "name": "Tail propeller 1 | connected hub",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Tail propeller 1 | collar",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Tail propeller 2 | connected hub",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Tail propeller 2 | collar",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Tail propeller 3 | connected hub",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Tail propeller 3 | collar",
+      "part": "PropTail",
+      "triangles": 76
+    },
+    {
+      "name": "Turbine | central connected hub",
+      "part": "Turbine | central connected hub",
+      "triangles": 92
+    },
+    {
+      "name": "PropL | shaft collar",
+      "part": "PropL",
+      "triangles": 76
+    },
+    {
+      "name": "PropR | shaft collar",
+      "part": "PropR",
+      "triangles": 76
+    }
+  ],
+  "source": "assets/Highwind/Highwind-v4.blend",
+  "sourceSha256": "945ff7d70646cebfd3c23e4c2be02a28c048f0efb932b4dfe51a4df089b4bf71",
+  "meshSha256": "ca6e19494ce067324d0c73423cc6f136abdaca062f872e2dd20d9050ba6dd214",
+  "textures": [
+    {
+      "file": "Highwind1-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "068f26af142065f0ca43c5e5ad4889c8f7b6067f108f0aece0342a05686f9cd0"
+    },
+    {
+      "file": "Highwind2-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "17d70ea563a96943f90c268a479c679c2362691bd0fce65d763198c04a275a8c"
+    },
+    {
+      "file": "Highwind3-redrawn-v3.webp",
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "19d3d871b1ff48be05bb2d97d12ddd94f13468a295981719e27857728bd2d600"
+    },
+    {
+      "file": "color.png",
+      "size": [
+        4,
+        4
+      ],
+      "sha256": "679425906d0d8e60012a80d4af3b5e9a52fe2c9a700d6fceaeee09d05aa4fbfe"
+    },
+    {
+      "file": "wood-deck.png",
+      "size": [
+        1024,
+        256
+      ],
+      "sha256": "e6065cfce74530e95046b8ebe2d4632973445ff74be5c6eb975d847100a70530"
+    }
+  ],
+  "deckExit": [
+    0,
+    0.045000000000000005,
+    -0.05980742023718403
+  ],
+  "exporterSha256": "440a94f4fef53a510dadd429fae0f1e38a307c9cef6a89ef511c72db73c10deb"
+}

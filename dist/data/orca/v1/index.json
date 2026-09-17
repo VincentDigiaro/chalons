@@ -1,0 +1,1742 @@
+{
+  "version": 1,
+  "name": "Orca GDI v1",
+  "mesh": "mesh.bin",
+  "stride": 44,
+  "vertexCount": 150255,
+  "normalisedLength": 1,
+  "forwardAxis": "+Y",
+  "upAxis": "+Z",
+  "positionAnchor": "bounding-box centre",
+  "bounds": [
+    [
+      -0.35266344385423654,
+      -0.5,
+      -0.23063083630325432
+    ],
+    [
+      0.35266344385423654,
+      0.5,
+      0.23063083630325432
+    ]
+  ],
+  "rotors": {
+    "PropL": {
+      "pivot": [
+        0.2274048688035777,
+        0.12415759962974379,
+        -0.022091090456988073
+      ],
+      "axis": [
+        -2.879610994099835e-09,
+        -1.4901161193847656e-08,
+        1.0
+      ],
+      "direction": 1
+    },
+    "PropR": {
+      "pivot": [
+        -0.22738157179567559,
+        0.12415759962974379,
+        -0.022091090456988073
+      ],
+      "axis": [
+        2.879610994099835e-09,
+        -1.4901161193847656e-08,
+        1.0
+      ],
+      "direction": -1
+    }
+  },
+  "materials": [
+    {
+      "name": "Orca GDI | baked atlas",
+      "kind": 17,
+      "texture": "orca-colors.png"
+    }
+  ],
+  "ranges": [
+    {
+      "part": "Hull",
+      "material": 0,
+      "first": 0,
+      "count": 143343
+    },
+    {
+      "part": "PropL",
+      "material": 0,
+      "first": 143343,
+      "count": 3456
+    },
+    {
+      "part": "PropR",
+      "material": 0,
+      "first": 146799,
+      "count": 3456
+    }
+  ],
+  "objects": [
+    {
+      "name": "Aile support turbine | babord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Aile support turbine | tribord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Aile | no step",
+      "part": "Hull",
+      "polygons": 632
+    },
+    {
+      "name": "Aile | no step.001",
+      "part": "Hull",
+      "polygons": 632
+    },
+    {
+      "name": "Antenne dorsale",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Armement | moignon aile babord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Armement | moignon aile tribord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Armement | pylone babord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Armement | pylone tribord",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Blindage | joue -1",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Blindage | joue 1",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Cockpit | appuie tete",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | commandes",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | commandes.001",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | console",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | ecran",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | ecran.001",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | ecran.002",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | plancher",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Cockpit | siege ejection",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Derive verticale | -1",
+      "part": "Hull",
+      "polygons": 24
+    },
+    {
+      "name": "Derive verticale | 1",
+      "part": "Hull",
+      "polygons": 24
+    },
+    {
+      "name": "Derive | bord attaque",
+      "part": "Hull",
+      "polygons": 6
+    },
+    {
+      "name": "Derive | bord attaque.001",
+      "part": "Hull",
+      "polygons": 6
+    },
+    {
+      "name": "Dos | capot moteur",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Dos | lamelle admission",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.001",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.002",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.003",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.004",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.005",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.006",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.007",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | lamelle admission.008",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | prise air",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Dos | trappe ovale",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Dos | vis de trappe",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.001",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.002",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.003",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.004",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.005",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.006",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.007",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.008",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Dos | vis de trappe.009",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Echappement dorsal",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Echappement dorsal.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Echappement | cavite",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Echappement | cavite.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Empennage | contrepoids",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Empennage | contrepoids.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Empennage | gouverne",
+      "part": "Hull",
+      "polygons": 6
+    },
+    {
+      "name": "Empennage | gouverne.001",
+      "part": "Hull",
+      "polygons": 6
+    },
+    {
+      "name": "Empennage | plan horizontal",
+      "part": "Hull",
+      "polygons": 40
+    },
+    {
+      "name": "Feu de navigation | babord",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Feu de navigation | tribord",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Fixation | flanc",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.002",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.003",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.004",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.005",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.006",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fixation | flanc.007",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Fuselage | coque inferieure profilee",
+      "part": "Hull",
+      "polygons": 1750
+    },
+    {
+      "name": "Identification | 07",
+      "part": "Hull",
+      "polygons": 206
+    },
+    {
+      "name": "Identification | 07.001",
+      "part": "Hull",
+      "polygons": 206
+    },
+    {
+      "name": "Insigne | aigle GDI",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Insigne | aigle GDI.001",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Insigne | GDI",
+      "part": "Hull",
+      "polygons": 328
+    },
+    {
+      "name": "Insigne | GDI.001",
+      "part": "Hull",
+      "polygons": 328
+    },
+    {
+      "name": "Joint | joue -1",
+      "part": "Hull",
+      "polygons": 36
+    },
+    {
+      "name": "Joint | joue 1",
+      "part": "Hull",
+      "polygons": 36
+    },
+    {
+      "name": "Nez | bulbe de visee",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Nez | camera FLIR",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Nez | couronne du projecteur",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Nez | lentille",
+      "part": "Hull",
+      "polygons": 182
+    },
+    {
+      "name": "Nez | optique FLIR",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Numero de serie",
+      "part": "Hull",
+      "polygons": 600
+    },
+    {
+      "name": "Numero de serie.001",
+      "part": "Hull",
+      "polygons": 600
+    },
+    {
+      "name": "Pilote | avant bras",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | avant bras.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | bras",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | bras.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | buste",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Pilote | casque",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Pilote | harnais",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | harnais.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pilote | visiere",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Pitot",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Pitot.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Poignee de maintenance",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Poignee de maintenance.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Poutre de queue | monocoque",
+      "part": "Hull",
+      "polygons": 1382
+    },
+    {
+      "name": "Queue | carenage terminal",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Queue | grille",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille circulaire",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Queue | grille.001",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.002",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.003",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.004",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.005",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.006",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.007",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | grille.008",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Queue | ligne panneau droit",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Queue | ligne panneau gauche",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Roquettes | bague arriere babord",
+      "part": "Hull",
+      "polygons": 111
+    },
+    {
+      "name": "Roquettes | bague arriere tribord",
+      "part": "Hull",
+      "polygons": 111
+    },
+    {
+      "name": "Roquettes | bouche babord 00",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 01",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 02",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 03",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 04",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 05",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche babord 06",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 00",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 01",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 02",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 03",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 04",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 05",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | bouche tribord 06",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | cerclage avant babord",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Roquettes | cerclage avant tribord",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Roquettes | corps babord",
+      "part": "Hull",
+      "polygons": 26
+    },
+    {
+      "name": "Roquettes | corps tribord",
+      "part": "Hull",
+      "polygons": 26
+    },
+    {
+      "name": "Roquettes | ogive babord 00",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 01",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 02",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 03",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 04",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 05",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive babord 06",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 00",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 01",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 02",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 03",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 04",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 05",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | ogive tribord 06",
+      "part": "Hull",
+      "polygons": 64
+    },
+    {
+      "name": "Roquettes | plaque arriere percee babord",
+      "part": "Hull",
+      "polygons": 230
+    },
+    {
+      "name": "Roquettes | plaque arriere percee tribord",
+      "part": "Hull",
+      "polygons": 230
+    },
+    {
+      "name": "Roquettes | plaque avant babord",
+      "part": "Hull",
+      "polygons": 182
+    },
+    {
+      "name": "Roquettes | plaque avant tribord",
+      "part": "Hull",
+      "polygons": 182
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 00",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 01",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 02",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 03",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 04",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 05",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere babord 06",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 00",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 01",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 02",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 03",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 04",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 05",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | sortie tube arriere tribord 06",
+      "part": "Hull",
+      "polygons": 192
+    },
+    {
+      "name": "Roquettes | tube babord 00",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 01",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 02",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 03",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 04",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 05",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube babord 06",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 00",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 01",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 02",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 03",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 04",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 05",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Roquettes | tube tribord 06",
+      "part": "Hull",
+      "polygons": 90
+    },
+    {
+      "name": "Rotor babord | pale 01",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 02",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 03",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 04",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 05",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 06",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 07",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 08",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 09",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 10",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 11",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 12",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 13",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 14",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 15",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor babord | pale 16",
+      "part": "PropL",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor | bord attaque",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.001",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.002",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.003",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.004",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.005",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.006",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.007",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.008",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.009",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.010",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.011",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.012",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.013",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.014",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.015",
+      "part": "PropL",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor tribord | pale 01",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 02",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 03",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 04",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 05",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 06",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 07",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 08",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 09",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 10",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 11",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 12",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 13",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 14",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 15",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor tribord | pale 16",
+      "part": "PropR",
+      "polygons": 36
+    },
+    {
+      "name": "Rotor | bord attaque.016",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.017",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.018",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.019",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.020",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.021",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.022",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.023",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.024",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.025",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.026",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.027",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.028",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.029",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.030",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Rotor | bord attaque.031",
+      "part": "PropR",
+      "polygons": 18
+    },
+    {
+      "name": "Secours | fleche",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Secours | fleche.001",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Support fixe turbine | babord",
+      "part": "Hull",
+      "polygons": 26
+    },
+    {
+      "name": "Support fixe turbine | tribord",
+      "part": "Hull",
+      "polygons": 26
+    },
+    {
+      "name": "Turbine | axe babord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | axe tribord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | bande jaune babord",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Turbine | bande jaune babord.001",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Turbine | bande jaune tribord",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Turbine | bande jaune tribord.001",
+      "part": "Hull",
+      "polygons": 1
+    },
+    {
+      "name": "Turbine | capuchon babord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | capuchon tribord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | carenage annulaire babord",
+      "part": "Hull",
+      "polygons": 1198
+    },
+    {
+      "name": "Turbine | carenage annulaire tribord",
+      "part": "Hull",
+      "polygons": 1198
+    },
+    {
+      "name": "Turbine | joint circulaire babord",
+      "part": "Hull",
+      "polygons": 576
+    },
+    {
+      "name": "Turbine | joint circulaire babord.001",
+      "part": "Hull",
+      "polygons": 576
+    },
+    {
+      "name": "Turbine | joint circulaire tribord",
+      "part": "Hull",
+      "polygons": 576
+    },
+    {
+      "name": "Turbine | joint circulaire tribord.001",
+      "part": "Hull",
+      "polygons": 576
+    },
+    {
+      "name": "Turbine | joint longitudinal babord",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.001",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.002",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.003",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.004",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.005",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.006",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.007",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.008",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.009",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.010",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal babord.011",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.001",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.002",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.003",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.004",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.005",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.006",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.007",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.008",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.009",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.010",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | joint longitudinal tribord.011",
+      "part": "Hull",
+      "polygons": 12
+    },
+    {
+      "name": "Turbine | ogive babord",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Turbine | ogive tribord",
+      "part": "Hull",
+      "polygons": 728
+    },
+    {
+      "name": "Turbine | rivet babord",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.001",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.002",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.003",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.004",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.005",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.006",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.007",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.008",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.009",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.010",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet babord.011",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.001",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.002",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.003",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.004",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.005",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.006",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.007",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.008",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.009",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.010",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | rivet tribord.011",
+      "part": "Hull",
+      "polygons": 44
+    },
+    {
+      "name": "Turbine | stator babord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator babord.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator babord.002",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator babord.003",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator tribord",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator tribord.001",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator tribord.002",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Turbine | stator tribord.003",
+      "part": "Hull",
+      "polygons": 150
+    },
+    {
+      "name": "Ventre | panneau central",
+      "part": "Hull",
+      "polygons": 20
+    },
+    {
+      "name": "Ventre | vis",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Ventre | vis.001",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Ventre | vis.002",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Ventre | vis.003",
+      "part": "Hull",
+      "polygons": 290
+    },
+    {
+      "name": "Verriere | arete babord",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Verriere | arete tribord",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Verriere | base babord",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Verriere | base tribord",
+      "part": "Hull",
+      "polygons": 30
+    },
+    {
+      "name": "Verriere | montant 0",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Verriere | montant 1",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Verriere | montant 3",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Verriere | montant 4",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Verriere | montant 5",
+      "part": "Hull",
+      "polygons": 18
+    },
+    {
+      "name": "Verriere | vitrage facette",
+      "part": "Hull",
+      "polygons": 46
+    }
+  ],
+  "source": "artifacts/orca-gdi/Orca-GDI.blend",
+  "sourceSha256": "9eccb0de4c4c6e66db19d44067dd13b6a8b7fab333193f32937f43a9997b0270",
+  "meshSha256": "79affb28f390a8e8089f2d53047bd9fa3d4f1b7565849ff2dd5b92d6509dbfeb",
+  "textures": [
+    {
+      "file": "orca-colors.png",
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "deckExit": [
+    1.1648503951054904e-05,
+    0.05980102565141222,
+    0.039047650922543614
+  ]
+}

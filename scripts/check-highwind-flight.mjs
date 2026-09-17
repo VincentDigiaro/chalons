@@ -7,7 +7,7 @@ import {collisionGeometry,GROUND_HEIGHT} from '../dist/walk-physics.js';
 import {parseMidi,HighwindMusic} from '../dist/highwind-music.js';
 import {validateHighwindConfig,FPS_CONFIG} from '../dist/walk-config.js';
 const near=(a,b,e=1e-5)=>assert(Math.abs(a-b)<e,`${a} ≠ ${b}`);
-for(const q of ['?ff7','?fps=1&ff7=1','?ff7=0'])assert(ff7Enabled(q));for(const q of ['','?fps=1','?other=ff7'])assert(!ff7Enabled(q));
+for(const q of ['?ship=highwind','?fps=1&ship=highwind','?ville=nice&ship=highwind'])assert(ff7Enabled(q));for(const q of ['','?fps=1','?other=ff7'])assert(!ff7Enabled(q));
 const config=validateHighwindConfig({present:true,longueurMetres:237,position:{x:20,y:60,z:140},angleDegres:135,vitesseMaxKmh:400,dureeAccelerationSecondes:.3,dureeFreinageSecondes:.18,hauteurApparitionMetres:20,distanceDerriereJoueurMetres:50,distanceCameraMetres:73.5,vitessesHelicesToursParSeconde:FPS_CONFIG.highwind.vitessesHelicesToursParSeconde});
 for(const vitesseMaxKmh of [-1,0,'400',NaN])assert.throws(()=>validateHighwindConfig({...config,vitesseMaxKmh}));
 for(const angle of [0,90,235])for(const pitch of [-Math.PI/18,0,Math.PI/18]){const pose={...config,angleDegres:angle,pitch},p=[.1,-.3,.08];const q=inversePoint(pose,transform(shipMatrix(pose),p));q.forEach((v,i)=>near(v,p[i]));}
@@ -16,7 +16,7 @@ assert.deepEqual(Object.keys(index.rotors).sort(),['PropL','PropR','PropRear','P
 for(const r of Object.values(index.rotors)){const matrix=rotorMatrix(r,1),p=r.pivot;transform(matrix,p).forEach((n,i)=>near(n,p[i]));const vertex=[p[0]+.1,p[1],p[2]];near(Math.hypot(...transform(matrix,vertex).map((n,i)=>n-p[i])),.1);assert(Math.hypot(...transform(matrix,vertex).map((n,i)=>n-vertex[i]))>.02);}
 near(triangleDistance([.2,.2,2],[0,0,0],[1,0,0],[0,1,0]),2);near(triangleDistance([0,0,0],[0,0,0],[1,0,0],[0,1,0]),0);
 let pose={...config,pitch:0,position:{x:0,y:0,z:200},angleDegres:0};
-const keys=new Set(['KeyW','KeyD','ArrowRight','Space']),input=flightInputs(keys);assert.deepEqual(input,{forward:1,strafe:1,turn:1,lift:1});assert.deepEqual(flightInputs(new Set(),[1,1],[1,1]),input);
+const keys=new Set(['KeyW','KeyD','ArrowRight','Space']),input=flightInputs(keys);assert.deepEqual(input,{forward:1,strafe:1,turn:1,lift:1,boost:false});assert.deepEqual(flightInputs(new Set(),[1,1],[1,1]),input);
 for(let i=0;i<200;i++){const next=advanceFlight(pose,input,.02,400);assert(next.position.x!==pose.position.x&&next.position.y!==pose.position.y&&next.position.z>pose.position.z&&next.angleDegres>pose.angleDegres);near(Math.hypot(...['x','y','z'].map(k=>(next.position[k]-pose.position[k])*(k==='z'?2:1)))/.02*3.6,400);pose=next;}
 near(pose.pitch,Math.PI/18);for(let i=0;i<100;i++)pose=advanceFlight(pose,{forward:0,strafe:0,turn:0,lift:0},.02,400);near(pose.pitch,0);
 const slow=advanceFlight({...pose,angleDegres:0},{forward:-1,strafe:0,turn:0,lift:-1},.05,200);near(Math.hypot(...['x','y','z'].map(k=>(slow.position[k]-pose.position[k])*(k==='z'?2:1)))/.05*3.6,200);assert(slow.position.y<pose.position.y&&slow.position.z<pose.position.z);
@@ -43,6 +43,15 @@ for(const distanceCameraMetres of [25.5,151.86,350])for(const longueurMetres of 
 }
 const legacy=chaseCamera({...pose,angleDegres:0,distanceCameraMetres:undefined});
 near(legacy.position[1],pose.position.y-.95*pose.longueurMetres);near(legacy.height,pose.position.z+.35*pose.longueurMetres);
+// Configured elevation keeps the camera on the distance sphere and looking at the ship.
+for(const angleCameraDegres of [-89,-20,0,35,89]){
+ const p={...pose,angleDegres:90,distanceCameraMetres:310,angleCameraDegres},c=chaseCamera(p);
+ near(c.pitch,-angleCameraDegres*Math.PI/180);near(c.height-p.position.z,310*Math.sin(angleCameraDegres*Math.PI/180));
+ near(Math.hypot(c.position[0]-p.position.x,c.position[1]-p.position.y,c.height-p.position.z),310);
+ const f=new HighwindFlight({pose:p});f.mode='flying';
+ for(const dy of [10000,-10000]){f.look(0,dy,.0022,true);assert(Math.abs(f.camera().pitch)<=89*Math.PI/180);}
+ f.cameraDistance=500;f.zoomDistance=600;f.resetCameraView();near(f.camera().pitch,c.pitch);near(f.cameraDistance,310);
+}
 globalThis.fetch=async url=>new Response(await fs.readFile('dist/'+String(url).replace('./','')));
 const renderer={index:{materials:[]},geometry:vertices=>({bytes:vertices.byteLength}),drop(){},texture(){},material(id){return this.index.materials[id];}};
 const ship=new FPSHighwind(renderer,config,{enabled:true});ship.refresh([100,200]);await ship.initializing;await ship.residency.pending;

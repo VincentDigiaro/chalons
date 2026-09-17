@@ -1,0 +1,12 @@
+{
+  "roundtrip_blender": true,
+  "embedded_images": 10,
+  "skinned_meshes": 9,
+  "joints": 53,
+  "animations": [
+    "Idle",
+    "Walk",
+    "Wave"
+  ],
+  "glb_bytes": 23134884
+}

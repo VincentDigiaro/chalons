@@ -2,10 +2,11 @@ export const IDENTITY=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
 export function multiply(a,b){const m=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)m[c*4+r]+=a[k*4+r]*b[c*4+k];return m;}
 export function shipMatrix(pose){
  const a=pose.angleDegres*Math.PI/180,c=Math.cos(a),s=Math.sin(a),p=pose.pitch||0,cp=Math.cos(p),sp=Math.sin(p),l=pose.longueurMetres,{x,y,z}=pose.position;
- return new Float32Array([c*l,-s*l,0,0,s*cp*l,c*cp*l,sp*l,0,-s*sp*l,-c*sp*l,cp*l,0,x,y,z,1]);
+ const r=pose.roll||0,cr=Math.cos(r),sr=Math.sin(r);
+ return new Float32Array([(cr*c+sr*s*sp)*l,(-cr*s+sr*c*sp)*l,-sr*cp*l,0,s*cp*l,c*cp*l,sp*l,0,(sr*c-cr*s*sp)*l,(-sr*s-cr*c*sp)*l,cr*cp*l,0,x,y,z,1]);
 }
 export const transform=(m,p)=>[0,1,2].map(i=>m[i]*p[0]+m[4+i]*p[1]+m[8+i]*p[2]+m[12+i]);
-export function inversePoint(pose,p){const a=pose.angleDegres*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cp=Math.cos(pose.pitch||0),sp=Math.sin(pose.pitch||0),x=p[0]-pose.position.x,y=p[1]-pose.position.y,z=p[2]-pose.position.z,l=pose.longueurMetres;return [(c*x-s*y)/l,(cp*(s*x+c*y)+sp*z)/l,(-sp*(s*x+c*y)+cp*z)/l];}
+export function inversePoint(pose,p){const a=pose.angleDegres*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cp=Math.cos(pose.pitch||0),sp=Math.sin(pose.pitch||0),x=p[0]-pose.position.x,y=p[1]-pose.position.y,z=p[2]-pose.position.z,l=pose.longueurMetres,cr=Math.cos(pose.roll||0),sr=Math.sin(pose.roll||0),right=c*x-s*y,up=-sp*(s*x+c*y)+cp*z;return [(cr*right-sr*up)/l,(cp*(s*x+c*y)+sp*z)/l,(sr*right+cr*up)/l];}
 export function rotorMatrix(rotor,angle){const a=angle*rotor.direction,c=Math.cos(a),s=Math.sin(a),t=1-c,[x,y,z]=rotor.axis||[0,0,1],p=rotor.pivot,m=new Float32Array([t*x*x+c,t*x*y+s*z,t*x*z-s*y,0,t*x*y-s*z,t*y*y+c,t*y*z+s*x,0,t*x*z+s*y,t*y*z-s*x,t*z*z+c,0,0,0,0,1]);for(let i=0;i<3;i++)m[12+i]=p[i]-m[i]*p[0]-m[4+i]*p[1]-m[8+i]*p[2];return m;}
 const dot=(a,b)=>a.reduce((n,v,i)=>n+v*b[i],0),sub=(a,b)=>Array.from(a,(v,i)=>v-b[i]);
 // Closest point on a triangle (including edges), used for actual hull contact.

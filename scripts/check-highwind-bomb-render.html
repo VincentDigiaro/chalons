@@ -1,0 +1,28 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vérification graphique des bombes</title>
+<style>body{margin:0;background:#152431;color:#fff;font:14px system-ui}header{padding:12px;display:flex;gap:8px;flex-wrap:wrap}button{padding:12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}canvas{width:100%;height:70vh;display:block}output{display:block;padding:12px}#hud{position:relative;height:120px}.walk-keys{display:none}</style>
+<link rel="stylesheet" href="/walk.css">
+<header><button id="model">Bombe</button><button id="fire">Explosion</button><button id="smoke">Fumée</button><button id="stress">3 explosions · mobile</button></header><canvas id="scene"></canvas><output id="result">Initialisation…</output><section id="hud" class="touch highwind-piloting"><p class="walk-keys"></p></section>
+<script type="module">
+import {HighwindBombEffects} from '/highwind-bomb-effects.js';
+import {BombScorches,makeProgram} from '/bomb-scorches.js';
+import {HighwindUI} from '/highwind-ui.js';
+import {viewProjection} from '/walk-core.js';
+const canvas=document.querySelector('canvas'),gl=canvas.getContext('webgl2',{antialias:false}),effect=new HighwindBombEffects(gl,{mobile:true}),scorches=new BombScorches(gl,{marks:[[0,0]],height:()=>0}),out=document.querySelector('output');
+const ground=makeProgram(gl,`#version 300 es
+layout(location=0) in vec3 a;uniform mat4 m;out vec2 xy;void main(){xy=a.xy;gl_Position=m*vec4(a,1.);}`,`#version 300 es
+precision highp float;in vec2 xy;out vec4 c;void main(){float line=step(.94,fract(xy.x/20.))+step(.94,fract(xy.y/20.));c=vec4(vec3(.29,.34,.28)+line*.06,1.);}`),vao=gl.createVertexArray(),buf=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-600,-600,0,600,-600,0,-600,600,0,-600,600,0,600,-600,0,600,600,0]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,3,gl.FLOAT,false,12,0);gl.bindVertexArray(null);const gm=gl.getUniformLocation(ground,'m');
+let mode='model',frames=0,total=0,max=0;
+for(const id of ['model','fire','smoke','stress'])document.getElementById(id).onclick=()=>{mode=id;frames=total=max=0;};
+const hud={root:document.getElementById('hud'),events:new AbortController(),phase:'playing',touch:true,flight:{active:true,ship:{enabled:true,config:{}}},renderer:{bombs:{ready:true}},dropBomb(){mode='fire';},interactHighwind(){}};new HighwindUI(hud).update();
+function draw(){try{
+ const start=performance.now(),w=canvas.width=Math.round(canvas.clientWidth*Math.min(devicePixelRatio,1.5)),h=canvas.height=Math.round(canvas.clientHeight*Math.min(devicePixelRatio,1.5)),model=mode==='model';
+ const camera=model?{position:[0,-14],height:6,yaw:0,pitch:-.1}:{position:[0,-240],height:115,yaw:0,pitch:-.35},matrix=viewProjection([0,0,camera.height],0,camera.pitch,w/h),world=new Float32Array(matrix);
+ for(let r=0;r<4;r++)world[12+r]-=matrix[r]*camera.position[0]+matrix[4+r]*camera.position[1];
+ gl.viewport(0,0,w,h);gl.clearColor(.33,.58,.73,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.disable(gl.BLEND);gl.useProgram(ground);gl.uniformMatrix4fv(gm,false,world);gl.bindVertexArray(vao);gl.drawArrays(gl.TRIANGLES,0,6);gl.bindVertexArray(null);
+ const time=mode==='fire'?.7:mode==='smoke'?3.5:.8,state={time,bombs:model?[{position:[0,0,5],heading:0,age:0,velocity:[0,0,0]}]:[],blasts:model?[]:Array.from({length:mode==='stress'?3:1},(_,i)=>({id:i+1,position:[(i-1)*(mode==='stress'?65:0),i*15,0],started:0,radius:100}))};
+ if(!model)scorches.draw(matrix,camera.position);effect.draw(state,matrix,camera);
+ const ms=performance.now()-start;total+=ms;max=Math.max(max,ms);frames++;const error=gl.getError();out.textContent=JSON.stringify({webgl:error===0?'OK':error,mode,...effect.getState(),meanCpuMs:+(total/frames).toFixed(2),maxCpuMs:+max.toFixed(2),frames});
+ requestAnimationFrame(draw);
+ }catch(e){out.textContent='ERREUR '+e.stack;}}
+draw();
+</script></html>

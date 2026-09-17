@@ -9,11 +9,29 @@ import {applyEndCorrections,buildEndCorrections} from './build-nerval-end-correc
 import {applyRoundaboutSurvey,buildRoundaboutDetails} from './build-nerval-roundabout.mjs';
 import {applyNervalCatalogue} from './apply-nerval-catalogue.mjs';
 import {resolveGroundSurfaces} from './nerval-ground-surfaces.mjs';
+import {buildEarthRoofDetails} from './build-nerval-earth.mjs';
+import {buildStreetRoof,streetRoofHeight,streetOpeningFinishes,buildStreetDetails} from './build-nerval-streetview.mjs';
+import {buildHouse42GroundContext,refineHouse42Ground,GROUND42_REFERENCE} from './nerval-house42-ground.mjs';
 const dir='dist/data/nerval',survey=JSON.parse(await fs.readFile(`${dir}/survey.json`,'utf8'));
 applyHouse42RearSurvey(survey);
 await applyNervalRefinements(survey);
 await applyEndCorrections(survey);
 await applyRoundaboutSurvey(survey);
+const earthSurvey=JSON.parse(await fs.readFile(new URL('./nerval-earth-survey.json',import.meta.url),'utf8'));
+const streetSurvey=JSON.parse(await fs.readFile(new URL('./nerval-streetview-survey.json',import.meta.url),'utf8'));
+survey.streetViewSurvey=streetSurvey;
+const streetCanopies=new Set(streetSurvey.canopies.map(d=>d.part));
+const streetFrontages=new Set(streetSurvey.frontages.map(d=>d.group));
+const earthFacades=new Map([...earthSurvey.facades,...streetSurvey.facades].map(f=>[f.part,f]));
+const earthCanopies=new Set(earthSurvey.canopies.map(o=>o.part));
+const earthRoofs=new Set([...earthFacades.keys(),...earthSurvey.rooflights.map(o=>o.part),...earthCanopies]);
+const allOpenings=[...streetOpeningFinishes(survey.openings,streetSurvey),...earthSurvey.openings.map(o=>({...o,earth:true})),...streetSurvey.openings.map(o=>({...o,streetview:true}))];
+for(const id of streetSurvey.modifiedParts)if(id<=59||!survey.parts.some(p=>p.id===id))throw Error('Street View detail outside authorized area: '+id);
+// The user's red rectangle excludes all northern volumes, including boundary houses.
+for(const detail of [...earthSurvey.facades,...earthSurvey.openings,...earthSurvey.rooflights,...earthSurvey.chimneys,...earthSurvey.canopies]){
+ if(detail.part<=59||!survey.parts.some(p=>p.id===detail.part))throw Error('Earth detail outside authorized area: '+detail.part);
+}
+survey.earthSurvey=earthSurvey;
 const FOCUS_WALL=2+survey.facadeAtlases,DETAIL_ROOF=FOCUS_WALL+1,HEDGE=FOCUS_WALL+2,ROAD=FOCUS_WALL+3,PAVE=FOCUS_WALL+4,GRASS=FOCUS_WALL+5,PAVERS=FOCUS_WALL+6,WIRE=FOCUS_WALL+7,DETAIL_PHOTO=FOCUS_WALL+8,HOUSE_GLASS=DETAIL_PHOTO+survey.facadeAtlases;
 const batches=new Map(),objects=[],pickTriangles=[],paintedPatches=new Map();let activePart=null;
 const add=(a,b)=>a.map((x,i)=>x+b[i]),sub=(a,b)=>a.map((x,i)=>x-b[i]),mul=(a,s)=>a.map(x=>x*s),dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0),len=a=>Math.hypot(...a),norm=a=>mul(a,1/len(a));
@@ -46,7 +64,7 @@ const landscapeContext={parts,survey,objects,poly,beam,box,rgb,add,sub,mul,norm,
 const landscape=landscapeTools(landscapeContext);
 function facadeOpening(part,o){
  const [lo,hi]=part.bounds,dim=['front','back'].includes(o.side)?0:1,depth=1-dim,edge=o.side==='front'?lo[1]+(o.depth||0):o.side==='back'?hi[1]-(o.depth||0):o.side==='left'?lo[0]+(o.depth||0):hi[0]-(o.depth||0);
- const extent=o.span||part.surfaceBounds[o.side]||[lo[dim],hi[dim]],s=['left','back'].includes(o.side)?1-o.along:o.along,middle=extent[0]+s*(extent[1]-extent[0]);
+ const extent=o.span||part.surfaceBounds?.[o.side]||[lo[dim],hi[dim]],s=['left','back'].includes(o.side)?1-o.along:o.along,middle=extent[0]+s*(extent[1]-extent[0]);
  const ring=part.ring.map(q=>[dot(sub(q,part.center),part.u),dot(sub(q,part.center),part.v)]);
  let anchor=[0,0];anchor[dim]=middle;anchor[depth]=edge;
  for(let i=0;i<ring.length;i++){const a=ring[i],b=ring[(i+1)%ring.length];if(Math.abs(a[depth]-edge)<.65&&Math.abs(b[depth]-edge)<.65&&(a[dim]-middle)*(b[dim]-middle)<=0&&Math.abs(b[dim]-a[dim])>.01)anchor=mix(a,b,(middle-a[dim])/(b[dim]-a[dim]));}
@@ -56,7 +74,7 @@ function facadeOpening(part,o){
 // frames and shutter leaves project out from the actual facade plane.
 function cutOpenings(wall,part){
  let faces=[wall];
- for(const o of survey.openings.filter(o=>o.part===part.id)){
+ for(const o of allOpenings.filter(o=>o.part===part.id)){
   const {dim,depth,edge,middle}=facadeOpening(part,o);
   if(Math.abs(wall[0][depth]-edge)>.65||Math.abs(wall[1][depth]-edge)>.65)continue;
   const x0=middle-o.width/2,x1=middle+o.width/2,z0=o.bottom,z1=o.bottom+o.height;
@@ -71,6 +89,8 @@ for(const part of survey.parts){
  const {u,v,center:c,bounds:[lo,hi],eaves:e,rise:r}=part;
  const local=p=>[dot(sub(p,c),u),dot(sub(p,c),v)];
  const world=([x,y])=>add(c,add(mul(u,x),mul(v,y)));
+ const streetProfile=streetSurvey.roofs.find(d=>d.part===part.id);
+ const streetZone=x=>streetProfile?.zones.find(z=>x>=z.from-1e-5&&x<=z.to+1e-5)||streetProfile?.zones.at(-1);
  const ring=part.ring.map(local);
  const axis=part.roofAxis??(part.roof==='cross'?0:1);
  const roofLo=part.roofStart??lo[axis],roofHi=part.roofEnd??hi[axis];
@@ -80,11 +100,13 @@ for(const part of survey.parts){
  const cut=part.frontFlat?lo[1]+part.frontFlat:null;
  const sectionHeight=(s,p)=>s.eaves+s.rise*Math.max(0,1-Math.abs((p[1]-(lo[1]+hi[1])/2)/((hi[1]-lo[1])/2)));
  const sectionAt=x=>part.roofSections?.find(s=>x>=s.from-1e-5&&x<=s.to+1e-5)||part.roofSections?.at(-1);
- const height=p=>part.roofSections?sectionHeight(sectionAt(p[0]),p):part.rearRoof&&p[axis]>roofHi?Math.max(e,Math.min(...rearPlanes.map(f=>f(p)))):cut!==null&&p[1]<cut-1e-6?e:Math.max(e,Math.min(...planes.map(f=>f(p))));
- const color=part.color||rgb(part.photos.includes('02')?'#c8c5b7':part.photos.includes('10')?'#dfd9c7':'#d7d2c0');
- const wallMaterial=part.focus?FOCUS_WALL:0,roofMaterial=part.focus?DETAIL_ROOF:1;
+ const height=p=>streetProfile?streetRoofHeight(streetZone(p[0]),p):part.roofSections?sectionHeight(sectionAt(p[0]),p):part.rearRoof&&p[axis]>roofHi?Math.max(e,Math.min(...rearPlanes.map(f=>f(p)))):cut!==null&&p[1]<cut-1e-6?e:Math.max(e,Math.min(...planes.map(f=>f(p))));
+ const color=earthFacades.has(part.id)?rgb(earthFacades.get(part.id).color):part.color||rgb(part.photos.includes('02')?'#c8c5b7':part.photos.includes('10')?'#dfd9c7':'#d7d2c0');
+ const detailedRoof=part.focus||earthRoofs.has(part.id);
+ const wallMaterial=part.focus||earthFacades.has(part.id)?FOCUS_WALL:0,roofMaterial=detailedRoof?DETAIL_ROOF:1;
  const detailUV=p=>{const mid=(roofHi+roofLo)/2,slope=Math.hypot(1,2*r/(roofHi-roofLo));return [p[1-axis]/1.65,Math.abs(p[axis]-mid)*slope/1.28];};
  const indices=earcut(ring.flat());
+ if(streetProfile){part.world=world;buildStreetRoof(landscapeContext,part,streetProfile,ring,indices,clip);}
  if(part.roofSections){
   const mid=(lo[1]+hi[1])/2;
   for(const section of part.roofSections)for(let i=0;i<indices.length;i+=3)for(const sign of [-1,1]){
@@ -99,14 +121,14 @@ for(const part of survey.parts){
    }
   }
  }
- if(!part.roofSections)
+ if(!part.roofSections&&!streetProfile)
  for(let i=0;i<indices.length;i+=3){let triangle=indices.slice(i,i+3).map(j=>ring[j]);
   if(part.roofEnd!==undefined){const back=clip(triangle,p=>p[axis]-roofHi);
    if(part.rearRoof){for(const f of rearPlanes){let clipped=back;for(const g of rearPlanes)if(f!==g)clipped=clip(clipped,p=>g(p)-f(p));poly(clipped.map(p=>[...world(p),f(p)]),roofMaterial,part.roofTint||[1,1,1],clipped.map(detailUV));}}
    else poly(back.map(p=>[...world(p),e]),wallMaterial,rgb('#85867f'));
    triangle=clip(triangle,p=>roofHi-p[axis]);}
   if(cut!==null){const flat=clip(triangle,p=>cut-p[1]);poly(flat.map(p=>[...world(p),e]),wallMaterial,rgb('#92948b'));triangle=clip(triangle,p=>p[1]-cut);}
-  for(const f of planes){let clipped=triangle;for(const g of planes){if(f!==g)clipped=clip(clipped,p=>g(p)-f(p));if(clipped.length<3)break;}if(clipped.length<3)continue;const points=clipped.map(p=>[...world(p),f(p)]);poly(points,roofMaterial,part.focus?(part.roofTint||[1,1,1]):[1,1,1],part.focus?clipped.map(detailUV):points.map(roofUV));
+  for(const f of planes){let clipped=triangle;for(const g of planes){if(f!==g)clipped=clip(clipped,p=>g(p)-f(p));if(clipped.length<3)break;}if(clipped.length<3)continue;const points=clipped.map(p=>[...world(p),f(p)]);poly(points,roofMaterial,detailedRoof?(part.roofTint||[1,1,1]):[1,1,1],detailedRoof?clipped.map(detailUV):points.map(roofUV));
   for(const patch of part.patches.filter(p=>p.side==='roof')){
    if(f!==planes[0]||axis!==1)continue;
    const span=patch.span||[0,1],width=hi[0]-lo[0],a=lo[0]+width*span[0],b=lo[0]+width*span[1],mid=(lo[1]+hi[1])/2;
@@ -116,8 +138,9 @@ for(const part of survey.parts){
  }}
  // Exterior OSM walls with ridge intersections, then per-surface photo patches.
  for(let i=0;i<ring.length;i++){
-  if(part.openStructure)continue;
+  if(part.openStructure||earthCanopies.has(part.id)||streetCanopies.has(part.id))continue;
   const a=ring[i],b=ring[(i+1)%ring.length];const ts=[0,1];
+  if(streetProfile)for(const z of streetProfile.zones){const mid=(z.start+z.end)/2;if((a[z.axis]-mid)*(b[z.axis]-mid)<0)ts.push((mid-a[z.axis])/(b[z.axis]-a[z.axis]));if((a[0]-z.to)*(b[0]-z.to)<0)ts.push((z.to-a[0])/(b[0]-a[0]));}
   if(part.roofSections){for(const s of part.roofSections)if((a[0]-s.to)*(b[0]-s.to)<0)ts.push((s.to-a[0])/(b[0]-a[0]));const mid=(lo[1]+hi[1])/2;if((a[1]-mid)*(b[1]-mid)<0)ts.push((mid-a[1])/(b[1]-a[1]));}
   if(cut!==null&&(a[1]-cut)*(b[1]-cut)<0)ts.push((cut-a[1])/(b[1]-a[1]));
   if(part.roofEnd!==undefined&&(a[axis]-roofHi)*(b[axis]-roofHi)<0)ts.push((roofHi-a[axis])/(b[axis]-a[axis]));
@@ -125,8 +148,8 @@ for(const part of survey.parts){
   for(let j=0;j<planes.length;j++)for(let k=j+1;k<planes.length;k++){const fa=planes[j](a)-planes[k](a),fb=planes[j](b)-planes[k](b);if(fa*fb<0)ts.push(fa/(fa-fb));}
   ts.sort((a,b)=>a-b);
   for(let j=0;j<ts.length-1;j++){
-   const aa=mix(a,b,ts[j]),bb=mix(a,b,ts[j+1]),flat=cut!==null&&(aa[1]+bb[1])/2<cut-1e-6,section=sectionAt((aa[0]+bb[0])/2),h=q=>section?sectionHeight(section,q):height(q),wall=[[...aa,0],[...bb,0],[...bb,flat?e:h(bb)],[...aa,flat?e:h(aa)]];
-   for(const face of part.focus?cutOpenings(wall,part):[wall])poly(face.map(p=>[...world(p),p[2]]),wallMaterial,color);
+   const aa=mix(a,b,ts[j]),bb=mix(a,b,ts[j+1]),flat=cut!==null&&(aa[1]+bb[1])/2<cut-1e-6,section=sectionAt((aa[0]+bb[0])/2),zone=streetZone((aa[0]+bb[0])/2),h=q=>zone?streetRoofHeight(zone,q):section?sectionHeight(section,q):height(q),wall=[[...aa,0],[...bb,0],[...bb,flat?e:h(bb)],[...aa,flat?e:h(aa)]];
+   for(const face of part.focus||earthFacades.has(part.id)?cutOpenings(wall,part):[wall])poly(face.map(p=>[...world(p),p[2]]),wallMaterial,color);
    for(const patch of part.patches){
     if(['roof','dormer'].includes(patch.side))continue;
     const side=patch.side,dimension=side==='front'?0:1,depth=side==='front'?1:0;
@@ -150,8 +173,8 @@ for(const part of survey.parts){
  }
  activePart=null;
  // A narrow gutter follows the real street-facing edge. It is a small estimated detail.
- if(!part.openStructure&&!part.roofSections){
-  if(part.focus){
+ if(!part.openStructure&&!part.roofSections&&!streetProfile&&!streetCanopies.has(part.id)){
+  if(part.focus||earthFacades.has(part.id)){
    for(let i=0;i<ring.length;i++){
     const a=ring[i],b=ring[(i+1)%ring.length];
     if(Math.abs(a[1]-lo[1])>.65||Math.abs(b[1]-lo[1])>.65||len(sub(a,b))<.3)continue;
@@ -196,6 +219,7 @@ activePart=null;
 const GROUPS=new Map(survey.groups.map(g=>[g.id,g]));
 for(const fence of survey.fences){
  const group=GROUPS.get(fence.group),c=group.center,u=group.u,v=group.v;
+ if(streetFrontages.has(group.id))continue;
  if(group.parts.includes(112))continue; // The end garden has its own surveyed layout.
  if(survey.refinements.customFrontages.includes(group.id))continue;
  const detailed=group.parts.some(id=>parts.get(id).focus);
@@ -292,6 +316,7 @@ for(const [id,side] of [['05',-1],['06',-1],['08',1],['10',-1],['11',1],['12',-1
 
 // Chimneys and dormers only for roofs where those details are visible.
 for(const id of [10,14,18,21,34,40,48,54,59,62,70,82,88,93,96,100,104,111,114,117,108,99,83]){
+ if(earthSurvey.chimneys.some(c=>c.part===id))continue;
  if(survey.roundabout?.parts.includes(id))continue;
  const p=parts.get(id),[lo,hi]=p.bounds;const q=[lo[0]+(hi[0]-lo[0])*.26,(lo[1]+hi[1])/2],c=add(p.center,add(mul(p.u,q[0]),mul(p.v,q[1]))),z=p.roofHeight(q);
  box(c,p.u,p.v,.5,.5,z-.2,z+1.1,rgb('#bfb9a5'));box(c,p.u,p.v,.62,.62,z+1.08,z+1.2,rgb('#5e605b'));
@@ -313,7 +338,8 @@ for(const [id,along,down,width,height,side=-1] of survey.skylights){
 
 // Architectural elements inferred from the reference photos. The geometry,
 // including reveals and separate shutter leaves, works from every viewpoint.
-for(const opening of survey.openings){
+buildEarthRoofDetails(landscapeContext,earthSurvey);
+for(const opening of allOpenings){
  const p=parts.get(opening.part),[lo,hi]=p.bounds,{side,width:w,height:h,bottom:z}=opening;
  if([112,115].includes(p.id)&&opening.kind==='entrance'){objects.push({type:'modelled-opening',kind:'entrance',part:p.id,photo:String(opening.photo).padStart(2,'0'),dimensions:'estimated',visibility:'Véranda vitrée reconstruite séparément'});continue;}
  const q=facadeOpening(p,opening).anchor;
@@ -331,7 +357,7 @@ for(const opening of survey.openings){
     panel(x0,x1,y0,y1,-.119,'#bec3b7');panel(x0+.03,x1-.03,y0+.03,y1-.03,-.108,'#d4d7cd');
    }
   }else for(let x=-w/2+.12;x<w/2;x+=.12)beam(at(x,.05,-.10),at(x,h-.05,-.10),.013,rgb('#45433c'));
-  if(opening.garageLights)for(let i=0;i<opening.garageLights;i++){const cx=-w/2+(i+.5)*w/opening.garageLights,ww=w/opening.garageLights*.40;panel(cx-ww/2-.035,cx+ww/2+.035,h-.41,h-.13,-.075,'#aaa991');panel(cx-ww/2,cx+ww/2,h-.38,h-.16,-.07,'#53645c');}
+  if(opening.garageLights)for(let i=0;i<opening.garageLights;i++){const cx=-w/2+(i+.5)*w/opening.garageLights,ww=w/opening.garageLights*.40,low=opening.garageTallLights?.84:.41;panel(cx-ww/2-.035,cx+ww/2+.035,h-low,h-.13,-.075,'#aaa991');panel(cx-ww/2,cx+ww/2,h-low+.03,h-.16,-.07,'#53645c');}
   beam(at(-.15,h*.46,-.06),at(.15,h*.46,-.06),.032,rgb('#343b3c'));
  }else if(kind!=='door'||opening.glazed){
   const leaves=opening.leaves||(kind==='door'||opening.awning?1:2),bottom=kind==='door'?h*.35:.075;
@@ -366,10 +392,10 @@ for(const opening of survey.openings){
  }
  if(opening.rail){for(let x=-w/2;x<=w/2+.01;x+=.16)beam(at(x,.02,.25),at(x,.68,.25),.016,rgb('#414746'));for(const y of [.04,.68])beam(at(-w/2-.05,y,.25),at(w/2+.05,y,.25),.026,rgb('#414746'));}
  if((p.id===113&&kind==='window')||opening.rack){for(const x of [-.35,.35]){beam(at(x,-.07,.08),at(x,-.30,.32),.023,rgb('#4d5651'));beam(at(x,-.30,.08),at(x,-.30,.32),.023,rgb('#4d5651'));}beam(at(-.35,-.30,.32),at(.35,-.30,.32),.022,rgb('#4d5651'));}
- objects.push({type:'modelled-opening',kind,part:p.id,side,anchor:q,width:w,height:h,bottom:z,...(opening.reference?{reference:opening.reference}:{photo:String(opening.photo).padStart(2,'0')}),dimensions:'estimated',visibility:opening.visibility||'Contours visibles'});
+ objects.push({type:opening.streetview?'streetview-opening':opening.earth?'earth-opening':'modelled-opening',kind,part:p.id,side,anchor:q,width:w,height:h,bottom:z,...(opening.reference?{reference:opening.reference}:{photo:String(opening.photo).padStart(2,'0')}),dimensions:'estimated',visibility:opening.visibility||'Contours visibles'});
 }
 function tree(partId,along,height,radius,color){const p=parts.get(partId),[lo,hi]=p.bounds,q=[lo[0]+(hi[0]-lo[0])*along,lo[1]-2],c=add(p.center,add(mul(p.u,q[0]),mul(p.v,q[1])));beam([...c,.1],[...c,height*.75],.18,rgb('#aba38b'));const bands=8,slices=12;for(let j=0;j<bands;j++)for(let k=0;k<slices;k++){const point=(a,b)=>[c[0]+radius*Math.sin(a)*Math.cos(b),c[1]+radius*.8*Math.sin(a)*Math.sin(b),height-radius*1.25+radius*1.25*Math.cos(a)];const a=j/bands*Math.PI,b=k/slices*Math.PI*2,aa=(j+1)/bands*Math.PI,bb=(k+1)/slices*Math.PI*2;poly([point(a,b),point(aa,b),point(aa,bb),point(a,bb)],0,rgb(color));}}
-tree(96,.63,8.5,2.5,'#586c3c');tree(93,.25,8,1.1,'#4b5e37');tree(62,.12,4.9,1.8,'#65804a');
+tree(62,.12,4.9,1.8,'#65804a');
 // A branched tree with separate crown clusters replaces the flat aerial crown.
 function crown(center,radius,tone,seed){
  const bands=7,slices=11,point=(j,k)=>{const a=j/bands*Math.PI,b=k/slices*Math.PI*2,rr=radius*(1+.075*Math.sin(k*13+j*7+seed));return [center[0]+rr*Math.sin(a)*Math.cos(b),center[1]+rr*Math.sin(a)*Math.sin(b),center[2]+rr*.88*Math.cos(a)];};
@@ -380,6 +406,8 @@ buildGardenDetails({...landscapeContext,crown});
 buildNervalRefinements({...landscapeContext,crown});
 buildEndCorrections({...landscapeContext,crown});
 buildRoundaboutDetails({...landscapeContext,crown});
+buildStreetDetails({...landscapeContext,crown},streetSurvey);
+buildHouse42GroundContext(landscapeContext);
 
 // Traffic island and signs visible in references 06, 07, 21 and 22.
 // Coordinates were read from the aerial reference; pole heights are estimated.
@@ -391,7 +419,8 @@ function sign(center,direction,kind){const u=[-direction[1],direction[0]],at=(x,
 sign([-9,-43],[.7,.714],'round');sign([9,-45],[-.7,-.714],'yield');sign([-15,-36],[.4,-.916],'yield');sign([-24,-54],[.7,.714],'yield');
 
 const groundCleanup=resolveGroundSurfaces(batches,new Set([ROAD,PAVE,GRASS,PAVERS]));
-console.log(JSON.stringify({groundCleanup}));
+const ground42Refinement=refineHouse42Ground(batches,new Set([ROAD,PAVE,GRASS,PAVERS]));
+console.log(JSON.stringify({groundCleanup,ground42Refinement}));
 const ranges=[];let total=0;for(const [material,vertices] of [...batches].sort((a,b)=>a[0]-b[0])){ranges.push({material,first:total/11,count:vertices.length/11});total+=vertices.length;}
 const buffer=new Float32Array(total);let offset=0;for(const [material,vertices] of [...batches].sort((a,b)=>a[0]-b[0])){buffer.set(vertices,offset);offset+=vertices.length;}
 await fs.writeFile(`${dir}/mesh.bin`,Buffer.from(buffer.buffer));
@@ -399,6 +428,11 @@ const groundTexture=3+survey.facadeAtlases;
 const materials=[{kind:0},{kind:1,texture:0},...Array.from({length:survey.facadeAtlases},(_,i)=>({kind:1,texture:i+1})),{kind:2},{kind:4,texture:1+survey.facadeAtlases,repeat:true},{kind:5,texture:2+survey.facadeAtlases,repeat:true},{kind:6,texture:groundTexture,repeat:true,mirror:true},{kind:7,texture:groundTexture,repeat:true,mirror:true},{kind:8,texture:groundTexture+1,repeat:true,mirror:true},{kind:9,texture:groundTexture+2,repeat:true,mirror:true},{kind:10},...Array.from({length:survey.facadeAtlases},(_,i)=>({kind:3,texture:i+1}))];
 const index={origin:survey.origin,vertexFormat:'float32-le: east_m,north_m,up_m,nx,ny,nz,u,v,r,g,b',stride:44,vertexCount:total/11,ranges,materials,textures:['roofs.webp',...Array.from({length:survey.facadeAtlases},(_,i)=>`facades-${i}.webp`),'tiles-detail.webp','hedge-albedo-v2.webp'],bounds:[Math.min(4.3796,...survey.parts.flatMap(p=>p.ring.map(q=>q[0]/survey.scale[0]+survey.origin[0]))),Math.min(48.94615,...survey.parts.flatMap(p=>p.ring.map(q=>q[1]/survey.scale[1]+survey.origin[1]))),4.383,48.94885],excludeIds:survey.parts.map(p=>p.osm_id),stats:{buildingGroups:survey.groups.length,buildingParts:survey.parts.length,photoPatches:paintedPatches.size,referencePhotos:survey.photos.length,triangles:total/33,frontages:survey.fences.length,refinedParts:survey.focusParts.length,modelledOpenings:survey.openings.length,focusPhotoDecals:0},objects,paintedPatches:[...paintedPatches.keys()],pickTriangles};
 index.materials.push({kind:12});
+index.earthSurvey={version:earthSurvey.version,observedAt:earthSurvey.observedAt,parts:earthSurvey.scope.modifiedParts,excludedPartsMax:59,openings:earthSurvey.openings.length,rooflights:earthSurvey.rooflights.length,chimneys:earthSurvey.chimneys.length,canopies:earthSurvey.canopies.length,dimensions:'estimated'};
+index.stats.earthOpenings=earthSurvey.openings.length;
+index.streetViewSurvey={version:streetSurvey.version,observedAt:streetSurvey.observedAt,parts:streetSurvey.modifiedParts,scope:streetSurvey.scope,openings:streetSurvey.openings.length,frontages:streetSurvey.frontages.length,trees:streetSurvey.trees.length};
+index.stats.streetViewOpenings=streetSurvey.openings.length;
+index.ground42Survey={reference:GROUND42_REFERENCE,observedAt:'2026-09-17',imageryDates:{streetView:'2014-05',aerial:'2023-10-01'},scope:'Ground and gardens around postal number 42',dimensions:'estimated',refinement:ground42Refinement};
 index.textures.push('ground-asphalt-v1.webp','ground-grass-v1.webp','ground-pavers-v1.webp');
 await fs.writeFile(`${dir}/index.json`,JSON.stringify(index));
 await fs.writeFile(`${dir}/survey.json`,JSON.stringify(survey));

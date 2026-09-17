@@ -1,4 +1,10 @@
-import {drapeVertices,terrainLngLat} from './terrain.js';
+import {mapBuildingsVisible} from './map-view.js';
+import {removeBombDetails} from './bomb-map-damage.js';
+import {drapeVertices,terrainBaseLngLat as terrainLngLat,terrainBaseHeight} from './terrain.js';
+import {craterMesh,finishGeometry,terrainCraterField} from './terrain-craters.js';
+import {bombGround,bombRoad,BOMB_ROAD_CUT_MATERIAL,BOMB_CUT_KIND,BOMB_CUT_GLSL} from './bomb-building-cut.js';
+import {cutBombRoads} from './bomb-road-cut.js';
+import {CITY} from './city-config.js';
 import {ModelResidency} from './custom-model-residency.js';
 import {ATTILA_GROUND_GLSL} from './attila-ground-materials.js';
 import {GROUND_GLSL} from './nerval-ground-materials.js';
@@ -48,6 +54,7 @@ void main(){
   if(u_kind>=6&&u_kind<=9&&u_photos&&detailedGround(v_position))c=groundAlbedo(u_kind,v_position,v_uv,v_color);
   if(u_kind==12)c=houseGlazing(v_uv,v_color);
   if(u_kind>=14&&u_kind<=16&&u_photos)c=attilaGround(u_kind,v_uv,v_color);
+  ${BOMB_CUT_GLSL}
   fragColor=vec4(c*light,1.0);return;
  }
  if(u_material>0 && u_photos){vec4 p=texture(u_texture,v_uv);if(p.a<.55)discard;fragColor=vec4(p.rgb,1.0);}
@@ -82,8 +89,18 @@ export class NervalLayer {
   if(failed||signal.aborted){bitmaps.forEach(b=>b.close());throw failed?.reason||new DOMException('Cancelled','AbortError');}
   if(buffer.byteLength!==index.vertexCount*44){bitmaps.forEach(b=>b.close());throw Error('Invalid custom model geometry');}
   const scale=index.scale||[111320*Math.cos(index.origin[1]*Math.PI/180),111320];
-  const vertices=drapeVertices(new Float32Array(buffer),{origin:index.origin,scale});
+  let vertices=drapeVertices(new Float32Array(buffer),{origin:index.origin,scale});
   for(const triangle of index.pickTriangles||[])for(const p of triangle.points)p[2]+=terrainLngLat(index.origin[0]+p[0]/scale[0],index.origin[1]+p[1]/scale[1]);
+  removeBombDetails(vertices,index,this.basePath.endsWith('/nerval')?'detail':this.basePath.split('/').at(-1));
+  const ratio=[CITY.scale[0]/scale[0],CITY.scale[1]/scale[1]],offset=[(index.origin[0]-CITY.origin[0])*CITY.scale[0],(index.origin[1]-CITY.origin[1])*CITY.scale[1]];
+  let mesh={vertices,ranges:index.ranges.map(r=>[r.material,r.first,r.count])};
+  if(terrainCraterField().impacts.length){
+   const world=vertices.slice();for(const [id,first,count] of mesh.ranges)if(bombRoad(id,index))for(let i=first*11;i<(first+count)*11;i+=11){world[i]=offset[0]+world[i]*ratio[0];world[i+1]=offset[1]+world[i+1]*ratio[1];}
+   const input={vertices:world,ranges:mesh.ranges},cut=finishGeometry(cutBombRoads(input,terrainCraterField().impacts,{isRoad:id=>bombRoad(id,index),groundHeight:p=>terrainBaseHeight(p[0],p[1])}));
+   if(cut!==input){for(const [id,first,count] of cut.ranges)if(bombRoad(id,index))for(let i=first*11;i<(first+count)*11;i+=11){cut.vertices[i]=(cut.vertices[i]-offset[0])/ratio[0];cut.vertices[i+1]=(cut.vertices[i+1]-offset[1])/ratio[1];}mesh=cut;}
+  }
+  mesh=finishGeometry(craterMesh(mesh,{isGround:id=>bombGround(id,index),toWorld:p=>[offset[0]+p[0]*ratio[0],offset[1]+p[1]*ratio[1]],scale:ratio}));
+  if(mesh.vertices!==vertices){vertices=mesh.vertices;const cap=index.materials.length;if(mesh.ranges.some(([id])=>id===BOMB_ROAD_CUT_MATERIAL))index.materials.push({kind:BOMB_CUT_KIND});index.ranges=mesh.ranges.map(([material,first,count])=>({material:material===BOMB_ROAD_CUT_MATERIAL?cap:material,first,count}));index.vertexCount=vertices.length/11;}
   return {index,vertices,bitmaps};
  }
  releaseGPU(){const gl=this.gl;this.textureObjects?.forEach(t=>gl.deleteTexture(t));if(this.vao)gl.deleteVertexArray(this.vao);if(this.buffer)gl.deleteBuffer(this.buffer);if(this.program)gl.deleteProgram(this.program);this.textureObjects=[];this.vao=null;this.buffer=null;this.program=null;}
@@ -99,7 +116,7 @@ export class NervalLayer {
  setVisible(buildings,photos){this.visible=buildings;this.photos=photos;this.updateResidency?.();this.map?.triggerRepaint();}
  render(gl,options){
   this.stats.draws=0;
-  if(!this.stats.loaded||!this.visible||this.map.getZoom()<14)return;
+  if(!this.stats.loaded||!this.visible||this.map.getZoom()<14||!mapBuildingsVisible(this.map))return;
   const b=this.map.getBounds(),[w,s,e,n]=this.index.bounds;if(b.getEast()<w||b.getWest()>e||b.getNorth()<s||b.getSouth()>n)return;
   gl.useProgram(this.program);gl.bindVertexArray(this.vao);gl.activeTexture(gl.TEXTURE0);
   for(let i=0;i<this.bitmaps.length;i++)if(!this.textureObjects[i]){const t=gl.createTexture();this.textureObjects[i]=t;gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.bitmaps[i]);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);const wrap=this.index.materials.some(m=>m.texture===i&&m.mirror)?gl.MIRRORED_REPEAT:this.index.materials.some(m=>m.texture===i&&m.repeat)?gl.REPEAT:gl.CLAMP_TO_EDGE;gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,wrap);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,wrap);const anisotropy=gl.getExtension('EXT_texture_filter_anisotropic');if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));}

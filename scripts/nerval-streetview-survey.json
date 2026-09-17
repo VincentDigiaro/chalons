@@ -1,0 +1,377 @@
+{
+  "version": 1,
+  "observedAt": "2026-09-17",
+  "scope": "Du numéro postal 31 Rue Gérard de Nerval, Saint-Memmie, au fond de l’impasse, des deux côtés. Carré rouge exclu.",
+  "accuracy": "Relevé manuel Google Maps Street View : juillet 2022 au début, mai 2014 au fond. Dimensions estimées, sans mesure sur place. Emprises conservées ; détails masqués non inventés. Les numéros de part sont ceux du modèle, pas les adresses.",
+  "modifiedParts": [
+    91,
+    93,
+    95,
+    96,
+    100,
+    102,
+    103,
+    104,
+    116,
+    117,
+    118
+  ],
+  "facades": [
+    {
+      "part": 96,
+      "color": "#d8d5c7",
+      "reference": "33-front"
+    }
+  ],
+  "roofs": [
+    {
+      "part": 96,
+      "reference": "33-side",
+      "zones": [
+        {
+          "from": -5.623,
+          "to": 0.5,
+          "axis": 1,
+          "start": -1.24,
+          "end": 8.605,
+          "eaves": 2.75,
+          "rise": 1.25
+        },
+        {
+          "from": 0.5,
+          "to": 6.416,
+          "axis": 0,
+          "start": 0.5,
+          "end": 6.415,
+          "eaves": 3,
+          "rise": 2.3
+        }
+      ]
+    }
+  ],
+  "canopies": [
+    {
+      "part": 116,
+      "reference": "47-front-2014"
+    }
+  ],
+  "frontages": [
+    {
+      "part": 93,
+      "group": "nerval-23",
+      "reference": "31-front"
+    },
+    {
+      "part": 96,
+      "group": "nerval-24",
+      "reference": "33-front"
+    },
+    {
+      "part": 100,
+      "group": "nerval-25",
+      "reference": "35-37-front"
+    },
+    {
+      "part": 117,
+      "group": "nerval-28",
+      "reference": "47-front-2014"
+    }
+  ],
+  "openings": [
+    {
+      "part": 93,
+      "side": "right",
+      "along": 0.39,
+      "width": 0.66,
+      "height": 1.38,
+      "bottom": 3.62,
+      "shutters": "brown",
+      "closed": true,
+      "reference": "33-front"
+    },
+    {
+      "part": 93,
+      "side": "right",
+      "along": 0.62,
+      "width": 0.72,
+      "height": 1.38,
+      "bottom": 3.62,
+      "shutters": "brown",
+      "closed": true,
+      "reference": "33-front"
+    },
+    {
+      "part": 96,
+      "side": "front",
+      "depth": 5.57,
+      "span": [
+        -5.622,
+        0.5
+      ],
+      "along": 0.24,
+      "width": 2.5,
+      "height": 2.18,
+      "bottom": 0.12,
+      "kind": "garage",
+      "garageLights": 3,
+      "color": "#514438",
+      "reference": "33-front"
+    },
+    {
+      "part": 96,
+      "side": "front",
+      "depth": 5.57,
+      "span": [
+        -5.622,
+        0.5
+      ],
+      "along": 0.77,
+      "width": 1.28,
+      "height": 1.18,
+      "bottom": 0.92,
+      "shutters": "brown",
+      "glassMaterial": true,
+      "reference": "33-front"
+    },
+    {
+      "part": 96,
+      "side": "front",
+      "span": [
+        0.5,
+        6.415
+      ],
+      "along": 0.49,
+      "width": 1.6,
+      "height": 2.15,
+      "bottom": 0.14,
+      "kind": "patio",
+      "shutters": "brown",
+      "glassMaterial": true,
+      "reference": "33-front"
+    },
+    {
+      "part": 96,
+      "side": "right",
+      "along": 0.35,
+      "width": 1.4,
+      "height": 2.15,
+      "bottom": 0.14,
+      "kind": "patio",
+      "shutters": "brown",
+      "glassMaterial": true,
+      "reference": "33-side"
+    },
+    {
+      "part": 96,
+      "side": "right",
+      "along": 0.57,
+      "width": 1.4,
+      "height": 2.15,
+      "bottom": 0.14,
+      "kind": "patio",
+      "shutters": "brown",
+      "glassMaterial": true,
+      "reference": "33-side"
+    },
+    {
+      "part": 96,
+      "side": "right",
+      "along": 0.79,
+      "width": 1.4,
+      "height": 2.15,
+      "bottom": 0.14,
+      "kind": "patio",
+      "shutters": "brown",
+      "glassMaterial": true,
+      "reference": "33-side"
+    },
+    {
+      "part": 104,
+      "side": "front",
+      "along": 0.19,
+      "width": 0.86,
+      "height": 2.12,
+      "bottom": 0.14,
+      "kind": "door",
+      "frame": "wood",
+      "color": "#5e4838",
+      "glazed": true,
+      "grid": true,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 118,
+      "side": "front",
+      "along": 0.5,
+      "width": 2.55,
+      "height": 2.12,
+      "bottom": 0.12,
+      "kind": "garage",
+      "color": "#514033",
+      "reference": "47-front-2014"
+    }
+  ],
+  "openingFinishes": [
+    {
+      "part": 102,
+      "side": "front",
+      "kind": "garage",
+      "color": "#d5d5cb",
+      "garageLights": 3,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 103,
+      "side": "front",
+      "kind": "garage",
+      "color": "#414743",
+      "garageLights": 4,
+      "garageTallLights": true,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 103,
+      "side": "front",
+      "kind": "window",
+      "closed": true,
+      "reference": "35-37-front"
+    }
+  ],
+  "trees": [
+    {
+      "part": 93,
+      "kind": "conifer",
+      "local": [
+        8.3,
+        -8.9
+      ],
+      "height": 12,
+      "radius": 1.65,
+      "reference": "31-front"
+    },
+    {
+      "part": 96,
+      "kind": "birch",
+      "local": [
+        4.35,
+        -9
+      ],
+      "height": 9.1,
+      "radius": 2.4,
+      "reference": "33-front"
+    }
+  ],
+  "roofVents": [
+    {
+      "part": 96,
+      "local": [
+        -2.6,
+        0.05
+      ],
+      "reference": "33-front"
+    },
+    {
+      "part": 100,
+      "along": 0.64,
+      "down": 0.36,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 104,
+      "along": 0.5,
+      "down": 0.44,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 117,
+      "along": 0.41,
+      "down": 0.47,
+      "reference": "47-front-2014"
+    },
+    {
+      "part": 117,
+      "along": 0.72,
+      "down": 0.47,
+      "reference": "47-front-2014"
+    }
+  ],
+  "aerials": [
+    {
+      "part": 93,
+      "reference": "31-front"
+    },
+    {
+      "part": 96,
+      "reference": "33-front"
+    },
+    {
+      "part": 100,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 104,
+      "reference": "35-37-front"
+    },
+    {
+      "part": 117,
+      "reference": "47-front-2014"
+    }
+  ],
+  "sources": [
+    {
+      "id": "31-front",
+      "url": "https://www.google.com/maps/@48.9470277,4.3814358,86a,75y,134.12h,90t/data=!3m7!1e1!3m5!1sVrariDI8T7PkSHdHiJ6-qg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DVrariDI8T7PkSHdHiJ6-qg%26yaw%3D134.11537!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "31-front.png"
+    },
+    {
+      "id": "33-front",
+      "url": "https://www.google.com/maps/@48.9469953,4.3812712,86a,75y,148.77h,90t/data=!3m7!1e1!3m5!1sBY-BfxCCWxJFnz6gsNdfOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DBY-BfxCCWxJFnz6gsNdfOg%26yaw%3D148.7707!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "33-front.png"
+    },
+    {
+      "id": "33-vers-impasse",
+      "url": "https://www.google.com/maps/@48.9469953,4.3812712,86a,75y,206.04h,90t/data=!3m7!1e1!3m5!1sBY-BfxCCWxJFnz6gsNdfOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DBY-BfxCCWxJFnz6gsNdfOg%26yaw%3D206.04044445099885!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "33-vers-impasse.png"
+    },
+    {
+      "id": "33-side",
+      "url": "https://www.google.com/maps/@48.9469542,4.3811506,86a,75y,138.44h,90t/data=!3m7!1e1!3m5!1sCGpWiT6VMhspKD67O-IXcA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DCGpWiT6VMhspKD67O-IXcA%26yaw%3D138.44059219895877!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "33-side.png"
+    },
+    {
+      "id": "35-37-front",
+      "url": "https://www.google.com/maps/@48.9468744,4.380895,86a,75y,157.16h,90t/data=!3m7!1e1!3m5!1svtJxtRkGEzUri3jh0Dm0lg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DvtJxtRkGEzUri3jh0Dm0lg%26yaw%3D157.15617007559499!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "35-37-front.png"
+    },
+    {
+      "id": "39-43-impasse",
+      "url": "https://www.google.com/maps/@48.9468777,4.3807732,86a,75y,217.51h,90t/data=!3m7!1e1!3m5!1snJlyjiMBs8KYboOKMaDVkw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DnJlyjiMBs8KYboOKMaDVkw%26yaw%3D217.51368410806572!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2022-07",
+      "capture": "39-43-impasse.png"
+    },
+    {
+      "id": "43-45-2014",
+      "url": "https://www.google.com/maps/@48.9467342,4.3805573,87a,75y,217.51h,90t/data=!3m8!1e1!3m6!1sPE480T0Hwpw9Ig7eLGOlLg!2e0!5s20140501T000000!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DPE480T0Hwpw9Ig7eLGOlLg%26yaw%3D217.51368410806572!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2014-05",
+      "capture": "43-45-2014.png",
+      "note": "Dernière date proposée à ce point : mai 2014."
+    },
+    {
+      "id": "47-fond-2014",
+      "url": "https://www.google.com/maps/@48.9466126,4.3802875,86a,75y,217.51h,90t/data=!3m7!1e1!3m5!1sAg87vWxHR-6Y6IP3y-a2WA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DAg87vWxHR-6Y6IP3y-a2WA%26yaw%3D217.51368410806572!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2014-05",
+      "capture": "47-fond-2014.png"
+    },
+    {
+      "id": "47-front-2014",
+      "url": "https://www.google.com/maps/@48.9466126,4.3802875,86a,75y,132.53h,90t/data=!3m7!1e1!3m5!1sAg87vWxHR-6Y6IP3y-a2WA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DAg87vWxHR-6Y6IP3y-a2WA%26yaw%3D132.53283616076652!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI2MDkxNC4wIKXMDSoASAFQAw%3D%3D",
+      "imageDate": "2014-05",
+      "capture": "47-front-2014.png"
+    }
+  ]
+}

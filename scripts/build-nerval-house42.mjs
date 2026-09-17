@@ -1,6 +1,7 @@
 // Specific reconstruction from the two close views supplied on 13/09/2026.
 // The fixed pane is on the left brick plinth; the full-height door is on the
 // right. Estimated joinery dimensions, supported by the existing OSM volume.
+import {buildHouse42EntranceGround} from './nerval-house42-ground.mjs';
 export function buildHouse42(ctx){
  const {parts,survey,objects,poly,beam,box,rgb,add,sub,mul,len,norm,materials:M}=ctx;
  const p=parts.get(112),tall=parts.get(115),{u,v}=p,at=(x,y,z)=>[...p.world([x,y]),z];
@@ -122,13 +123,7 @@ export function buildHouse42(ctx){
  for(const [x0,z0,x1,z1] of strokes)line([nx+x0,ny-.02,nz+z0],[nx+x1,ny-.02,nz+z1],.008,'#5b6157');
 
  // Curved pink paver path from the drive, around the low bed, to the entrance.
- const path=[[-6.95,-6.52],[-5.2,-6.60],[-4.1,-6.9],[-3.1,-7.35],[-1.65,-7.85],[.4,-8.03],[2.6,-8.15],[4.8,-8.1]];
- for(let i=0;i<path.length-1;i++){
-  const aa=path[i],bb=path[i+1],d=norm(sub(bb,aa)),n=mul([-d[1],d[0]],.49);
-  const pts=[sub(aa,n),sub(bb,n),add(bb,n),add(aa,n)];poly(pts.map(q=>at(...q,.057)),M.pavers,[.65,.53,.45],pts.map(q=>[q[0]/2,q[1]/2]));
- }
- const approach=[[split+.08,face-.1],[split+.08,-7.70]];
- for(let i=0;i<approach.length-1;i++){const aa=approach[i],bb=approach[i+1],n=[.53,0],pts=[sub(aa,n),sub(bb,n),add(bb,n),add(aa,n)];poly(pts.map(q=>at(...q,.065)),M.pavers,[.65,.53,.45],pts.map(q=>[q[0]/2,q[1]/2]));}
+ buildHouse42EntranceGround(ctx,{split,right,face});
  // Small pots in front of the fixed pane and at the door, with narrow stems.
  for(const [xx,yy,size,col] of [[left-.13,face-.21,.22,'#615c4c'],[split-.16,face-.24,.13,'#a0957b'],[right+.13,face-.21,.14,'#883c2d']]){
   solid(xx,yy,size*1.25,size*1.25,.065,size*1.7,col);

@@ -28,7 +28,8 @@ photographies aériennes de l'IGN.
 4. Ouvrir l'une de ces adresses dans le navigateur :
    - [Carte 3D](http://localhost:5173/)
    - [Promenade à la première personne](http://localhost:5173/?fps=1)
-   - [Promenade avec le Hautvent](http://localhost:5173/?fps=1&ff7)
+   - [Piloter le Hautvent](http://localhost:5173/?ship=highwind)
+   - [Piloter l’Orca GDI](http://localhost:5173/?ship=orca)
 
 Garder le terminal ouvert pendant la partie. Pour arrêter le serveur, appuyer
 sur **Ctrl+C**. Utiliser ces adresses plutôt que d'ouvrir `dist/index.html`
@@ -37,7 +38,7 @@ directement depuis l'explorateur de fichiers.
 ## Réglages et organisation
 
 - `fps-config.json` : vitesses, distances de chargement, sauts et configuration du
-  Hautvent. Pour afficher le vaisseau, utiliser le lien avec `ff7` et conserver
+  Hautvent. Pour afficher le vaisseau, utiliser le lien avec `ship=highwind` et conserver
   `highwind.present` à `true`. Recharger la page après une modification.
 - `dist/` : fichiers JavaScript, HTML et CSS du jeu, ainsi que ses ressources.
 - `scripts/` : outils de préparation des données, de génération et de vérification.

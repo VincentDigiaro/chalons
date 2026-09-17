@@ -1,9 +1,10 @@
 import {FPS_FOV} from './walk-core.js';
+import {CITY} from './city-config.js';
 
-// One palette for the aerial map and the pedestrian renderer.
+// Each city's palette is shared by the aerial map, FPS sky and distant haze.
 export const SKY_STYLE=Object.freeze({
- 'sky-color':'#55a9ef',
- 'horizon-color':'#a3d4fa',
+ 'sky-color':CITY.id==='chalons'?'#91aabc':'#55a9ef',
+ 'horizon-color':CITY.id==='chalons'?'#c1cdd5':'#a3d4fa',
  'sky-horizon-blend':.35,
  'atmosphere-blend':0
 });

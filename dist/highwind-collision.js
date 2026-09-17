@@ -6,7 +6,10 @@ const bounds=p=>[0,1,2].map(i=>Math.min(...p.map(v=>v[i]))).concat([0,1,2].map(i
 const overlaps=(a,b)=>a[0]<=b[3]+1e-7&&a[3]>=b[0]-1e-7&&a[1]<=b[4]+1e-7&&a[4]>=b[1]-1e-7&&a[2]<=b[5]+1e-7&&a[5]>=b[2]-1e-7;
 export function trianglePositions(vertices,ranges=[{first:0,count:vertices.length/11}]){
  const fixed=ranges.filter(r=>!r.part?.startsWith('Prop')),out=new Float32Array(fixed.reduce((n,r)=>n+r.count*3,0));let at=0;
- for(const r of fixed)for(let i=r.first*11;i<(r.first+r.count)*11;i+=11){out.set(vertices.subarray(i,i+3),at);at+=3;}return out;
+ for(const r of fixed)for(let i=r.first*11;i<(r.first+r.count)*11;i+=33){
+  if(r.collisionSurfaceOnly){const a=vertices.subarray(i,i+3),b=vertices.subarray(i+11,i+14),c=vertices.subarray(i+22,i+25),n=cross(sub(b,a),sub(c,a));if(Math.abs(n[2])<Math.hypot(...n)*.5)continue;}
+  for(const j of [0,11,22]){out.set(vertices.subarray(i+j,i+j+3),at);at+=3;}
+ }return at===out.length?out:out.subarray(0,at);
 }
 export function meshCollider(triangles){
  const triangle=i=>[0,3,6].map(j=>triangles.subarray(i*9+j,i*9+j+3)),boxes=Array.from({length:triangles.length/9},(_,i)=>bounds(triangle(i)));

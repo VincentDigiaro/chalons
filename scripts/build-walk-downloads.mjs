@@ -3,7 +3,10 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {gzipSync} from 'node:zlib';
 
-const root=path.resolve('dist/data/walk'),target=path.resolve('dist/data/walk-downloads');
+const city=process.argv.includes('--city')?process.argv[process.argv.indexOf('--city')+1]:'chalons';
+if(!['chalons','nice'].includes(city))throw Error('Unknown city');
+const dataRoot=city==='chalons'?'dist/data':'dist/data/cities/'+city;
+const root=path.resolve(dataRoot,'walk'),target=path.resolve(dataRoot,'walk-downloads');
 const indexBytes=await fs.readFile(path.join(root,'index.json')),index=JSON.parse(indexBytes);
 // Generic buildings only. Detailed landmarks and roads retain their original
 // resources. Sort spatially for useful adjacent ranges without loading strangers.
@@ -18,5 +21,5 @@ for(let i=0;i<nodes.length;i+=256){
 }
 await fs.writeFile(path.join(target,'index.json'),JSON.stringify({version:1,encoding:'gzip',sourceHash:crypto.createHash('sha256').update(indexBytes).digest('hex'),packs}));
 const used=new Set(packs.map(p=>p.file));
-for(const file of await fs.readdir(target))if(/^[a-f0-9]{64}\.pack$/.test(file)&&!used.has(file))await fs.unlink(path.join(target,file));
+if(!process.argv.includes('--keep-old-packs'))for(const file of await fs.readdir(target))if(/^[a-f0-9]{64}\.pack$/.test(file)&&!used.has(file))await fs.unlink(path.join(target,file));
 console.log(JSON.stringify({buildings:nodes.length,archives:packs.length,bytes:totalBytes}));

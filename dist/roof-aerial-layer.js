@@ -1,4 +1,8 @@
+import {cityDataURL} from './city-config.js';
+import {mapBuildingsVisible} from './map-view.js';
 import {drapeRoofBuffer} from './terrain.js';
+import {removeBombRoofs} from './bomb-map-damage.js';
+import {loadCustomReplacements,maskCustomRoofs} from './custom-model-replacements.js';
 import {loadImagery} from './imagery.js';
 
 const VERTEX=`#version 300 es
@@ -41,12 +45,13 @@ export class RoofTextures {
     this.restore=()=>{for(const item of this.cache.values())item.bitmap?.close();this.cache.clear();this.queue=[];this.setupGL();this.refresh();};
     map.getCanvas().addEventListener('webglcontextrestored',this.restore);
     Promise.all(['index.json','mesh.bin'].map(async file=>{
-      const r=await fetch(`./data/roofs/${file}`,{signal:this.abort.signal});
+      const r=await fetch(cityDataURL(`roofs/${file}`),{signal:this.abort.signal});
       if(!r.ok)throw Error(`Toitures : HTTP ${r.status}`);
       return file.endsWith('.json')?r.json():r.arrayBuffer();
-    })).then(([index,mesh])=>{
+    })).then(async([index,mesh])=>{
       if(this.abort.signal.aborted)return;
-      this.index=index;this.vertices=new Float32Array(drapeRoofBuffer(mesh,index));this.n=2**index.zoom;
+      maskCustomRoofs(mesh,index,await loadCustomReplacements());if(this.abort.signal.aborted)return;
+      this.index=index;this.vertices=new Float32Array(removeBombRoofs(drapeRoofBuffer(mesh,index),index));this.n=2**index.zoom;
       for(const tile of index.tiles){
         const lat=Math.atan(Math.sinh(Math.PI*(1-2*(tile.y+.5)/this.n)))*180/Math.PI;
         tile.zScale=maplibregl.MercatorCoordinate.fromLngLat([0,lat],1).z;
@@ -146,7 +151,7 @@ export class RoofTextures {
   }
   render(gl,options){
     this.stats.draws=0;
-    if(!this.program||!this.enabled||!this.buildingsVisible||this.map.getZoom()<14)return;
+    if(!this.program||!this.enabled||!this.buildingsVisible||this.map.getZoom()<14||!mapBuildingsVisible(this.map))return;
     gl.useProgram(this.program);gl.bindVertexArray(this.vao);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.photoLocation,0);
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);gl.disable(gl.CULL_FACE);
     gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);

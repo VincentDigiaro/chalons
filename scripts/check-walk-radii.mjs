@@ -54,7 +54,7 @@ if(!process.argv.includes('--probe')){
  renderer.pumpTextures=()=>{};
  renderer.index={nodes,materials:[{kind:2}],cityRoadMaterialBase:0,facadeBase:100,roofBase:200};
  const expectedAt=p=>nodes.filter(([file,w,s,e,n])=>Math.hypot(Math.max(Math.abs(w-p[0]),Math.abs(e-p[0])),Math.max(Math.abs(s-p[1]),Math.abs(n-p[1])))<=radii[file.split('/')[0]]).map(n=>n[0]).sort();
- const settle=async()=>{for(let i=0;renderer.active||renderer.queue.length;i++){assert(i<100,'Loader did not finish');await new Promise(resolve=>setTimeout(resolve,5));}};
+ const settle=async()=>{for(let i=0;renderer.active||renderer.queue.length||renderer.preparation.pending;i++){assert(i<100,'Loader did not finish');await new Promise(resolve=>setTimeout(resolve,5));}};
  renderer.refresh([0,0]);await settle();
  assert.deepEqual(requests.sort(),expectedAt([0,0]),'Request each asset using its own category radius');
  assert.equal(renderer.errors,0);

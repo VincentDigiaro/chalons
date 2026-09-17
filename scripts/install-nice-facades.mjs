@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {gzipSync} from 'node:zlib';
+const root='dist/data/cities/nice',stage='artifacts/nice-textures/build',backup='artifacts/nice-textures/local-backup';
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const put=(f,b)=>{fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,b);};
+const list=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?list(dir+'/'+e.name):[dir+'/'+e.name]);
+const inputs=JSON.parse(fs.readFileSync('artifacts/nice-textures/build-inputs.json'));
+assert(!fs.existsSync(backup+'/installed.json'),'Already installed; rebuild a fresh release before reinstalling');
+assert(fs.existsSync('artifacts/nice-textures/protected-before.json'));
+const index=JSON.parse(fs.readFileSync(stage+'/facades/index.json'));
+for(const f of [...index.textures,...index.overviewTextures])assert(fs.existsSync(stage+'/facades/'+f),'Missing encoded image '+f);
+for(const [f,h] of Object.entries(inputs))assert.equal(sha(fs.readFileSync(root+'/'+f)),h,'Concurrent local change: '+f);
+const files=list(stage).map(f=>f.slice(stage.length+1));
+for(const f of files)assert(/^(facades\/(chunks\/[^/]+\.bin|textures\/(low\/)?nice-[^/]+\.webp|index\.json|catalogue\.json|assignments\.json)|walk\/(\d+\/[^/]+\.bin|index\.json)|texture-generation\.json)$/.test(f),'Out of scope: '+f);
+const entries=[];
+for(const f of files){
+ const target=root+'/'+f,bytes=fs.readFileSync(stage+'/'+f),before=fs.existsSync(target)?fs.readFileSync(target):null;
+ if(before?.equals(bytes))continue;
+ if(before)put(backup+'/'+f,before);
+ const oldGzip=fs.existsSync(target+'.gz')?fs.readFileSync(target+'.gz'):null;if(oldGzip)put(backup+'/'+f+'.gz',oldGzip);
+ entries.push({file:f,before:before?sha(before):null,after:sha(bytes)});
+ put(target,bytes);if(oldGzip)put(target+'.gz',gzipSync(bytes,{level:6}));
+}
+const dl=root+'/walk-downloads/index.json';if(fs.existsSync(dl))put(backup+'/walk-downloads/index.json',fs.readFileSync(dl));
+put(backup+'/installed.json',JSON.stringify({installedAt:new Date().toISOString(),files:entries}));
+console.log('Installed Nice facade files: '+entries.length);
+console.log(execFileSync(process.execPath,['scripts/build-walk-downloads.mjs','--city','nice','--keep-old-packs'],{encoding:'utf8'}));

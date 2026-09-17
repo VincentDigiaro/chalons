@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import {placeHighwind,highwindBounds,FPSHighwind} from '../dist/fps-highwind.js';
-import {validateHighwindConfig} from '../dist/walk-config.js';
+import {validateHighwindConfig,HIGHWIND_MODELS} from '../dist/walk-config.js';
 const config={present:true,longueurMetres:237,position:{x:20,y:60,z:140},angleDegres:0,dureeAccelerationSecondes:.3,dureeFreinageSecondes:.18};
 const index=JSON.parse(await fs.readFile('dist/data/highwind/index.json'));
 const raw=await fs.readFile('dist/data/highwind/mesh.bin'),vertices=new Float32Array(raw.buffer,raw.byteOffset,raw.byteLength/4);
@@ -42,4 +42,15 @@ for(const position of [{x:-175,y:-98,z:100},{x:1700,y:2200,z:75}]){
  placed.pose.position.x+=10;assert.equal(configured.position.x,position.x,'Flight state must not mutate the JSON configuration');
  placed.dispose();assert.equal(uploads,drops);
 }
-console.log(JSON.stringify({highwind:'passed',triangles:index.vertexCount/3,textures:4,lengths:[237,118.5],angles:[0,90,135,360,-90],disabledMeansNoRequests:true,streamingRadius:500,resourcesReleased:true}));
+assert.throws(()=>validateHighwindConfig({...config,modele:'unknown'}),/modele/);
+for(const [name,variant] of Object.entries(HIGHWIND_MODELS)){
+ const selected=new FPSHighwind(renderer,validateHighwindConfig({...config,modele:name}),{enabled:true});selected.refresh([20,60]);await selected.initializing;await selected.residency.pending;
+ const base='dist/data/highwind/'+(variant.directory||''),descriptor=JSON.parse(await fs.readFile(base+'index.json')),bytes=await fs.readFile(base+descriptor.mesh),expected=new Float32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength/4);
+ assert.deepEqual(selected.residency.data.vertices,expected,'Each variant loads its own configured geometry');
+ if(!variant.directory)assert.deepEqual(expected,vertices,'Texture variants retain the original geometry');
+ else assert.notEqual(descriptor.meshSha256,index.meshSha256,'The v4 must load its actual edited geometry');
+ assert.deepEqual(selected.materialIds.map(id=>renderer.material(id).texture),descriptor.materials.map(m=>'../highwind/'+(variant.directory||'')+(variant.textures[m.texture]??m.texture)));
+ for(const id of selected.materialIds){const filename=renderer.material(id).texture.replace('../','dist/data/'),bytes=await fs.readFile(filename);assert(bytes.length>0);assert.equal(bytes.subarray(filename.endsWith('.webp')?0:1,4).toString(),filename.endsWith('.webp')?'RIFF':'PNG');}
+ selected.dispose();assert.equal(uploads,drops);
+}
+console.log(JSON.stringify({highwind:'passed',models:Object.keys(HIGHWIND_MODELS),variantGeometryAndTextures:true,originalTriangles:index.vertexCount/3,lengths:[237,118.5],angles:[0,90,135,360,-90],disabledMeansNoRequests:true,streamingRadius:500,resourcesReleased:true}));

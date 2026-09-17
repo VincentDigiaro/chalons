@@ -20,7 +20,7 @@ Le budget n'est plus automatiquement réduit par le temps de dessin. Il n'y a pl
 
 | Mécanisme | Valeur ou règle | Effet |
 | --- | --- | --- |
-| Découverte des nouveaux objets après un déplacement | Toutes les 350 ms | Un nouvel objet entrant dans le rayon peut attendre ce rafraîchissement avant sa demande. `walk-mode.js`. |
+| Découverte des nouveaux objets après un déplacement | Toutes les 350 ms, recherche dans un index spatial construit à l'entrée | Un nouvel objet entrant dans le rayon peut attendre ce rafraîchissement avant sa demande. Le catalogue entier n'est plus parcouru à chaque passage. `walk-mode.js`, `walk-renderer.js`. |
 | Décompactage des paquets | Décompression successive de chaque fichier, retour après le dernier | Les premiers fichiers du paquet ne sont pas encore transmis progressivement à la préparation. `walk-downloads.js`. |
 | Admission dans la file de préparation | Prochain `requestAnimationFrame` | Même sans plafond, une arrivée réseau est traitée au prochain passage ; les étapes `yield` ne forcent pas chacune une nouvelle image. `walk-preparation.js`. |
 | Priorité des tâches | Géométries proches d'abord ; transferts de textures prioritaires | Un objet éloigné peut attendre derrière un objet proche ou une texture. Un paquet ne conserve pas un créneau CPU exclusif. |
@@ -28,7 +28,7 @@ Le budget n'est plus automatiquement réduit par le temps de dessin. Il n'y a pl
 | Affichage d'un matériau texturé | Texture requise disponible sur le GPU | Les parties d'un bâtiment dont la texture manque ne sont pas dessinées. Le sol aérien a une couleur de remplacement. `walk-renderer.js`. |
 | Entrée dans la promenade | Tous les objets à moins de 100 m, plus leurs textures non aériennes disponibles ou signalées en échec | L'écran de chargement peut attendre un objet proche. Les photos aériennes ne bloquent pas cette entrée. |
 | Vérification de cette entrée | Toutes les 80 ms | Ajoute jusqu'à environ 80 ms après disponibilité de la scène proche. |
-| Génération du sol | Dans l'appel synchrone `refresh` | La création, le relief et l'envoi des tuiles ne passent pas par le budget de préparation des bâtiments. |
+| Génération du sol | Dans la même file de préparation que les bâtiments | Création, relief et transfert GPU des nouvelles tuiles utilisent le budget partagé. `refresh` planifie les tuiles ; seules les tuiles complètes sont dessinées. Le sol à moins de 100 m doit être prêt avant l'entrée. |
 | Tailles des étapes de préparation | Relief/collisions : 128 triangles ; routes : 384 sommets par fragment ; transfert : 44 Kio | Définissent la granularité à laquelle on peut rendre la main. Aucun maximum de bâtiments par image n'est imposé en plus du budget. |
 | Archives physiques | Au plus 256 fichiers par archive | Une requête prend des fichiers contigus déjà demandés, parfois moins que le maximum configuré. |
 

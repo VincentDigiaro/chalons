@@ -41,7 +41,6 @@ export async function buildEndSite(ctx){
  // The entrance is reached along the house, from the gate at the garage drive.
  ground(-8.9,8.5,-11.0,-4.85,.027,M.grass,[.36,.43,.235]);
  ground(4.75,8.50,-11.0,2.56,.040,M.pavers,[.65,.60,.47]);
- ground(-7.38,-6.04,-7.35,-4.96,.045,M.pavers,[.62,.50,.425]);
  // Low cream masonry wall, brick insets and fine green welded-wire mesh.
  const y=-11.0,g0=4.95,g1=8.1;
  for(const [a,b] of [[-8.9,g0],[g1,8.5]]){

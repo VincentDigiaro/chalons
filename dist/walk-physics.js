@@ -11,7 +11,13 @@ export function collisionGeometry(vertices){
   if(nz<.7){
    const pairs=[[0,1],[1,2],[2,0]].sort(([a,b],[c,d])=>Math.hypot(p[d][0]-p[c][0],p[d][1]-p[c][1])-Math.hypot(p[b][0]-p[a][0],p[b][1]-p[a][1]));
    const [a,b]=pairs[0],min=Math.min(...p.map(v=>v[2])),max=Math.max(...p.map(v=>v[2]));
-   if(max-min>.015&&Math.hypot(p[b][0]-p[a][0],p[b][1]-p[a][1])>.005)segments.push([...p[a].slice(0,2),...p[b].slice(0,2),min,max]);
+   if(max-min>.015&&Math.hypot(p[b][0]-p[a][0],p[b][1]-p[a][1])>.005){
+    const segment=[...p[a].slice(0,2),...p[b].slice(0,2),min,max];
+    // A leaning face occupies a different horizontal position at each height.
+    // Keep its existing triangle instead of making a vertical invisible wall.
+    if(nz>1e-5){segment.triangle=p;segment.bounds=[Math.min(...p.map(v=>v[0])),Math.min(...p.map(v=>v[1])),Math.max(...p.map(v=>v[0])),Math.max(...p.map(v=>v[1]))];}
+    segments.push(segment);
+   }
   }
   if(nz>.5){
    const [a,b,c]=p,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);
@@ -40,7 +46,7 @@ function floorAt(position,scene,max){
    if(u>=-1e-5&&v>=-1e-5&&u+v<=1.00001){const z=u*a[2]+v*b[2]+(1-u-v)*c[2];if(z<=max&&z>floor)floor=z;}
   }
  }
- for(const s of scene.segments)if(s[5]>floor&&s[5]<=max&&segmentDistance(position,s)<PLAYER_RADIUS-.005)floor=s[5];
+ for(const s of scene.segments)if(s[5]>floor&&s[5]<=max&&segmentDistance(position,s,s[5],s[5])<PLAYER_RADIUS-.005)floor=s[5];
  return floor;
 }
 export function advancePlayer(body,dx,dy,seconds,scene,jump=false,speedActive=false){

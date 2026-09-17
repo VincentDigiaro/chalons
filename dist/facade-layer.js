@@ -1,4 +1,8 @@
-import {terrainLngLat} from './terrain.js';
+import {cityDataURL} from './city-config.js';
+import {removeBombFacades} from './bomb-map-damage.js';
+import {loadCustomReplacements,maskCustomFacades} from './custom-model-replacements.js';
+import {mapBuildingsVisible} from './map-view.js';
+import {terrainBaseLngLat as terrainLngLat} from './terrain.js';
 const VERTEX=`#version 300 es
 precision highp float;
 precision highp int;
@@ -75,7 +79,7 @@ export class FacadeLayer {
   if(failed||this.abort.signal.aborted||bitmaps.some(b=>b.width!==this.detailSize[0]||b.height!==this.detailSize[1])){bitmaps.forEach(b=>b.close());if(failed)this.fail(failed.reason);return;}
   this.pendingBitmaps=bitmaps;this.map.triggerRepaint();
  }
- request(file){return fetch(`./data/facades/${file}`,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error(`Façades : HTTP ${r.status} (${file})`);return r;});}
+ request(file){return fetch(cityDataURL(`facades/${file}`),{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error(`Façades : HTTP ${r.status} (${file})`);return r;});}
  fail(error){if(error.name==='AbortError')return;this.stats.errors++;this.onError(error);}
  setupGL(){
   const gl=this.gl;if(!this.index||!this.bitmaps?.length||gl.isContextLost())return;
@@ -104,7 +108,7 @@ export class FacadeLayer {
   while(this.active<4&&this.queue.length&&!this.abort.signal.aborted){
    const entry=this.queue.shift();if(!this.desired.has(entry.tile.file)||entry.status==='loading')continue;
    entry.status='loading';entry.attempts=(entry.attempts||0)+1;this.active++;this.stats.requests++;
-   this.request(entry.tile.file).then(r=>r.arrayBuffer()).then(bytes=>{if(bytes.byteLength!==entry.tile.count*this.index.stride)throw Error('Géométrie de façade tronquée');entry.bytes=bytes;entry.status='ready';})
+   this.request(entry.tile.file).then(r=>r.arrayBuffer()).then(async bytes=>{if(bytes.byteLength!==entry.tile.count*this.index.stride)throw Error('Géométrie de façade tronquée');entry.bytes=removeBombFacades(maskCustomFacades(bytes,await loadCustomReplacements()));entry.status='ready';})
     .catch(error=>{entry.status='error';entry.retryAfter=performance.now()+10000;this.fail(error);})
     .finally(()=>{this.active--;if(this.abort.signal.aborted)return;this.evict();this.pump();this.map.triggerRepaint();});
   }
@@ -135,7 +139,7 @@ export class FacadeLayer {
   entry.terrainBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,entry.terrainBuffer);gl.bufferData(gl.ARRAY_BUFFER,heights,gl.STATIC_DRAW);const loc=this.attributes.a_terrain;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,8,0);gl.vertexAttribDivisor(loc,1);
  }
  render(gl,options){
-  this.stats.draws=0;this.stats.visibleFacades=0;if(!this.stats.loaded||!this.program||!this.isActive())return;
+  this.stats.draws=0;this.stats.visibleFacades=0;if(!this.stats.loaded||!this.program||!this.isActive()||!mapBuildingsVisible(this.map))return;
   if(this.pendingBitmaps){if(this.texture)gl.deleteTexture(this.texture);this.texture=null;this.bitmaps.forEach(b=>b.close());this.bitmaps=this.pendingBitmaps;this.pendingBitmaps=null;this.textureSize=this.detailSize;this.stats.resolution=this.textureSize.join(' × ');}
   gl.useProgram(this.program);gl.activeTexture(gl.TEXTURE0);if(!this.texture)this.uploadTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,this.texture);
   const selected=this.selected&&this.map.getFeatureState({source:'buildings',id:this.selected}).selected;

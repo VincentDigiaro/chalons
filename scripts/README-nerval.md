@@ -71,3 +71,39 @@ Les pelouses, pavés, graviers et chaussées comportaient des superpositions, pa
 Cette version retire 2 012,97 m² de superpositions et passe de 122 250 à 125 124 triangles (+2,35 %). Les matériaux et les 109 parties de bâtiments sont conservés. Le modèle cartographique et les paquets FPS sont régénérés ensemble avec `node scripts/build-nerval.mjs`, puis `node scripts/build-walk.mjs`.
 
 `node scripts/check-nerval-ground.mjs` vérifie les recouvrements, les plans inclinés, les attributs interpolés et le maillage float32 final. Les contrôles de conservation et les comparaisons WebGL à 40, 60, 90, 150 et 250 m sont dans `artifacts/nerval-ground-depth-20260914/`. L'ancien contrôle `check-nerval-impasse-fixes.mjs` échoue déjà sur la sauvegarde antérieure pour une haie au point `[-106.5161425, -117.3055172]` ; cette correction des sols ne modifie pas cet obstacle.
+
+## Relevé Google Earth du secteur sud, 17 septembre 2026
+
+À la demande de l’utilisateur, les bâtiments dans le rectangle rouge de `artifacts/nerval-earth-2026-09-17T00-37-32-064Z/user-excluded-zone.png` sont exclus. Par prudence, tous les identifiants internes inférieurs ou égaux à 59 restent inchangés, y compris les volumes à cheval sur la limite. Ces identifiants sont ceux du plan, pas les numéros postaux.
+
+Les vues Google Earth / Street View de juillet 2022 documentées dans `nerval-earth-survey.json` permettent de reprendre les volumes 62, 66, 69, 70, 72, 75, 82, 85, 88, 89, 91, 93 et 95 : 20 ouvertures avec embrasures, cadres et volets, 6 fenêtres de toit suivant les pentes, la cheminée extérieure du pignon 70 et deux porches ouverts devant les garages. Les enduits et les tuiles utilisent les matériaux existants du jeu. Les vues Google servent de références, sans nouvelle texture photographique Google dans le jeu.
+
+Les dimensions sont estimées visuellement. Cinq châssis de toit sont visibles sur les nouvelles vues ; le quatrième de la maison 82 est conservé d’après la description du relevé antérieur, car l’arbre le masque sur la nouvelle vue. Les éléments cachés par les haies sont indiqués dans les observations. Les maisons floutées et les corrections précédentes de la boucle et de l’impasse restent intactes. Les emprises OSM, les hauteurs principales, les 144 ouvertures précédentes et les 518 objets documentés sont conservés.
+
+Reconstruction : `node scripts/build-nerval.mjs`, puis `node scripts/build-walk.mjs --detail-only`. Le manifeste de téléchargement doit conserver les mêmes paquets génériques et recevoir l’empreinte SHA-256 du nouvel index FPS. Actualiser les versions `.gz` existantes des fichiers modifiés.
+
+Validation : `node scripts/check-nerval-earth.mjs` compare le maillage réel et les matériaux à la sauvegarde, exige que chaque changement reste dans les seuls volumes autorisés, conserve les données antérieures et contrôle 885 points de chaussée. Les contrôles Nerval, sol, détails précédents, mobilier, boucle, accès et FPS passent. Les deux limites historiques des suites complètes sont conservées : haie de l’impasse déjà signalée ci-dessus et anciennes empreintes figées dans `check-walk-replacements.mjs`.
+
+La sauvegarde vérifiée avant modification, les captures, le relevé KML, le manifeste des fichiers modifiés et le rapport de validation sont dans `artifacts/nerval-earth-2026-09-17T00-37-32-064Z/`. Les captures du nord éventuellement présentes dans ce dossier sont des observations abandonnées après la correction du périmètre par l’utilisateur ; aucun ajout correspondant n’est intégré à cette version.
+
+## Relevé Street View du numéro postal 31 à l’impasse, 17 septembre 2026
+
+Le nouveau périmètre est défini dans `nerval-streetview-survey.json`. Ne pas confondre le numéro postal 31 avec le volume interne 31, situé dans la zone rouge exclue : l’adresse 31 correspond aux volumes 91/93/95. Neuf vues Google Maps Street View ont été consultées et archivées avec leurs URL et dates. Les premières vues datent de juillet 2022 ; au fond de l’impasse, Google propose mai 2014. Les dimensions restent estimées.
+
+`build-nerval-streetview.mjs` reconstruit la toiture perpendiculaire en L du n°33 sans changer son emprise, ses façades, son garage en retrait et son bouleau. Dix ouvertures sont ajoutées au total, trois finitions de menuiseries sont corrigées, quatre limites de propriété sont reprises (31, 33, paire 35/37, 47). Le portail générique qui barrait l’entrée du 47 est remplacé par l’accès ouvert observé ; son ancien volume d’auvent plein est ouvert pour révéler le garage. Le conifère du 31, des aérations et antennes complètent le relevé. Les 144 ouvertures antérieures et les corrections utilisateur de l’impasse sont conservées.
+
+Reconstruction : `node scripts/build-nerval.mjs`, puis `node scripts/build-walk.mjs --detail-only` et `node scripts/finalize-nerval-streetview.mjs`. Le dernier script synchronise les copies gzip et l’index de téléchargement, sans reconstruire les paquets génériques. Le décompte des octets dans `build-walk.mjs` est calculé sur les paquets réellement réutilisés, pour rester correct après une interruption.
+
+Validation de cette étape : `node scripts/check-nerval-streetview.mjs`, en complément des contrôles Nerval et FPS. Ce contrôle compare le maillage avec la sauvegarde immédiatement antérieure, protège le carré rouge et les autres bâtiments, vérifie les sources et les 885 points de chaussée. Le contrôle historique `check-nerval-earth.mjs` décrit la précédente étape Earth uniquement et son ancien périmètre de 13 volumes.
+
+Sauvegarde SHA-256, captures avant/après, références, rapport et manifeste de restauration : `artifacts/nerval-streetview-31-impasse-2026-09-17T01-42-17-651Z/`. La publication reste effectuée par `npm run publish:code`, qui inclut les fichiers Nerval et leurs paquets FPS.
+
+## Sols et jardins du 42, 17 septembre 2026
+
+Les deux liens Google Earth fournis par l’utilisateur montrent la vue aérienne du 1er octobre 2023 et Street View de mai 2014. `nerval-house42-ground.mjs` remplace le chemin discontinu par une courbe de petits pavés rosés carrés, raccordée à l’entrée et à l’allée du garage. Le garage conserve ses pavés hexagonaux. Les bordures et le couvre-sol bas suivent le massif visible ; les pelouses latérales et arrière des voisins sont complétées. Les limites et dimensions sont estimées visuellement. Les corrections antérieures des bâtiments et clôtures restent intactes.
+
+Les trous de pelouse venaient de grands triangles qui passaient sous le relief entre leurs sommets. Les surfaces de sol autour du 42 sont maintenant subdivisées à 1,25 m avant leur adaptation au terrain, dans les rendus carte et FPS. Le marqueur UV des pavés rosés utilise le matériau existant, avec un motif procédural partagé par les deux rendus. Les images Google restent des références visuelles.
+
+Reconstruction : `node scripts/build-nerval.mjs`, puis `node scripts/build-walk.mjs --detail-only` et `node scripts/finalize-nerval-ground42.mjs`. Validation : `node scripts/check-nerval-house42-ground.mjs` protège tous les bâtiments, les objets antérieurs et les surfaces de rue, vérifie les raccords du chemin et mesure la hauteur des pelouses par rapport au relief réel.
+
+Sauvegarde vérifiée avant modification, références et captures : `artifacts/nerval-ground42-2026-09-17T02-24-11-070Z/`. Le fichier `artifacts/nerval-ground42-current.txt` donne le dossier courant. `npm run publish:code` inclut le shader, le modèle et les paquets FPS corrigés.

@@ -1,0 +1,450 @@
+{
+  "version": 2,
+  "observedAt": "2026-09-17",
+  "place": "Rue Gérard-de-Nerval, Saint-Memmie, agglomération de Châlons-en-Champagne",
+  "method": "Observation manuelle de Google Earth 3D et Street View. Identifiants internes du plan fourni, pas numéros postaux.",
+  "scope": {
+    "userReference": "user-excluded-zone.png",
+    "excludedParts": "Tous les identifiants <= 59 ; les volumes coupés par la limite rouge restent exclus.",
+    "unchanged": "Maisons floutées 64 et 79 ; corrections précédentes de la boucle et de l’impasse.",
+    "modifiedParts": [
+      62,
+      66,
+      69,
+      70,
+      72,
+      75,
+      82,
+      85,
+      88,
+      89,
+      91,
+      93,
+      95
+    ]
+  },
+  "accuracy": "Dimensions estimées visuellement, sans relevé métrique. Emprises OSM et hauteurs principales conservées. Aucune reconstitution des détails floutés. Les murs non visibles gardent un enduit simple pour les façades reprises.",
+  "sources": [
+    {
+      "id": "earth-south-82-75",
+      "url": "https://earth.google.com/web/search/Rue+G%c3%a9rard+de+Nerval,+Ch%c3%a2lons-en-Champagne/@48.94719467,4.38168817,85.90118007a,0d,60y,101.51715402h,85t,0r/data=CiwiJgokCT-1e4A0WjhAET-1e4A0WjjAGXdZzNKWPUpAIVWaoUkXVkvAQgIIASIaChZZcUc1TFJ3anNCbnkzeU9Gem1BMm9BEAJCAggASg0I____________ARAA",
+      "imageDate": "2022-07",
+      "capture": "earth-south-82-75.png",
+      "observation": "Maison 82 à plusieurs châssis de toit et maison basse 75 à volets bois et ouvertures verticales.",
+      "provider": "Google Earth / Street View"
+    },
+    {
+      "id": "earth-south-70-75",
+      "url": "https://earth.google.com/web/search/Rue+G%c3%a9rard+de+Nerval,+Ch%c3%a2lons-en-Champagne/@48.94729569,4.38189899,85.94753265a,0d,60y,97.05175923h,85t,0r/data=CiwiJgokCT-1e4A0WjhAET-1e4A0WjjAGXdZzNKWPUpAIVWaoUkXVkvAQgIIASIaChZJU05zeHp2d2tTb0dfbXgtVU5IWGdBEAJCAggASg0I____________ARAA",
+      "imageDate": "2022-07",
+      "capture": "earth-south-70-75.png",
+      "observation": "Façades crème, volets bois bruns, hautes baies et fenêtre de pignon, cheminée extérieure sur le pignon droit du volume 70.",
+      "provider": "Google Earth / Street View"
+    },
+    {
+      "id": "earth-south-62-70",
+      "url": "https://earth.google.com/web/search/Rue+G%c3%a9rard+de+Nerval,+Ch%c3%a2lons-en-Champagne/@48.94736319,4.38198796,85.96942139a,0d,60y,97.05175923h,85t,0r/data=CiwiJgokCT-1e4A0WjhAET-1e4A0WjjAGXdZzNKWPUpAIVWaoUkXVkvAQgIIASIaChZDdVliUWFLcnhleVlsNUNveW5mWFBREAJCAggASg0I____________ARAA",
+      "imageDate": "2022-07",
+      "capture": "earth-south-62-70.png",
+      "observation": "Deux fenêtres de toit sur 62 ; une fenêtre haute sur chacun des volumes 66 et 69 ; porte vitrée étroite et baie à volets bruns sur 70 ; garage à quatre hublots sur 72. Façade basse de 62 masquée.",
+      "provider": "Google Earth / Street View"
+    },
+    {
+      "id": "earth-south-88",
+      "url": "https://earth.google.com/web/search/Rue+G%c3%a9rard+de+Nerval,+Ch%c3%a2lons-en-Champagne/@48.94719467,4.38168817,85.90119934a,0d,60y,159.28536117h,85t,0r/data=CiwiJgokCT-1e4A0WjhAET-1e4A0WjjAGXdZzNKWPUpAIVWaoUkXVkvAQgIIASIaChZZcUc1TFJ3anNCbnkzeU9Gem1BMm9BEAJCAggASg0I____________ARAA",
+      "imageDate": "2022-07",
+      "capture": "earth-south-88.png",
+      "observation": "Volume 88 : deux hautes baies frontales étroites à volets fermés ocre, fenêtre haute à gauche ; porche et garage en retrait. Volume 93 : fenêtre haute de pignon et baies au rez-de-chaussée.",
+      "provider": "Google Earth / Street View"
+    },
+    {
+      "id": "earth-south-93",
+      "url": "https://earth.google.com/web/search/Rue+G%c3%a9rard+de+Nerval,+Ch%c3%a2lons-en-Champagne/@48.94708263,4.38154835,86.03639221a,0d,60y,159.28536117h,85t,0r/data=CiwiJgokCT-1e4A0WjhAET-1e4A0WjjAGXdZzNKWPUpAIVWaoUkXVkvAQgIIASIaChZxcVV0VkNrVTA4dU1TckNqOUcwcUlnEAJCAggASg0I____________ARAA",
+      "imageDate": "2022-07",
+      "capture": "earth-south-93.png",
+      "observation": "Deux portes-fenêtres sur 93, celle de droite à volets fermés ; garage brun à quatre hublots sur 95 ; fenêtre haute au pignon gauche.",
+      "provider": "Google Earth / Street View"
+    }
+  ],
+  "facades": [
+    {
+      "part": 66,
+      "color": "#dcdad0",
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 69,
+      "color": "#ddd5b9",
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 70,
+      "color": "#ddd5b9",
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 72,
+      "color": "#dcdad0",
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 75,
+      "color": "#dcdad0",
+      "reference": "earth-south-70-75"
+    },
+    {
+      "part": 82,
+      "color": "#dcdad0",
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 88,
+      "color": "#d0c5ad",
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 89,
+      "color": "#d0c5ad",
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 93,
+      "color": "#dcdad0",
+      "reference": "earth-south-93"
+    },
+    {
+      "part": 95,
+      "color": "#dcdad0",
+      "reference": "earth-south-93"
+    }
+  ],
+  "openings": [
+    {
+      "part": 66,
+      "side": "front",
+      "along": 0.5,
+      "width": 1.12,
+      "height": 1.3,
+      "bottom": 3.63,
+      "glassMaterial": true,
+      "shutters": "brown",
+      "roller": true,
+      "rollerDrop": 1,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 69,
+      "side": "front",
+      "along": 0.5,
+      "width": 1.02,
+      "height": 1.3,
+      "bottom": 3.63,
+      "glassMaterial": true,
+      "shutters": "brown",
+      "closed": true,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 70,
+      "side": "front",
+      "along": 0.24,
+      "width": 0.86,
+      "height": 2.05,
+      "bottom": 0.14,
+      "glassMaterial": true,
+      "kind": "door",
+      "frame": "wood",
+      "glazed": true,
+      "grid": true,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 70,
+      "side": "front",
+      "along": 0.71,
+      "width": 1.48,
+      "height": 2.12,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 70,
+      "side": "right",
+      "along": 0.51,
+      "width": 0.92,
+      "height": 1.35,
+      "bottom": 4.1,
+      "glassMaterial": true,
+      "shutters": "brown",
+      "reference": "earth-south-70-75"
+    },
+    {
+      "part": 72,
+      "side": "front",
+      "along": 0.5,
+      "width": 2.75,
+      "height": 2.08,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "garage",
+      "color": "#584a3d",
+      "garageLights": 4,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 75,
+      "side": "front",
+      "along": 0.26,
+      "width": 1.32,
+      "height": 2.1,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "reference": "earth-south-70-75"
+    },
+    {
+      "part": 75,
+      "side": "front",
+      "along": 0.75,
+      "width": 1.32,
+      "height": 2.1,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "roller": true,
+      "rollerDrop": 1,
+      "reference": "earth-south-70-75"
+    },
+    {
+      "part": 75,
+      "side": "right",
+      "along": 0.25,
+      "width": 1.13,
+      "height": 2.05,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "roller": true,
+      "rollerDrop": 1,
+      "visibility": "Partie basse masquée par la clôture ; hauteur estimée",
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 75,
+      "side": "right",
+      "along": 0.68,
+      "width": 1.05,
+      "height": 2.05,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "visibility": "Partie basse masquée par la clôture ; hauteur estimée",
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 82,
+      "side": "front",
+      "along": 0.15,
+      "width": 1.18,
+      "height": 1.3,
+      "bottom": 0.88,
+      "glassMaterial": true,
+      "shutters": "brown",
+      "visibility": "Allège cachée par la végétation, hauteur estimée",
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 82,
+      "side": "front",
+      "along": 0.38,
+      "width": 1.52,
+      "height": 2.12,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "visibility": "Partie basse masquée ; hauteur estimée",
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 88,
+      "side": "front",
+      "along": 0.28,
+      "width": 0.98,
+      "height": 2.13,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "ochre",
+      "closed": true,
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 88,
+      "side": "front",
+      "along": 0.76,
+      "width": 0.98,
+      "height": 2.13,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "ochre",
+      "closed": true,
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 88,
+      "side": "left",
+      "along": 0.56,
+      "width": 0.84,
+      "height": 1.25,
+      "bottom": 4,
+      "glassMaterial": true,
+      "shutters": "ochre",
+      "closed": true,
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 89,
+      "side": "front",
+      "along": 0.5,
+      "width": 2.52,
+      "height": 2.1,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "garage",
+      "color": "#59483d",
+      "visibility": "Garage partiellement masqué par le véhicule et le porche",
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 93,
+      "side": "front",
+      "along": 0.28,
+      "width": 1.36,
+      "height": 2.14,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "reference": "earth-south-93"
+    },
+    {
+      "part": 93,
+      "side": "front",
+      "along": 0.76,
+      "width": 0.96,
+      "height": 2.14,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "patio",
+      "shutters": "brown",
+      "closed": true,
+      "reference": "earth-south-93"
+    },
+    {
+      "part": 93,
+      "side": "left",
+      "along": 0.56,
+      "width": 0.85,
+      "height": 1.3,
+      "bottom": 3.94,
+      "glassMaterial": true,
+      "roller": true,
+      "rollerDrop": 1,
+      "reference": "earth-south-93"
+    },
+    {
+      "part": 95,
+      "side": "front",
+      "along": 0.5,
+      "width": 2.58,
+      "height": 2.1,
+      "bottom": 0.12,
+      "glassMaterial": true,
+      "kind": "garage",
+      "color": "#5e5043",
+      "garageLights": 4,
+      "reference": "earth-south-93"
+    }
+  ],
+  "rooflights": [
+    {
+      "part": 62,
+      "along": 0.35,
+      "down": 0.42,
+      "width": 0.82,
+      "height": 1.02,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 62,
+      "along": 0.75,
+      "down": 0.42,
+      "width": 0.82,
+      "height": 1.02,
+      "reference": "earth-south-62-70"
+    },
+    {
+      "part": 82,
+      "along": 0.14,
+      "down": 0.42,
+      "width": 0.88,
+      "height": 1.08,
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 82,
+      "along": 0.38,
+      "down": 0.42,
+      "width": 0.88,
+      "height": 1.08,
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 82,
+      "along": 0.62,
+      "down": 0.42,
+      "width": 0.88,
+      "height": 1.08,
+      "reference": "earth-south-82-75"
+    },
+    {
+      "part": 82,
+      "along": 0.85,
+      "down": 0.42,
+      "width": 0.88,
+      "height": 1.08,
+      "reference": "earth-south-82-75",
+      "visibility": "Quatrième châssis indiqué dans le relevé antérieur, masqué par arbre en juillet 2022"
+    }
+  ],
+  "chimneys": [
+    {
+      "part": 70,
+      "along": 0.36,
+      "width": 0.42,
+      "depth": 0.51,
+      "aboveRidge": 0.17,
+      "color": "#d6c9a8",
+      "reference": "earth-south-70-75"
+    }
+  ],
+  "canopies": [
+    {
+      "part": 85,
+      "reference": "earth-south-88"
+    },
+    {
+      "part": 91,
+      "reference": "earth-south-93"
+    }
+  ]
+}

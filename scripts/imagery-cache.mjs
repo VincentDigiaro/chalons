@@ -6,7 +6,7 @@ import {sourceURL,validTile} from './ign-source.mjs';
 export const isJPEG=bytes=>bytes.length>4&&bytes[0]===255&&bytes[1]===216&&bytes.at(-2)===255&&bytes.at(-1)===217;
 
 // Disk is the source of truth. Saved originals are never expired or evicted.
-export function createImageryCache({root=path.resolve('dist/data/imagery/ign'),fetchImage=globalThis.fetch,concurrency=4,interval=125,timeout=20000,retries=2,cooldown=30000,maxQueue=512}={}){
+export function createImageryCache({root=path.resolve('dist/data/imagery/ign'),bounds,fetchImage=globalThis.fetch,concurrency=4,interval=125,timeout=20000,retries=2,cooldown=30000,maxQueue=512}={}){
   const pending=new Map(),failed=new Map(),queue=[];
   let active=0,lastStart=0,timer;
   const stats={downloads:0,hits:0,errors:0};
@@ -49,7 +49,7 @@ export function createImageryCache({root=path.resolve('dist/data/imagery/ign'),f
   return {
     root,stats,
     async get(z,x,y,{offline=false}={}){
-      if(!validTile(z,x,y))throw Object.assign(Error('Tile outside project'),{statusCode:404});
+      if(!validTile(z,x,y,bounds))throw Object.assign(Error('Tile outside project'),{statusCode:404});
       const key=`${z}/${x}/${y}`,file=path.join(root,`${key}.jpg`);
       try{const bytes=await fs.readFile(file);if(!isJPEG(bytes))throw Error(`Invalid saved image: ${key}`);stats.hits++;return bytes;}
       catch(error){if(error.code!=='ENOENT')throw error;}

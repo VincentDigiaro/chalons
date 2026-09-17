@@ -4,7 +4,7 @@
   "rayonChargementRoutesMetres": 1000,
   "chargementsGeometrieSimultanes": 10,
   "chargementsTexturesSimultanes": 10,
-  "batimentsParTelechargement": 50,
+  "batimentsParTelechargement": 10,
   "preparation": {
     "budgetParImageMs": 10,
     "budgetInitialParImageMs": 10
@@ -20,13 +20,15 @@
   "graviteMps2": 13.5,
   "highwind": {
     "present": true,
-    "longueurMetres": 150,
+    "modele": "v10",
+    "longueurMetres": 118,
     "position": {
       "x": -130,
       "y": -173,
       "z": 60
     },
     "angleDegres": 110,
+    "vitesseNormaleKmh": 300,
     "vitesseMaxKmh": 800,
     "hauteurApparitionMetres": 20,
     "distanceDerriereJoueurMetres": 50,
@@ -36,9 +38,133 @@
       "PropRear": 0.3,
       "PropTail": 0.5
     },
-    "distanceCameraMetres": 310,
+    "distanceCameraMetres": 160,
+    "angleCameraDegres": 40,
     "distanceEmbarquementMetres": 71,
     "dureeAccelerationSecondes": 0.5,
-    "dureeFreinageSecondes": 0.8
+    "dureeFreinageSecondes": 0.8,
+    "bombes": {
+      "nombreBombes": -1,
+      "dureeRechargeSecondes": 0.5,
+      "tailleMetres": 4,
+      "rayonExplosionMetres": 25,
+      "rayonCreusementMetres": 25,
+      "rayonDestructionBatimentsMetres": 25,
+      "profondeurCratereRatio": 0.1,
+      "attenuationCreusementRepete": 0.1,
+      "noircissement": {
+        "tailleRatio": 1,
+        "opacite": 1,
+        "douceurBord": 0.2
+      },
+      "terre": {
+        "opacite": 0.8,
+        "tailleMotifMetres": 12
+      },
+      "limites": {
+        "bombesVisiblesOrdinateur": 32,
+        "bombesVisiblesMobile": 16,
+        "explosionsSimultanees": 12,
+        "particulesVisibles": 4000,
+        "eclairagesSimultanes": 1,
+        "sonsSimultanes": 8,
+        "sonsEnAttente": 128
+      },
+      "particules": {
+        "groupesFumeeOrdinateur": 24,
+        "groupesFumeeMobile": 14,
+        "etincellesOrdinateur": 54,
+        "etincellesMobile": 28,
+        "particulesParTrainee": 5
+      },
+      "simulation": {
+        "largagesParImageSansRecharge": 1,
+        "rattrapageMaximumSecondes": 0.1
+      }
+    },
+    "inertie": 1,
+    "vitesseMonteeKmh": 150,
+    "vitesseDescenteKmh": 150
+  },
+  "orca": {
+    "present": true,
+    "modele": "v1",
+    "longueurMetres": 9.454,
+    "position": {
+      "x": -130,
+      "y": -173,
+      "z": 60
+    },
+    "angleDegres": 110,
+    "vitesseNormaleKmh": 90,
+    "vitesseMaxKmh": 270,
+    "hauteurApparitionMetres": 20,
+    "distanceDerriereJoueurMetres": 50,
+    "vitessesHelicesToursParSeconde": {
+      "PropL": 12,
+      "PropR": 12
+    },
+    "distanceCameraMetres": 18,
+    "angleCameraDegres": 10,
+    "distanceEmbarquementMetres": 8,
+    "dureeAccelerationSecondes": 0.5,
+    "dureeFreinageSecondes": 0.8,
+    "missiles": {
+      "nombreMissiles": -1,
+      "missilesParSalve": 2,
+      "missilesSimultanes": 64,
+      "dureeRechargeSecondes": 0.5,
+      "tailleMetres": 1.1,
+      "vitesseInitialeMps": 28,
+      "vitesseMps": 120,
+      "angleConeDepartDegres": 90,
+      "distanceDispersionMetres": 15,
+      "dureeAccelerationSecondes": 1,
+      "vitesseRotationDegresParSeconde": 360,
+      "dureeVieSecondes": 3,
+      "angleViseeDegres": 28,
+      "porteeViseurMetres": 1400,
+      "trainee": {
+        "dureeSecondes": 3,
+        "espacementMetres": 1.5,
+        "tailleMetres": 1.5,
+        "maximumParticules": 3000
+      },
+      "explosion": {
+        "rayonExplosionMetres": 12,
+        "rayonCreusementMetres": 8,
+        "rayonDestructionBatimentsMetres": 12,
+        "profondeurCratereRatio": 0.05,
+        "attenuationCreusementRepete": 0.1,
+        "noircissement": {
+          "tailleRatio": 1,
+          "opacite": 1,
+          "douceurBord": 0.2
+        },
+        "terre": {
+          "opacite": 0.8,
+          "tailleMotifMetres": 12
+        },
+        "limites": {
+          "missilesVisiblesOrdinateur": 32,
+          "missilesVisiblesMobile": 16,
+          "explosionsSimultanees": 12,
+          "particulesVisibles": 3000,
+          "eclairagesSimultanes": 1,
+          "sonsSimultanes": 8,
+          "sonsEnAttente": 128
+        },
+        "particules": {
+          "groupesFumeeOrdinateur": 24,
+          "groupesFumeeMobile": 14,
+          "etincellesOrdinateur": 54,
+          "etincellesMobile": 28,
+          "particulesParTrainee": 7
+        }
+      }
+    },
+    "inertie": 0.2,
+    "vitesseMonteeKmh": 150,
+    "vitesseDescenteKmh": 150	
   }
 }

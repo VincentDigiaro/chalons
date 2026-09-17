@@ -1,4 +1,6 @@
-import {drapeVertices,subdivideRoads} from './terrain.js';
+import {cityDataURL} from './city-config.js';
+import {prepareMapRoads} from './map-roads.js';
+import {BOMB_ROAD_CUT_MATERIAL as BOMB_CUT_MATERIAL} from './bomb-building-cut.js';
 // A bounded, shared-material tile cache; geometry uses the same metre frame and
 // binary packets as the pedestrian renderer. No OSM requests in the browser.
 const VS=`#version 300 es
@@ -19,7 +21,7 @@ export class CityRoadsLayer{
  constructor(){this.id='city-roads-3d';this.type='custom';this.renderingMode='3d';this.cache=new Map();this.pending=new Set();this.failed=new Set();this.textures=[];this.abort=new AbortController();this.stats={loaded:false,draws:0,errors:0,gpuBytes:0};}
  onAdd(map,gl){
   this.map=map;this.gl=gl;this.restore=()=>{this.cache.clear();this.textures=[];this.setup();map.triggerRepaint();};map.getCanvas().addEventListener('webglcontextrestored',this.restore);
-  Promise.all([fetch('./data/city-roads/index.json',{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road index HTTP '+r.status);return r.json();}),...['ground-asphalt-v1.webp','ground-pavers-v1.webp'].map(name=>fetch('./data/nerval/'+name,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road texture HTTP '+r.status);return r.blob();}).then(createImageBitmap))]).then(([index,...bitmaps])=>{
+  Promise.all([fetch(cityDataURL('city-roads/index.json'),{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road index HTTP '+r.status);return r.json();}),...['ground-asphalt-v1.webp','ground-pavers-v1.webp'].map(name=>fetch('./data/nerval/'+name,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road texture HTTP '+r.status);return r.blob();}).then(createImageBitmap))]).then(([index,...bitmaps])=>{
    if(this.abort.signal.aborted){bitmaps.forEach(b=>b.close());return;}
    this.index=index;this.bitmaps=bitmaps;this.origin=maplibregl.MercatorCoordinate.fromLngLat(index.origin);this.metres=this.origin.meterInMercatorCoordinateUnits();this.setup();this.stats.loaded=true;map.triggerRepaint();
   }).catch(e=>{if(e.name!=='AbortError'){this.stats.errors++;console.error('Routes:',e);}});
@@ -46,13 +48,13 @@ export class CityRoadsLayer{
   const keys=new Set(wanted.map(r=>r[0]));for(const [key,node] of this.cache)if(!keys.has(key)){this.drop(node);this.cache.delete(key);}
   for(const [file] of wanted){
    if(this.pending.size>=6)break;if(this.cache.has(file)||this.pending.has(file)||this.failed.has(file))continue;
-   this.pending.add(file);fetch('./data/city-roads/'+file,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road tile HTTP '+r.status);return r.arrayBuffer();}).then(raw=>{
+   this.pending.add(file);fetch(cityDataURL('city-roads/'+file),{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error('Road tile HTTP '+r.status);return r.arrayBuffer();}).then(raw=>{
     if(this.abort.signal.aborted||gl.isContextLost())return;
     const size=new DataView(raw).getUint32(0,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(raw,4,size)));
-    const road=subdivideRoads(new Float32Array(raw,4+size),header.ranges),data=drapeVertices(road.vertices,{origin,scale});header.ranges=road.ranges;
+    const road=prepareMapRoads(new Float32Array(raw,4+size),header.ranges,{origin,scale}),data=road.vertices;header.ranges=road.ranges;
     // Reproject the city-wide metre grid to Mercator before uploading. A
     // tangent plane alone drifts several metres at the extraction's edges.
-    for(let i=0;i<data.length;i+=11){const coordinate=maplibregl.MercatorCoordinate.fromLngLat([origin[0]+data[i]/scale[0],origin[1]+data[i+1]/scale[1]]);data[i]=(coordinate.x-this.origin.x)/this.metres;data[i+1]=(this.origin.y-coordinate.y)/this.metres;}
+    for(let i=0;i<data.length;i+=11){const coordinate=maplibregl.MercatorCoordinate.fromLngLat([origin[0]+data[i]/scale[0],origin[1]+data[i+1]/scale[1]]);data[i+2]*=coordinate.meterInMercatorCoordinateUnits()/this.metres;data[i]=(coordinate.x-this.origin.x)/this.metres;data[i+1]=(this.origin.y-coordinate.y)/this.metres;}
     const vao=gl.createVertexArray(),buffer=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);for(const [at,count,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(at);gl.vertexAttribPointer(at,count,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);gl.bindBuffer(gl.ARRAY_BUFFER,null);this.cache.set(file,{vao,buffer,ranges:header.ranges,bytes:data.byteLength});
    }).catch(error=>{if(error.name!=='AbortError'){this.failed.add(file);this.stats.errors++;console.warn('Routes:',error);}}).finally(()=>{this.pending.delete(file);if(!this.abort.signal.aborted)this.map.triggerRepaint();});
   }
@@ -60,7 +62,7 @@ export class CityRoadsLayer{
   const m=options.defaultProjectionData.mainMatrix,o=this.matrix,k=this.metres,{x,y}=this.origin;
   for(let row=0;row<4;row++){o[row]=m[row]*k;o[4+row]=-m[4+row]*k;o[8+row]=m[8+row]*k;o[12+row]=m[row]*x+m[4+row]*y+m[12+row];}gl.uniformMatrix4fv(this.uniforms.u_matrix,false,o);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);
-  this.stats.gpuBytes=0;for(const node of this.cache.values()){this.stats.gpuBytes+=node.bytes;gl.bindVertexArray(node.vao);for(const [mat,first,count] of node.ranges){gl.uniform1i(this.uniforms.u_textured,mat<4?1:0);if(mat<4)gl.bindTexture(gl.TEXTURE_2D,this.texture(mat===2?1:0));gl.drawArrays(gl.TRIANGLES,first,count);this.stats.draws++;}}
+  this.stats.gpuBytes=0;for(const node of this.cache.values()){this.stats.gpuBytes+=node.bytes;gl.bindVertexArray(node.vao);for(const [mat,first,count] of node.ranges){gl.uniform1i(this.uniforms.u_textured,mat!==BOMB_CUT_MATERIAL&&mat<4?1:0);if(mat<4)gl.bindTexture(gl.TEXTURE_2D,this.texture(mat===2?1:0));gl.drawArrays(gl.TRIANGLES,first,count);this.stats.draws++;}}
   gl.bindVertexArray(null);gl.bindTexture(gl.TEXTURE_2D,null);
  }
  getState(){return {...this.stats,loadedSectors:this.cache.size,loading:this.pending.size,totalSectors:this.index?.nodes.length,ways:this.index?.stats.ways};}

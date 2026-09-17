@@ -1,4 +1,8 @@
+import {cityDataURL} from './city-config.js';
+import {mapBuildingsVisible} from './map-view.js';
 import {drapeRoofBuffer} from './terrain.js';
+import {removeBombRoofs} from './bomb-map-damage.js';
+import {loadCustomReplacements,maskCustomRoofs} from './custom-model-replacements.js';
 const VERTEX=`#version 300 es
 precision highp float;
 in vec3 a_position;in vec2 a_uv;in float a_material;in vec3 a_color;
@@ -20,7 +24,7 @@ export class RoofCatalogueLayer {
   this.enabled=true;this.buildingsVisible=true;this.onState=onState;this.onError=onError;
   this.abort=new AbortController();this.renderTiles=[];this.stats={requests:0,errors:0,draws:0,ready:0,loading:0};
  }
- request(file){this.stats.requests++;return fetch('./data/roofs/'+file,{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error(`Toitures : HTTP ${r.status} (${file})`);return r;});}
+ request(file){this.stats.requests++;return fetch(cityDataURL('roofs/'+file),{signal:this.abort.signal}).then(r=>{if(!r.ok)throw Error(`Toitures : HTTP ${r.status} (${file})`);return r;});}
  onAdd(map,gl){
   this.map=map;this.gl=gl;this.mobile=matchMedia('(max-width:700px)').matches;
   this.onMove=()=>{clearTimeout(this.moveTimer);this.moveTimer=setTimeout(()=>this.refresh(),100);};
@@ -31,7 +35,8 @@ export class RoofCatalogueLayer {
    if(this.abort.signal.aborted)return;
    if(mesh.byteLength!==index.vertexCount*12||surface.byteLength!==index.vertexCount*12||catalogue.vertexCount!==index.vertexCount)throw Error('Géométrie de toiture incohérente');
    if(catalogue.textures.length>Math.min(64,gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS)))throw Error('Catalogue de toiture trop grand');
-   this.index=index;this.catalogue=catalogue;this.vertices=drapeRoofBuffer(mesh,index);this.surfaces=surface;this.n=2**index.zoom;
+   maskCustomRoofs(mesh,index,await loadCustomReplacements());if(this.abort.signal.aborted)return;
+   this.index=index;this.catalogue=catalogue;this.vertices=removeBombRoofs(drapeRoofBuffer(mesh,index),index);this.surfaces=surface;this.n=2**index.zoom;
    this.detailSize=this.mobile?[256,256]:catalogue.textureSize;this.textureSize=catalogue.overviewSize;
    for(const t of index.tiles){const lat=Math.atan(Math.sinh(Math.PI*(1-2*(t.y+.5)/this.n)))*180/Math.PI;t.zScale=1/(40075016.68557849*Math.cos(lat*Math.PI/180));}
    this.bitmaps=await this.loadImages(catalogue.overviewTextures,this.textureSize);if(!this.bitmaps)return;
@@ -87,7 +92,7 @@ export class RoofCatalogueLayer {
  }
  emitState(){this.onState({...this.stats,active:this.isActive(),catalogueSize:this.catalogue?.textures.length||0});}
  render(gl,options){
-  this.stats.draws=0;if(!this.program||!this.bitmaps||!this.isActive())return;
+  this.stats.draws=0;if(!this.program||!this.bitmaps||!this.isActive()||!mapBuildingsVisible(this.map))return;
   if(this.pendingBitmaps){if(this.texture)gl.deleteTexture(this.texture);this.texture=null;this.bitmaps.forEach(b=>b.close());this.bitmaps=this.pendingBitmaps;this.pendingBitmaps=null;this.textureSize=this.detailSize;}
   gl.useProgram(this.program);gl.bindVertexArray(this.vao);gl.activeTexture(gl.TEXTURE0);if(!this.texture)this.uploadTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,this.texture);gl.uniform1i(this.catalogueLocation,0);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);

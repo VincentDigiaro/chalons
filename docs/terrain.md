@@ -30,6 +30,45 @@ Le Hautvent utilise une altitude moyenne lissée, tout en conservant sa règle
 de traversée des bâtiments.
 Au-delà de l’extraction, l’altitude du bord est prolongée sans falaise artificielle.
 
+Les bombes ajoutent des cuvettes au relief pendant la partie. Chaque impact
+abaisse par défaut le centre d’un dixième de son diamètre de creusement (`2 × highwind.bombes.rayonCreusementMetres`) sur sol intact, avec un raccord sans
+marche au bord. Le creusement ajouté diminue lors des tirs répétés :
+`base / (1 + attenuationCreusementRepete × profondeur déjà creusée / base)`.
+`highwind.bombes.attenuationCreusementRepete` vaut `0.1` par défaut ; `0` conserve
+l'addition constante. Les tirs voisins dans une cuvette suivent aussi cette règle,
+sans plafond de profondeur. Seule la contribution finale est enregistrée, pour
+éviter de l'atténuer une seconde fois au chargement. Le réglage
+`highwind.bombes.profondeurCratereRatio` contrôle cette proportion ; `0` désactive
+le creusement. Le relief
+IGN original reste intact ; l’historique des impacts produit la même déformation
+au chargement et au retour à la carte. La profondeur ne fait pas augmenter la
+densité du maillage : seuls les petits impacts raffinent localement les tuiles,
+avec une longueur cible de diamètre / 8. Les collisions et les nouveaux tirs
+utilisent ce relief creusé. Les routes disparaissent dans le rayon de destruction,
+et leurs parties extérieures suivent les nouvelles pentes. Les bâtiments
+conservés restent à leur altitude de fondation initiale. Voir les détails et
+limites dans [Hautvent](HIGHWIND.md).
+
+Pendant le jeu, les découpes, le relief et les traces d’explosion sont préparés
+par petites étapes lorsque le navigateur dispose de temps libre, avec un budget
+partagé de 2 ms par passage. Si le navigateur reste occupé, une étape est autorisée
+après 100 ms pour continuer à avancer. Le relief affiché reste en place jusqu’à
+ce que chaque remplacement soit prêt ; une explosion éloignée ne recalcule pas
+les anciennes cuvettes. Les effets d’explosion démarrent immédiatement et les
+dégâts enregistrés sont tous appliqués. `streaming.destructionPreparation` expose
+la file et ses temps de préparation. Test : `node scripts/check-bomb-background.mjs`.
+
+`terrain-water.js` protège les surfaces d’eau issues de `land.geojson`, les cours
+d’eau à ciel ouvert et le littoral issus de `lines.geojson`. Ces données existantes
+sont chargées avec le relief et indexées en mémoire ; aucune bibliothèque ou
+source distante supplémentaire n’est utilisée. Les îles et les trous des polygones
+restent terrestres. Les lignes de rivière, canal et ruisseau sans contour utilisent
+respectivement une largeur approximative de 16, 10 et 3 m. Les contours de mer
+utilisent leur orientation terre/eau. Une bande de berge de 12 m ne se creuse pas,
+puis une transition de 8 m raccorde le cratère au sol intact. Altitudes, normales,
+collisions et DEM de la carte utilisent la même protection, y compris pour les
+tirs répétés et les impacts dont une partie seulement recouvre de l’eau.
+
 ## Collisions et performances
 
 À pied, `walk-collision-index.js` indexe les objets chargés dans une grille
@@ -38,7 +77,9 @@ prévu pendant l’image**, incluant la position de départ et d’arrivée. Le 
 Flash étend donc la recherche dans le sens du mouvement ; les petits pas de
 simulation continuent d’empêcher le passage à travers un mur. Les sols, les
 clôtures et les plafonds proches conservent leurs triangles précis. Les index
-des triangles sont créés à la première visite et libérés avec les objets.
+des triangles sont préparés progressivement avant l’installation de chaque objet,
+puis libérés avec lui. Après une découpe, le rendu, ses collisions et leurs index
+sont remplacés ensemble ; le premier mouvement ne déclenche plus leur construction.
 La vérification des fichiers encore en chargement utilise aussi l’index, avec
 une marge de 12 m. Les effets de particules gardent leur portée propre de 3 m.
 

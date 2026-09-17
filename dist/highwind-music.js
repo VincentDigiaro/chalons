@@ -1,3 +1,4 @@
+import {shipIdFromSearch} from './ship-selection.js';
 // Standard MIDI files cannot be played by <audio>. This small Web Audio synth
 // plays the supplied score, including its tempo map, programs and sustain pedal.
 export function parseMidi(buffer){
@@ -40,9 +41,11 @@ export async function renderMidi(score,{signal}={}){
 }
 export const HIGHWIND_FADE_SECONDS=2;
 export class HighwindMusic{
- constructor(){this.abort=new AbortController();this.generation=0;this.wanted=false;this.paused=false;}
+ constructor({shipId='highwind'}={}){this.shipId=shipId;this.abort=new AbortController();this.generation=0;this.wanted=false;this.paused=false;}
  async prepare(){
-  const options={signal:this.abort.signal},manifest=await fetch('./data/highwind/audio.json',options);if(!manifest.ok)throw Error('Musique '+manifest.status);this.audioInfo=await manifest.json();
+  const options={signal:this.abort.signal};
+  if(this.shipId==='orca'){this.audioInfo={file:'act-on-instinct.mp3',title:'Act On Instinct'};const response=await fetch('./data/orca/'+this.audioInfo.file,options);if(!response.ok)throw Error('Audio '+response.status);return this.context.decodeAudioData(await response.arrayBuffer());}
+  const manifest=await fetch('./data/highwind/audio.json',options);if(!manifest.ok)throw Error('Musique '+manifest.status);this.audioInfo=await manifest.json();
   const response=await fetch('./data/highwind/'+this.audioInfo.file,options);if(!response.ok)throw Error('Audio '+response.status);return this.context.decodeAudioData(await response.arrayBuffer());
  }
  preload(){
@@ -63,7 +66,7 @@ export class HighwindMusic{
     if(this.source)this.cancelFade(true);
     else{this.source=this.context.createBufferSource();this.gain=this.context.createGain();this.gain.gain.value=this.paused?0:1;this.source.buffer=buffer;this.source.loop=true;this.source.connect(this.gain);this.gain.connect(this.context.destination);this.origin=this.context.currentTime;this.source.start();}
     this.error=null;if(this.paused)await this.context.suspend();
-   })().catch(error=>{if(!this.abort.signal.aborted&&generation===this.generation){this.error=error.message;this.wanted=false;console.warn('Musique Highwind :',error.message);}});return this.starting;
+   })().catch(error=>{if(!this.abort.signal.aborted&&generation===this.generation){this.error=error.message;this.wanted=false;console.warn('Musique '+this.shipId+' :',error.message);}});return this.starting;
   }catch(error){this.error=error.message;this.wanted=false;return Promise.resolve();}
  }
  cancelFade(restore=false){
@@ -106,12 +109,12 @@ export class HighwindMusic{
  stop(){this.wanted=false;this.generation++;this.fadeOut('stop');}
  // Navigation/context teardown cannot leave audio or a cleanup timer alive.
  dispose(){this.wanted=false;this.generation++;this.finishSource();this.abort.abort();this.context?.close().catch(()=>{});}
- getState(){return {playing:!!this.source&&this.wanted&&!this.paused&&this.context?.state==='running',fadingOut:!!this.fade,preparing:!!this.loading&&!this.buffer,preloaded:!!this.buffer,file:this.audioInfo?.file||null,durationSeconds:this.buffer?.duration||0,elapsed:this.source?this.context.currentTime-this.origin:0,error:this.error||null};}
+ getState(){return {ship:this.shipId,title:this.audioInfo?.title||null,playing:!!this.source&&this.wanted&&!this.paused&&this.context?.state==='running',fadingOut:!!this.fade,preparing:!!this.loading&&!this.buffer,preloaded:!!this.buffer,file:this.audioInfo?.file||null,durationSeconds:this.buffer?.duration||0,elapsed:this.source?this.context.currentTime-this.origin:0,error:this.error||null};}
 }
 // Shared by the page's early preload and FPS mode; reuse the decoded track.
-let preloadedMusic;
+const preloadedMusic=new Map();
 export function preloadHighwindMusic(search=globalThis.location?.search||''){
- if(!new URLSearchParams(search).has('ff7'))return null;
- if(!preloadedMusic||preloadedMusic.abort.signal.aborted)preloadedMusic=new HighwindMusic();
- preloadedMusic.preload();return preloadedMusic;
+ const shipId=shipIdFromSearch(search);if(!shipId)return null;
+ let music=preloadedMusic.get(shipId);if(!music||music.abort.signal.aborted){music=new HighwindMusic({shipId});preloadedMusic.set(shipId,music);}
+ music.preload();return music;
 }

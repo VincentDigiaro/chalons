@@ -9,7 +9,7 @@ export function waitForWalkRetry(ms,signal){
  });
 }
 
-export async function fetchWalkBuffer(url,{signal,onRetry=()=>{},timeoutMs=20000,retryDelayMs=750,cache='default'}={}){
+export async function fetchWalkBuffer(url,{signal,onRetry=()=>{},timeoutMs=20000,retryDelayMs=750,cache='default',fatalStatuses=[]}={}){
  let attempts=0;
  while(!signal.aborted){
   const attempt=new AbortController(),stop=()=>attempt.abort(signal.reason);
@@ -17,7 +17,10 @@ export async function fetchWalkBuffer(url,{signal,onRetry=()=>{},timeoutMs=20000
   let timer;const progress=()=>{clearTimeout(timer);timer=setTimeout(()=>attempt.abort(new DOMException('Request stalled','TimeoutError')),timeoutMs);};progress();
   try{
    const response=await fetch(url,{signal:attempt.signal,cache});
-   if(!response.ok)throw Error(`HTTP ${response.status}`);
+   if(!response.ok){
+    const fatal=fatalStatuses.includes(response.status),detail=fatal?await response.json().catch(()=>null):null;
+    throw Object.assign(Error(detail?.error||`HTTP ${response.status}`),{fatal});
+   }
    progress();let buffer;
    if(response.body?.getReader){
     const reader=response.body.getReader(),chunks=[];let length=0;
@@ -28,6 +31,7 @@ export async function fetchWalkBuffer(url,{signal,onRetry=()=>{},timeoutMs=20000
    return buffer;
   }catch(error){
    if(signal.aborted)throw signal.reason||error;
+   if(error.fatal)throw error;
    onRetry({attempt:++attempts,error});
   }finally{clearTimeout(timer);signal.removeEventListener('abort',stop);}
   await waitForWalkRetry(Math.min(5000,retryDelayMs*2**Math.min(attempts-1,4)),signal);

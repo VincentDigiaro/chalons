@@ -39,6 +39,7 @@ globalThis.fetch=async(url,{signal}={})=>{
 globalThis.createImageBitmap=async()=>({width:512,height:256,close(){}});
 const renderer=new WalkRenderer({clientWidth:800,clientHeight:600,getContext:()=>gl},{onStatus:message=>notices.push(message)});
 await renderer.load(position);
+assert([...renderer.ground.values()].filter(t=>nearDistance(t.bounds,position)<100).every(t=>t.gpu),'Nearby ground must be prepared before entry');
 assert.equal(indexAttempts,2);assert.equal(buildingAttempts,2);assert(renderer.nodes.get(failedBuilding.slice('data/walk/'.length)).gpu,'The failed nearby file must recover before entry');
 renderer.draw(position,EYE_HEIGHT+.022,0,0);assert(renderer.draws>0);assert.equal(renderer.getState().outsideRadius,0);
 const initialAssets=renderer.getState().loadedAssets;assert(initialAssets>100);
@@ -46,7 +47,7 @@ function renderedBuildings(){return [...renderer.nodes.values()].filter(n=>n.gpu
 drawCalls.length=0;renderer.draw(position,EYE_HEIGHT+.022,0,0);
 const forward=renderer.getState(),forwardFiles=renderedBuildings(),forwardCalls=drawCalls.length;
 assert.equal(renderer.base,undefined,'The removed overlapping background plane must stay removed');
-const groundVAOs=new Set([...renderer.ground.values()].map(t=>t.gpu.vao));
+const groundVAOs=new Set([...renderer.ground.values()].filter(t=>t.gpu).map(t=>t.gpu.vao));
 const placeholders=drawCalls.filter(c=>c.ready===0&&c.kind===1);
 assert(placeholders.length>0,'Missing ground photos must have a visible placeholder');
 assert(placeholders.every(c=>groundVAOs.has(c.vao)),'Only ground tiles may use this placeholder');
@@ -87,7 +88,7 @@ for(let x=tx-reach;x<=tx+reach;x++)for(let y=ty-reach;y<=ty+reach;y++)if(nearDis
 assert.equal(renderer.ground.size,expectedGround);assert(outerGround>0);assert(boundaryGround>0);
 renderer.trim(position);assert.equal(renderer.ground.size,expectedGround,'Boundary placeholders survive between refreshes');
 await new Promise(resolve=>setTimeout(resolve,30));
-const retryImage=[...renderer.textures.values()].find(t=>t.key.startsWith('ign/')&&t.failed);assert(retryImage,'The missing-image scenario was not exercised');
+const retryImage=[...renderer.textures.values()].find(t=>t.key.startsWith('ign/')&&t.failed&&renderer.ground.get(t.key)?.gpu);assert(retryImage,'The missing-image scenario was not exercised');
 const retryTile=renderer.ground.get(retryImage.key),retryVAO=retryTile.gpu.vao,retryPosition=[(retryTile.bounds[0]+retryTile.bounds[2])/2,(retryTile.bounds[1]+retryTile.bounds[3])/2];
 drawCalls.length=0;renderer.draw(retryPosition,80,0,-Math.PI/2);
 assert.equal(drawCalls.filter(c=>c.vao===retryVAO&&c.ready===0).length,1,'Failed photo retains one placeholder');

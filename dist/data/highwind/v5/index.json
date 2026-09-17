@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "name": "Highwind v5",
+  "mesh": "mesh.bin",
+  "stride": 44,
+  "vertexCount": 24399,
+  "normalisedLength": 1,
+  "forwardAxis": "+Y",
+  "upAxis": "+Z",
+  "positionAnchor": "bounding-box centre",
+  "bounds": [
+    [
+      -0.24767992763445645,
+      -0.5,
+      -0.13777944940397638
+    ],
+    [
+      0.24767992763445645,
+      0.5,
+      0.13777944940397638
+    ]
+  ],
+  "rotors": {
+    "PropL": {
+      "pivot": [
+        -0.1415023067282894,
+        -0.04871224988841642,
+        0.09658801693713803
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": 1
+    },
+    "PropR": {
+      "pivot": [
+        0.14150232145685027,
+        -0.04871224988841642,
+        0.09658806112282065
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "direction": -1
+    },
+    "PropTail": {
+      "pivot": [
+        0.00040322449076378843,
+        -0.27817611988907154,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    },
+    "PropRear": {
+      "pivot": [
+        0.0004032238109691723,
+        -0.08560855232150398,
+        -0.07117713280165978
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "direction": 1
+    }
+  },
+  "materials": [
+    {
+      "name": "Highwind1",
+      "kind": 17,
+      "texture": "Highwind1-redrawn-v3.webp"
+    },
+    {
+      "name": "Highwind2",
+      "kind": 17,
+      "texture": "Highwind2-redrawn-v3.webp"
+    },
+    {
+      "name": "V5 | Proposal - sculpted silver louvres",
+      "kind": 17,
+      "texture": "panel-steel-v5.png"
+    },
+    {
+      "name": "V5 | Original connector texture - silver",
+      "kind": 17,
+      "texture": "V5-Original-texture-in-cool-silver.png"
+    },
+    {
+      "name": "Highwind3",
+      "kind": 17,
+      "texture": "Highwind3-redrawn-v3.webp"
+    },
+    {
+      "name": "Color",
+      "kind": 17,
+      "texture": "color.png"
+    },
+    {
+      "name": "V4 | Weathered walnut deck",
+      "kind": 17,
+      "texture": "wood-deck.png"
+    },
+    {
+      "name": "V4 | Riveted gunmetal",
+      "kind": 17,
+      "texture": "Highwind2-redrawn-v3.webp"
+    }
+  ],
+  "ranges": [
+    {
+      "part": "Body",
+      "material": 0,
+      "first": 0,
+      "count": 4110
+    },
+    {
+      "part": "Body",
+      "material": 1,
+      "first": 4110,
+      "count": 5487
+    },
+    {
+      "part": "Body",
+      "material": 2,
+      "first": 9597,
+      "count": 768
+    },
+    {
+      "part": "Body",
+      "material": 3,
+      "first": 10365,
+      "count": 192
+    },
+    {
+      "part": "Body",
+      "material": 4,
+      "first": 10557,
+      "count": 63
+    },
+    {
+      "part": "Body",
+      "material": 5,
+      "first": 10620,
+      "count": 537
+    },
+    {
+      "part": "Turbine",
+      "material": 1,
+      "first": 11157,
+      "count": 642
+    },
+    {
+      "part": "PropRear",
+      "material": 1,
+      "first": 11799,
+      "count": 1296
+    },
+    {
+      "part": "PropR",
+      "material": 1,
+      "first": 13095,
+      "count": 792
+    },
+    {
+      "part": "PropL",
+      "material": 1,
+      "first": 13887,
+      "count": 792
+    },
+    {
+      "part": "PropTail",
+      "material": 1,
+      "first": 14679,
+      "count": 540
+    },
+    {
+      "part": "Pont | 61 planches de bois",
+      "material": 6,
+      "first": 15219,
+      "count": 2268,
+      "collisionSurfaceOnly": true
+    },
+    {
+      "part": "Balustrade | acier et 31 montants",
+      "material": 7,
+      "first": 17487,
+      "count": 6912
+    }
+  ],
+  "objects": [
+    {
+      "name": "Body",
+      "part": "Body",
+      "triangles": 3719
+    },
+    {
+      "name": "Turbine",
+      "part": "Turbine",
+      "triangles": 646
+    },
+    {
+      "name": "PropR",
+      "part": "PropR",
+      "triangles": 264
+    },
+    {
+      "name": "PropL",
+      "part": "PropL",
+      "triangles": 264
+    },
+    {
+      "name": "PropTail",
+      "part": "PropTail",
+      "triangles": 180
+    },
+    {
+      "name": "Pont | 61 planches de bois",
+      "part": "Pont | 61 planches de bois",
+      "triangles": 756
+    },
+    {
+      "name": "Balustrade | acier et 31 montants",
+      "part": "Balustrade | acier et 31 montants",
+      "triangles": 2304
+    }
+  ],
+  "source": "assets/Highwind/Highwind-v5.blend",
+  "sourceSha256": "8c8dff056b6252543e65ba9021f3250dd401cc622dcdc35eb33ef5f601f98968",
+  "meshSha256": "100a6912cac1bc737f9bd968de29bcea1b0f9124bf5d7daca657ed3a21b67eab",
+  "textures": [
+    {
+      "file": "Highwind1-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "068f26af142065f0ca43c5e5ad4889c8f7b6067f108f0aece0342a05686f9cd0"
+    },
+    {
+      "file": "Highwind2-redrawn-v3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "17d70ea563a96943f90c268a479c679c2362691bd0fce65d763198c04a275a8c"
+    },
+    {
+      "file": "panel-steel-v5.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "sha256": "0adf668043cb0483c408d03fd07d841611e9697d6f621360429d42285889ff54"
+    },
+    {
+      "file": "V5-Original-texture-in-cool-silver.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "2ec4dee653d6a38b592ec3f2b02a70e7aba3e00a8385c8b7227714f7299d35b4"
+    },
+    {
+      "file": "Highwind3-redrawn-v3.webp",
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "19d3d871b1ff48be05bb2d97d12ddd94f13468a295981719e27857728bd2d600"
+    },
+    {
+      "file": "color.png",
+      "size": [
+        4,
+        4
+      ],
+      "sha256": "679425906d0d8e60012a80d4af3b5e9a52fe2c9a700d6fceaeee09d05aa4fbfe"
+    },
+    {
+      "file": "wood-deck.png",
+      "size": [
+        1024,
+        256
+      ],
+      "sha256": "e6065cfce74530e95046b8ebe2d4632973445ff74be5c6eb975d847100a70530"
+    }
+  ],
+  "deckExit": [
+    0,
+    0.045000000000000005,
+    -0.05980742023718403
+  ],
+  "exporterSha256": "440a94f4fef53a510dadd429fae0f1e38a307c9cef6a89ef511c72db73c10deb"
+}

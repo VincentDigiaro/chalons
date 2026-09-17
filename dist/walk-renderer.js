@@ -1,7 +1,11 @@
-import {loadTerrain,terrainHeight,terrainMaxHeight,flightTerrainHeight,terrainState,terrainTile} from './terrain.js';
-import {SpatialIndex,nearbyCollision,movementBounds,WALK_COLLISION_RADIUS} from './walk-collision-index.js';
+import {cityDataURL} from './city-config.js';
+import {loadTerrain,terrainHeight,terrainMaxHeight,flightTerrainHeight,terrainState,prepareTerrainTile} from './terrain.js';
+import {terrainCraterField,terrainCraterRevision,terrainCraterStamp} from './terrain-craters.js';
+import {SpatialIndex,nearbyCollision,prepareCollisionIndex,movementBounds,WALK_COLLISION_RADIUS} from './walk-collision-index.js';
+import {prepareRaycastMesh,raycastScene} from './walk-raycast.js';
 import {frustumPlanes,inFrustum} from './walk-visibility.js';
-import {WalkPreparation,prepareWalkGeometry} from './walk-preparation.js';
+import {WalkPreparation,BackgroundPreparation,prepareWalkGeometry,prepareBombGeometry,prepareCraterGeometry} from './walk-preparation.js';
+import {bombMaterial,bombGround,BOMB_CUT_GLSL} from './bomb-building-cut.js';
 import {WalkDownloads} from './walk-downloads.js';
 import {ATTILA_GROUND_GLSL} from './attila-ground-materials.js';
 import {excludeReplacedWalkNodes} from './walk-replacements.js';
@@ -12,11 +16,19 @@ import {LOAD_RADIUS,BUILDING_LOAD_RADIUS,GROUND_LOAD_RADIUS,ROAD_LOAD_RADIUS,FOG
 import {GROUND_GLSL} from './nerval-ground-materials.js';
 import {HOUSE_GLSL} from './nerval-house-materials.js';
 import {fetchWalkBuffer} from './walk-loading.js';
-import {FPS_CONFIG} from './walk-config.js';
+import {FPS_CONFIG,SHIP_CONFIG,SHIP_ID} from './walk-config.js';
 import {FPSHighwind} from './fps-highwind.js';
 import {IDENTITY} from './highwind-math.js';
 import {WalkPissEffect} from './walk-piss-effect.js';
 import {HighwindShadow,HIGHWIND_SHADOW_GLSL} from './highwind-shadow.js';
+import {HighwindBombs,BombAudio} from './highwind-bombs.js';
+import {OrcaMissiles} from './orca-missiles.js';
+import {OrcaMissileEffects} from './orca-missile-effects.js';
+import {MissileAudio} from './orca-missile-audio.js';
+import {HighwindBombEffects} from './highwind-bomb-effects.js';
+import {BombScorches} from './bomb-scorches.js';
+import {readBombStock,saveBombStock} from './bomb-stock.js';
+import {BombLights,BOMB_LIGHT_GLSL} from './bomb-lights.js';
 
 const VERTEX=`#version 300 es
 precision highp float;
@@ -37,6 +49,7 @@ uniform int u_kind;
 uniform float u_load_radius;
 uniform vec2 u_fog;
 uniform vec2 u_visibility_center;
+${BOMB_LIGHT_GLSL}
 in vec3 v_position;in vec2 v_uv;in vec3 v_color;in float v_light;
 out vec4 fragColor;
 ${SKY_GLSL}
@@ -64,9 +77,11 @@ void main(){
  if(u_kind==12)c=houseGlazing(v_uv,v_color)*light;
  if(u_kind>=14&&u_kind<=16)c=(u_ready?attilaGround(u_kind,v_uv,v_color):v_color)*light;
  if(u_kind==17){vec4 t=texture(u_texture,v_uv);if(t.a<.5)discard;c*=t.rgb*v_light;}
+ ${BOMB_CUT_GLSL}
  // Apply the projected model silhouette to the actual receiving surfaces.
  if(u_kind!=17)c*=1.-.42*highwindShadow(v_position);
  // The fog travels with the player/ship, including when its camera orbits or zooms.
+ c+=bombLighting(v_position);
  c=mix(c,sceneSkyColor(gl_FragCoord.y),smoothstep(u_fog.x,u_fog.y,visibilityDistance));fragColor=vec4(c,1.);
 }`;
 
@@ -75,9 +90,13 @@ export class WalkRenderer {
   this.roofMode=getRoofMode();this.canvas=canvas;this.nodes=new Map();this.collisionIndex=new SpatialIndex();this.textures=new Map();this.ground=new Map();this.queue=[];this.active=0;this.textureQueue=[];this.textureActive=0;this.errors=0;this.disposed=false;
   this.cullOutsideView=true;this.entered=false;this.downloads=new WalkDownloads(FPS_CONFIG.batimentsParTelechargement);
   this.preparation=new WalkPreparation({budget:()=>this.preparationBudget(),priority:node=>node.bounds?nearDistance(node.bounds,this.position||[0,0]):-1});
+  this.damagePreparation=new BackgroundPreparation({priority:node=>node.bounds?nearDistance(node.bounds,this.position||[0,0]):-1});
   this.gl=canvas.getContext('webgl2',{alpha:false,antialias:!matchMedia('(pointer:coarse)').matches,powerPreference:'high-performance'});
   if(!this.gl)throw Error('Le mode promenade nécessite WebGL 2.');
-  this.abort=new AbortController();this.setup();this.highwind=new FPSHighwind(this,FPS_CONFIG.highwind);
+  this.abort=new AbortController();this.setup();this.highwind=new FPSHighwind(this,SHIP_CONFIG);
+  this.scorches=new BombScorches(this.gl,{preparation:this.damagePreparation});this.bombAudio=new (SHIP_ID==='orca'?MissileAudio:BombAudio)();
+  this.bombs=new (SHIP_ID==='orca'?OrcaMissiles:HighwindBombs)({remainingBombs:readBombStock(),onDrop:stock=>{saveBombStock(stock);this.bombAudio.launch();},craters:this.scorches.marks,groundHeight:p=>this.groundHeight(p),raycast:(origin,direction,limit)=>this.raycastAim(origin,direction,limit),onImpact:b=>{this.scorches.add(b.position,b.radius,b.damageRadius,b.craterDepth,b.craterRadius);this.bombAudio.impact(b.position);}});
+  this.bombEffects=new (SHIP_ID==='orca'?OrcaMissileEffects:HighwindBombEffects)(this.gl,{mobile:matchMedia('(pointer:coarse)').matches,groundHeight:p=>this.groundHeight(p)});
  }
  preparationBudget(){return this.entered?FPS_CONFIG.preparation.budgetParImageMs:FPS_CONFIG.preparation.budgetInitialParImageMs;}
  setup(){
@@ -85,6 +104,9 @@ export class WalkRenderer {
   this.program=gl.createProgram();for(const [kind,source] of [[gl.VERTEX_SHADER,VERTEX],[gl.FRAGMENT_SHADER,FRAGMENT]]){const s=compile(kind,source);gl.attachShader(this.program,s);gl.deleteShader(s);}gl.linkProgram(this.program);if(!gl.getProgramParameter(this.program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(this.program));
   this.uniforms=Object.fromEntries(['u_matrix','u_model','u_player','u_visibility_center','u_texture','u_ready','u_kind','u_load_radius','u_highwind_depth','u_highwind_shadow_ready','u_highwind_shadow_matrix','u_highwind_shadow_origin','u_highwind_shadow_texel','u_highwind_shadow_bias','u_fog','u_sky_horizon','u_sky_band'].map(k=>[k,gl.getUniformLocation(this.program,k)]));
   this.sky=new SceneSky(gl);
+  this.uniforms.u_bomb_lights=gl.getUniformLocation(this.program,'u_bomb_lights');
+  this.uniforms.u_bomb_light_count=gl.getUniformLocation(this.program,'u_bomb_light_count');
+  this.bombLights=new BombLights(gl);
   this.highwindShadow=new HighwindShadow(gl);
   this.anisotropy=gl.getExtension('EXT_texture_filter_anisotropic');
   this.fallback=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,this.fallback);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([255,255,255,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
@@ -92,7 +114,7 @@ export class WalkRenderer {
  async load(position,{onProgress=()=>{}}={}){
   onProgress({loaded:0,total:0});
   const options={signal:this.abort.signal,cache:'no-store',onRetry:()=>onProgress({loaded:0,total:0,retrying:true})};
-  const [buffer,replacements]=await Promise.all([fetchWalkBuffer('./data/walk/index.json',options),fetchWalkBuffer('./data/custom-models.json',options)]);
+  const [buffer,replacements]=await Promise.all([fetchWalkBuffer(cityDataURL('walk/index.json'),options),fetchWalkBuffer(cityDataURL('custom-models.json'),options)]);
   const decode=buffer=>JSON.parse(new TextDecoder().decode(buffer));
   await loadTerrain({signal:this.abort.signal,fetchBuffer:fetchWalkBuffer});
   await this.downloads.load(this.abort.signal,buffer);
@@ -110,37 +132,94 @@ export class WalkRenderer {
    const localTextures=[...this.textures.values()].filter(t=>needed.has(t.key)&&!t.key.startsWith('ign/'));
    const loaded=near.filter(n=>n.gpu).length;
    onProgress({loaded,total:near.length,retrying:near.some(n=>n.retrying)});
-   if(loaded===near.length&&localTextures.every(t=>t.gpu||t.failed))return resolve();
+   const groundReady=[...this.ground.values()].filter(t=>nearDistance(t.bounds,position)<100).every(t=>t.gpu);
+   if(loaded===near.length&&groundReady&&localTextures.every(t=>t.gpu||t.failed))return resolve();
    setTimeout(check,80);
   };check();});this.entered=true;
  }
  geometry(vertices){const gl=this.gl,vao=gl.createVertexArray(),buffer=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);for(const [a,size,offset] of [[0,3,0],[1,3,12],[2,2,24],[3,3,32]]){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,44,offset);}gl.bindVertexArray(null);let bottom=Infinity,top=-Infinity;for(let i=2;i<vertices.length;i+=11){bottom=Math.min(bottom,vertices[i]);top=Math.max(top,vertices[i]);}return {vao,buffer,count:vertices.length/11,bytes:vertices.byteLength,zBounds:[bottom,top]};}
  drop(gpu){if(gpu){this.gl.deleteVertexArray(gpu.vao);this.gl.deleteBuffer(gpu.buffer);}}
- trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);this.collisionIndex?.delete(key);}for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){this.drop(tile.gpu);this.ground.delete(key);}}
+ trim(position){this.position=[...position];for(const [key,node] of this.nodes)if(!inRange(node.bounds,position,nodeLoadRadius(node.file))){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);this.collisionIndex?.delete(key);}for(const [key,tile] of this.ground)if(nearDistance(tile.bounds,position)>=GROUND_LOAD_RADIUS){tile.controller?.abort();this.drop(tile.gpu);this.ground.delete(key);}}
+ nearbyRecords(position){
+  // Index the catalogue once on entry, instead of allocating bounds and testing
+  // every building in the city at each 350 ms streaming refresh.
+  if(this.streamingSource!==this.index.nodes){
+   this.streamingIndex=new SpatialIndex(256);this.streamingSource=this.index.nodes;
+   for(const [file,...bounds] of this.index.nodes)this.streamingIndex.set(file,bounds,{file,bounds});
+  }
+  const [x,y]=position,r=Math.max(BUILDING_LOAD_RADIUS,ROAD_LOAD_RADIUS);
+  return this.streamingIndex.query([x-r,y-r,x+r,y+r]);
+ }
  refresh(position){
   if(!this.index||this.disposed)return;this.position=[...position];
   this.highwind.refresh(position);
   const wanted=new Set();
-  for(const record of this.index.nodes){const bounds=record.slice(1);if(!inRange(bounds,position,nodeLoadRadius(record[0])))continue;wanted.add(record[0]);if(!this.nodes.has(record[0])){const node={file:record[0],bounds,controller:new AbortController()};this.nodes.set(record[0],node);this.collisionIndex.set(record[0],bounds,node);}}
+  for(const {file,bounds} of this.nearbyRecords(position)){if(!inRange(bounds,position,nodeLoadRadius(file)))continue;wanted.add(file);if(!this.nodes.has(file)){const node={file,bounds,controller:new AbortController()};this.nodes.set(file,node);this.collisionIndex.set(file,bounds,node);}}
   for(const [key,node] of this.nodes)if(!wanted.has(key)){node.controller.abort();this.drop(node.gpu);this.nodes.delete(key);this.collisionIndex?.delete(key);}
   this.queue=[...this.nodes.values()].filter(n=>!n.gpu&&!n.loading&&!n.failed).sort((a,b)=>nearDistance(a.bounds,position)-nearDistance(b.bounds,position));this.pump();
   const [tx,ty]=tileAt(position,18),groundWanted=new Set(),tile=tileBounds(18,tx,ty),reach=Math.ceil(GROUND_LOAD_RADIUS/Math.min(tile[2]-tile[0],tile[3]-tile[1]))+1;
   for(let x=tx-reach;x<=tx+reach;x++)for(let y=ty-reach;y<=ty+reach;y++){
    const b=tileBounds(18,x,y);if(nearDistance(b,position)>=GROUND_LOAD_RADIUS)continue;const key=`ign/18/${x}/${y}`;groundWanted.add(key);
-   if(!this.ground.has(key)){const v=terrainTile(b);this.ground.set(key,{bounds:b,gpu:this.geometry(v)});}
+   if(!this.ground.has(key)){const tile={bounds:b,controller:new AbortController()};this.ground.set(key,tile);this.ensureTerrainTile(tile);}
    // Boundary tiles fill the horizon without requesting photos beyond the
    // streaming radius. Their outer fragments are clipped by the shader.
    if(inRange(b,position,GROUND_LOAD_RADIUS))this.texture(key);
   }
-  for(const [key,tile] of this.ground)if(!groundWanted.has(key)){this.drop(tile.gpu);this.ground.delete(key);}
+  for(const [key,tile] of this.ground)if(!groundWanted.has(key)){tile.controller?.abort();this.drop(tile.gpu);this.ground.delete(key);}
   this.pruneTextures();
  }
  *prepareNode(node,buffer){
-  const prepared=yield* prepareWalkGeometry(buffer,this.index,this.roofMode);
-  const gpu=yield* this.uploadGeometry(prepared.vertices);
-  node.ranges=prepared.ranges;node.collision=prepared.collision;node.segments=prepared.collision.segments;node.gpu=gpu;
-  if(!this.collisionIndex.entries.has(node.file))this.collisionIndex.set(node.file,node.bounds,node);
-  for(const [material] of node.ranges)this.texture(material);
+  let prepared=yield* prepareWalkGeometry(buffer,this.index,this.roofMode),count=0,gpu,installed=false,rendered,revision,field,aimMesh;
+  try{
+   do{
+    const impacts=this.bombs?.craters||[],next=impacts.length;
+    prepared=yield* prepareBombGeometry(prepared,node,impacts.slice(count,next),this.index);count=next;
+    revision=terrainCraterRevision();field=terrainCraterField();rendered=yield* prepareCraterGeometry(prepared,node,this.index,field);
+    aimMesh=yield* this.prepareAimMesh(rendered);
+    yield* prepareCollisionIndex(rendered.collision);
+    if(gpu){this.drop(gpu);gpu=null;}gpu=yield* this.uploadGeometry(rendered.vertices);
+   }while(count<(this.bombs?.craters.length||0)||revision!==terrainCraterRevision());
+   node.mesh=prepared;node.bombImpactCount=count;node.terrainRevision=revision;node.terrainStamp=terrainCraterStamp(node.bounds,field);node.craterAffected=field.query(node.bounds).length>0;
+   node.hasGround=node.file.startsWith('roads/')||prepared.ranges.some(([id])=>bombGround(id,this.index));
+   node.ranges=rendered.ranges;node.collision=rendered.collision;node.segments=rendered.collision.segments;node.aimMesh=aimMesh;node.gpu=gpu;installed=true;
+   if(!this.collisionIndex.entries.has(node.file))this.collisionIndex.set(node.file,node.bounds,node);
+   for(const [material] of node.ranges)this.texture(material);
+  }finally{if(!installed&&gpu)this.drop(gpu);}
+ }
+ ensureBombDamage(node){
+  const revision=terrainCraterRevision();
+  if(!node.mesh||node.bombJob||node.bombImpactCount===(this.bombs?.craters.length||0)&&node.terrainRevision===revision)return;
+  const stamp=node.hasGround?terrainCraterStamp(node.bounds):'',groundChanged=node.hasGround&&node.terrainStamp!==stamp,impacts=this.bombs?.craters||[];
+  let newDamage=false;for(let i=node.bombImpactCount||0;i<impacts.length;i++)if(impacts[i][3]>0&&nearDistance(node.bounds,impacts[i])<impacts[i][3]-1e-5){newDamage=true;break;}
+  if(!newDamage&&!groundChanged){node.bombImpactCount=impacts.length;node.terrainRevision=revision;node.terrainStamp=stamp;return;}
+  node.bombJob=true;
+  (this.damagePreparation||this.preparation).add(node,this.updateBombGeometry(node)).catch(error=>{if(error.name!=='AbortError'){this.errors++;console.error('Découpe bâtiment :',error);}}).finally(()=>{node.bombJob=false;});
+ }
+ *updateBombGeometry(node){
+  while(node.bombImpactCount<(this.bombs?.craters.length||0)||node.terrainRevision!==terrainCraterRevision()){
+   const count=this.bombs?.craters.length||0,revision=terrainCraterRevision(),field=terrainCraterField(),mesh=yield* prepareBombGeometry(node.mesh,node,(this.bombs?.craters||[]).slice(node.bombImpactCount,count),this.index);
+   const stamp=terrainCraterStamp(node.bounds,field);
+   if(mesh!==node.mesh||node.hasGround&&node.terrainStamp!==stamp){
+    const rendered=yield* prepareCraterGeometry(mesh,node,this.index,field),aimMesh=yield* this.prepareAimMesh(rendered);
+    yield* prepareCollisionIndex(rendered.collision);
+    const gpu=yield* this.uploadGeometry(rendered.vertices);this.drop(node.gpu);node.gpu=gpu;node.mesh=mesh;node.ranges=rendered.ranges;node.collision=rendered.collision;node.segments=rendered.collision.segments;node.aimMesh=aimMesh;
+   }
+   node.bombImpactCount=count;node.terrainRevision=revision;node.terrainStamp=stamp;node.craterAffected=field.query(node.bounds).length>0;
+  }
+ }
+ ensureTerrainTile(tile){
+  const revision=terrainCraterRevision();if(tile.terrainJob||tile.terrainRevision===revision)return;
+  if(tile.gpu&&tile.terrainStamp===terrainCraterStamp(tile.bounds)){tile.terrainRevision=revision;return;}
+  tile.controller??=new AbortController();tile.terrainJob=true;
+  (tile.gpu&&this.damagePreparation||this.preparation).add(tile,this.updateTerrainTile(tile)).catch(error=>{if(error.name!=='AbortError'){this.errors++;console.error('Cratère :',error);}}).finally(()=>{tile.terrainJob=false;});
+ }
+ *updateTerrainTile(tile){
+  while(tile.terrainRevision!==terrainCraterRevision()){
+   const revision=terrainCraterRevision(),field=terrainCraterField(),stamp=terrainCraterStamp(tile.bounds,field);
+   if(tile.gpu&&tile.terrainStamp===stamp){tile.terrainRevision=revision;break;}
+   const vertices=yield* prepareTerrainTile(tile.bounds,16,field),gpu=yield* this.uploadGeometry(vertices);
+   this.drop(tile.gpu);tile.gpu=gpu;tile.terrainRevision=revision;tile.terrainStamp=stamp;tile.craterAffected=field.query(tile.bounds).length>0;
+  }
  }
  *uploadGeometry(vertices){
   const gl=this.gl,gpu={vao:gl.createVertexArray(),buffer:gl.createBuffer(),count:vertices.length/11,bytes:vertices.byteLength,zBounds:[Infinity,-Infinity],xyBounds:[Infinity,Infinity,-Infinity,-Infinity]};let complete=false;
@@ -167,7 +246,7 @@ export class WalkRenderer {
    this.active--;for(const node of nodes){node.loading=false;node.controller.signal.removeEventListener('abort',cancel);}this.pump();
   });
  }}
- material(id){return typeof id==='string'?{kind:1,texture:id}:this.index.materials[id];}
+ material(id){return bombMaterial(id,this.index);}
  texture(id){
   const material=this.material(id),key=material.texture;if(!key)return null;
   let entry=this.textures.get(key);
@@ -177,7 +256,7 @@ export class WalkRenderer {
   }else{entry={key,repeat:material.repeat,mirror:material.mirror,attempts:0,controller:new AbortController()};this.textures.set(key,entry);}
   if(key.startsWith('ign/'))this.textureQueue.push(entry);else this.textureQueue.unshift(entry);this.pumpTextures();return entry;
  }
- pumpTextures(){while(this.textureActive<FPS_CONFIG.chargementsTexturesSimultanes&&this.textureQueue.length&&!this.disposed){const entry=this.textureQueue.shift();if(entry.controller.signal.aborted)continue;this.textureActive++;entry.attempts++;const aerial=entry.key.startsWith('ign/'),url='./data/walk/'+entry.key;
+ pumpTextures(){while(this.textureActive<FPS_CONFIG.chargementsTexturesSimultanes&&this.textureQueue.length&&!this.disposed){const entry=this.textureQueue.shift();if(entry.controller.signal.aborted)continue;this.textureActive++;entry.attempts++;const aerial=entry.key.startsWith('ign/'),url=cityDataURL('walk/'+entry.key);
   const timeout=setTimeout(()=>{entry.timedOut=true;entry.controller.abort();},10000);
   const request=aerial?loadImagery(...entry.key.split('/').slice(1).map(Number),{signal:entry.controller.signal}).then(({data})=>new Response(data,{headers:{'content-type':'image/jpeg'}})):fetch(url,{signal:entry.controller.signal});
   request.then(async r=>{if(!r.ok)throw Error(`Texture ${r.status}`);const bitmap=await createImageBitmap(await r.blob(),{imageOrientation:'none',premultiplyAlpha:'none'});clearTimeout(timeout);if(this.disposed||entry.controller.signal.aborted){bitmap.close();return;}try{await this.preparation.add(entry,this.uploadTexture(entry,bitmap));}finally{bitmap.close();}
@@ -190,20 +269,42 @@ export class WalkRenderer {
  groundHeight(position){return terrainHeight(...position)+.022;}
  groundMaxHeight(bounds){return terrainMaxHeight(bounds)+.022;}
  flightGroundHeight(position){return flightTerrainHeight(position[0],position[1])+.022;}
+ *prepareAimMesh(mesh){
+  if(SHIP_ID!=='orca')return null;
+  const hasFacades=mesh.ranges.some(([id])=>typeof id==='number'&&id>=this.index.facadeBase&&id<this.index.roofBase);
+  return yield* prepareRaycastMesh(mesh.vertices,mesh.ranges.filter(([id])=>!hasFacades||id!==this.index.facadeBase-1));
+ }
+ raycastAim(origin,direction,limit){
+  return raycastScene(origin,direction,limit,bounds=>this.nearbyNodes(bounds),(node,id)=>{
+   if(!inRange(node.bounds,this.position||origin,nodeLoadRadius(node.file)))return false;
+   const texture=this.material(id).texture;return !texture||!!this.textures.get(texture)?.gpu;
+  });
+ }
  nearbyNodes(bounds){
   if(!this.collisionIndex){this.collisionIndex=new SpatialIndex();for(const [key,node] of this.nodes)this.collisionIndex.set(key,node.bounds,node);}
   return this.collisionIndex.query(bounds);
  }
  collisions(position){return this.collisionScene(position).segments;}
+ bombCollision(node){
+  if(node.mesh){this.ensureBombDamage(node);return node.collision;}
+  if(!this.bombs?.suppresses(node))return node.collision;
+  if(node.bombCollisionSource!==node.collision){
+   node.bombCollisionSource=node.collision;
+   // Detailed city packets also contain pavements: keep these walkable while
+   // their walls, roofs and other raised obstacles are permanently absent.
+   node.bombGroundCollision={segments:(node.collision?.segments||[]).filter(s=>s[5]<=this.groundHeight([(s[0]+s[2])/2,(s[1]+s[3])/2])+.4),surfaces:(node.collision?.surfaces||[]).filter(s=>s.p.every(p=>p[2]<=this.groundHeight(p)+.4))};
+  }
+  return node.bombGroundCollision;
+ }
  collisionScene(position,delta=[0,0],radius=WALK_COLLISION_RADIUS){
   const bounds=movementBounds(position,delta,radius),nodes=this.nearbyNodes(bounds),scene={groundHeight:this.groundHeight,segments:[],surfaces:[]};
-  for(const node of nodes)if(node.gpu){const local=nearbyCollision(node.collision,bounds);scene.segments.push(...local.segments);scene.surfaces.push(...local.surfaces);}
+  for(const node of nodes)if(node.gpu){const local=nearbyCollision(this.bombCollision(node),bounds);scene.segments.push(...local.segments);scene.surfaces.push(...local.surfaces);}
   const ship=this.highwind.playerCollisionScene(bounds);scene.segments.push(...ship.segments);scene.surfaces.push(...ship.surfaces);
   this.collisionStats={radius,travel:Math.hypot(...delta),nearbyNodes:nodes.length,segments:scene.segments.length,surfaces:scene.surfaces.length};
   return scene;
  }
- safeToMove(position,delta=[0,0]){return !this.nearbyNodes(movementBounds(position,delta,12)).some(n=>!n.gpu);}
- vehicleScene(position,radius){const nodes=[...this.nodes.values()].filter(n=>nearDistance(n.bounds,position)<radius);return {ready:nodes.every(n=>n.gpu),segments:nodes.flatMap(n=>n.collision?.segments||[]),surfaces:nodes.flatMap(n=>n.collision?.surfaces||[])};}
+ safeToMove(position,delta=[0,0]){return !this.nearbyNodes(movementBounds(position,delta,12)).some(n=>!n.gpu&&!this.bombs?.suppresses(n));}
+ vehicleScene(position,radius){const nodes=[...this.nodes.values()].filter(n=>nearDistance(n.bounds,position)<radius);return {ready:nodes.every(n=>n.gpu||this.bombs?.suppresses(n)),segments:nodes.flatMap(n=>this.bombCollision(n)?.segments||[]),surfaces:nodes.flatMap(n=>this.bombCollision(n)?.surfaces||[])};}
  draw(position,height,yaw,pitch,piss=null,visibilityPosition=position){
   if(this.disposed)return;const drawStart=performance.now(),gl=this.gl,ratio=Math.min(devicePixelRatio||1,matchMedia('(pointer:coarse)').matches?1.5:2),width=Math.round(this.canvas.clientWidth*ratio),heightPx=Math.round(this.canvas.clientHeight*ratio);if(this.canvas.width!==width||this.canvas.height!==heightPx){this.canvas.width=width;this.canvas.height=heightPx;}this.highwindShadow.render(this.highwind,this);gl.viewport(0,0,width,heightPx);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);this.sky.draw(heightPx,pitch,FPS_FOV,yaw);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.useProgram(this.program);this.sky.apply(this.uniforms,heightPx,pitch);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(this.uniforms.u_texture,0);gl.uniform2f(this.uniforms.u_player,...position);gl.uniform2f(this.uniforms.u_visibility_center,...visibilityPosition);
   // Project nearby XY coordinates to avoid cancellation several kilometres
@@ -218,15 +319,17 @@ export class WalkRenderer {
   gl.uniformMatrix4fv(this.uniforms.u_matrix,false,projection);
   gl.uniform2f(this.uniforms.u_fog,FOG_START,FOG_END);
   this.highwindShadow.apply(this.uniforms);
+  this.bombLights.apply(this.bombs,this.uniforms);
   const draw=(gpu,id,first=0,count=gpu.count,model=IDENTITY,groundFallback=false,radius=LOAD_RADIUS)=>{const material=this.material(id),t=groundFallback?this.textures.get(material.texture):this.texture(id);if(material.texture&&!t?.gpu&&!groundFallback)return false;gl.uniform1f(this.uniforms.u_load_radius,radius);gl.uniformMatrix4fv(this.uniforms.u_model,false,model);gl.uniform1i(this.uniforms.u_kind,material.kind);gl.uniform1i(this.uniforms.u_ready,t?.gpu?1:0);gl.bindTexture(gl.TEXTURE_2D,t?.gpu||this.fallback);gl.bindVertexArray(gpu.vao);gl.drawArrays(gl.TRIANGLES,first,count);return true;};
   // Separate the aerial underlay from roads even when depth precision drops
   // at altitude. Bias only the photo pass, preserving mesh heights, collisions
   // and normal occlusion between roads, buildings and the Highwind.
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,4);
-  for(const [id,tile] of this.ground)if(nearDistance(tile.bounds,visibilityPosition)<GROUND_LOAD_RADIUS&&visible(tile.gpu,tile.bounds))draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);
+  for(const [id,tile] of this.ground){this.ensureTerrainTile(tile);if(tile.gpu&&nearDistance(tile.bounds,visibilityPosition)<GROUND_LOAD_RADIUS&&visible(tile.gpu,tile.bounds))draw(tile.gpu,id,0,tile.gpu.count,IDENTITY,true,GROUND_LOAD_RADIUS);}
   gl.disable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(0,0);
   let draws=0,visibleCount=0,culled=0;
   for(const node of this.nodes.values())if(node.gpu&&inRange(node.bounds,visibilityPosition,nodeLoadRadius(node.file))){
+   this.ensureBombDamage(node);
    if(!visible(node.gpu,node.bounds)){culled++;continue;}
    // Generic catalogue facades already provide the complete exterior wall.
    // Keep the original mesh for collisions, but never draw its solid backing.
@@ -234,9 +337,11 @@ export class WalkRenderer {
    visibleCount++;for(const [material,first,count] of node.ranges){if(hasFacades&&material===this.index.facadeBase-1)continue;if(draw(node.gpu,material,first,count,IDENTITY,false,nodeLoadRadius(node.file)))draws++;}
   }
   this.draws=draws+this.highwind.draw(draw);this.visibleAssets=visibleCount;this.culledAssets=culled;gl.bindVertexArray(null);
+  this.scorches?.draw(projection,position,visibilityPosition,{fog:[FOG_START,FOG_END],visible:bounds=>!planes||inFrustum(bounds,[terrainMaxHeight(bounds)-50-terrainCraterField().totalDepth,terrainMaxHeight(bounds)+1],planes)});
+  if(this.bombs)this.bombEffects.draw(this.bombs,projection,{position,height,yaw,pitch},visibilityPosition);
   if(piss){this.pissEffect??=new WalkPissEffect(gl);this.pissEffect.draw(piss,this.collisionScene(position,[0,0],3),projection,height);}
   this.lastDrawMs=performance.now()-drawStart;
  }
- getState(){return {collisions:this.collisionStats,terrain:terrainState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},downloads:this.downloads?.getState(),preparation:this.preparation?.getState(),frustumCulling:!!this.cullOutsideView,visibleAssets:this.visibleAssets||0,culledAssets:this.culledAssets||0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values(),...this.ground.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
- dispose(){this.disposed=true;this.abort.abort();this.preparation.dispose();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values())this.drop(tile.gpu);this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.collisionIndex?.clear();this.textures.clear();this.ground.clear();}
+ getState(){return {bombs:this.bombs?.getState(),bombEffects:this.bombEffects?.getState(),bombAudio:this.bombAudio?.getState(),bombLights:this.bombLights?.count||0,scorches:this.scorches?.getState(),destroyedAssets:[...this.nodes.values()].filter(n=>this.bombs?.suppresses(n)).length,collisions:this.collisionStats,terrain:terrainState(),sky:this.sky.getState(),highwind:{...this.highwind.getState(),shadow:this.highwindShadow.getState()},roofs:this.roofMode,radius:LOAD_RADIUS,radii:{buildings:BUILDING_LOAD_RADIUS,ground:GROUND_LOAD_RADIUS,roads:ROAD_LOAD_RADIUS},fog:{start:FOG_START,end:FOG_END},downloads:this.downloads?.getState(),preparation:this.preparation?.getState(),destructionPreparation:this.damagePreparation?.getState(),frustumCulling:!!this.cullOutsideView,visibleAssets:this.visibleAssets||0,culledAssets:this.culledAssets||0,loadedAssets:[...this.nodes.values()].filter(n=>n.gpu).length,loading:this.active+this.queue.length,gpuBytes:[...this.nodes.values(),...this.ground.values()].reduce((n,t)=>n+(t.gpu?.bytes||0),0)+(this.highwind.residency?.data?.gpu?.bytes||0)+this.highwindShadow.getState().gpuBytes,draws:this.draws||0,errors:this.errors,outsideRadius:[...this.nodes.values()].filter(n=>!inRange(n.bounds,this.position,nodeLoadRadius(n.file))).length};}
+ dispose(){this.disposed=true;this.abort.abort();this.preparation.dispose();this.damagePreparation?.dispose();this.bombs?.dispose();this.bombAudio?.dispose();this.bombEffects?.dispose();this.bombLights?.dispose();this.scorches?.dispose();this.pissEffect?.dispose();this.highwindShadow.dispose();this.highwind.dispose();for(const node of this.nodes.values()){node.controller.abort();this.drop(node.gpu);}for(const t of this.textures.values()){t.controller.abort();if(t.gpu)this.gl.deleteTexture(t.gpu);}for(const tile of this.ground.values()){tile.controller?.abort();this.drop(tile.gpu);}this.gl.deleteTexture(this.fallback);this.gl.deleteProgram(this.program);this.sky.dispose();this.nodes.clear();this.collisionIndex?.clear();this.textures.clear();this.ground.clear();}
 }

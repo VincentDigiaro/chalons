@@ -84,8 +84,10 @@ for(const range of model.index.ranges)for(let first=range.first;first<range.firs
  if(intersections.length===2&&Math.hypot(intersections[1][0]-intersections[0][0],intersections[1][1]-intersections[0][1])>.015)pack.segments.push(intersections.flat());
 }
 }
-const nodes=reuse?[...previousGeneric]:[];let bytes=reuse?previous.stats.bytes-(previous.stats.cityRoadBytes||0):0,vertices=reuse?previous.stats.vertices-previous.stats.detailedVertices-(previous.stats.attilaVertices||0)-(previous.stats.buiretteVertices||0)-(previous.stats.parc14Vertices||0)-(previous.stats.camp127Vertices||0)-(previous.stats.cityRoadVertices||0):0;
-if(reuse)for(const n of previous.nodes.filter(n=>n[0].startsWith('detail/')||n[0].startsWith('attila/')||n[0].startsWith('buirette/')||n[0].startsWith('parc14/')||n[0].startsWith('camp127/')))bytes-=(await fs.stat(path.join(output,n[0]))).size;
+const nodes=reuse?[...previousGeneric]:[];let bytes=0,vertices=reuse?previous.stats.vertices-previous.stats.detailedVertices-(previous.stats.attilaVertices||0)-(previous.stats.buiretteVertices||0)-(previous.stats.parc14Vertices||0)-(previous.stats.camp127Vertices||0)-(previous.stats.cityRoadVertices||0):0;
+// Count the packets actually reused. Subtracting replaced packet sizes from the
+// previous index corrupts the total after an interrupted detail-only rebuild.
+if(reuse)for(let start=0;start<previousGeneric.length;start+=128){const sizes=await Promise.all(previousGeneric.slice(start,start+128).map(async n=>(await fs.stat(path.join(output,n[0]))).size));bytes+=sizes.reduce((a,b)=>a+b,0);}
 for(const pack of packs.values()){
  const ranges=[],arrays=[],bounds=[Infinity,Infinity,-Infinity,-Infinity];let first=0;
  for(const [material,data] of pack.groups){if(!data.length)continue;ranges.push([material,first,data.length/11]);first+=data.length/11;arrays.push(new Float32Array(data));for(let i=0;i<data.length;i+=11){bounds[0]=Math.min(bounds[0],data[i]);bounds[1]=Math.min(bounds[1],data[i+1]);bounds[2]=Math.max(bounds[2],data[i]);bounds[3]=Math.max(bounds[3],data[i+1]);}}
@@ -95,7 +97,9 @@ for(const pack of packs.values()){
  const header=Buffer.from(JSON.stringify({ranges,aerialRoofs,segments:pack.segments.map(s=>s.map(v=>+v.toFixed(3)))})),padded=Math.ceil(header.length/4)*4,buffer=Buffer.alloc(4+padded+first*44,32);buffer.writeUInt32LE(padded,0);header.copy(buffer,4);let at=4+padded;
  for(const array of arrays){Buffer.from(array.buffer).copy(buffer,at);at+=array.byteLength;}
  const folder=pack.key.startsWith('detail-')?'detail':pack.key.startsWith('attila-')?'attila':pack.key.startsWith('buirette-')?'buirette':pack.key.startsWith('parc14-')?'parc14':pack.key.startsWith('camp127-')?'camp127':String(Number(pack.key.split('-')[1])%100),file=`${folder}/${pack.key}.bin`;
- await fs.mkdir(path.join(output,folder),{recursive:true});await fs.writeFile(path.join(output,file),buffer);
+ await fs.mkdir(path.join(output,folder),{recursive:true});
+ let unchanged=false;try{unchanged=buffer.equals(await fs.readFile(path.join(output,file)));}catch(error){if(error.code!=='ENOENT')throw error;}
+ if(!unchanged)await fs.writeFile(path.join(output,file),buffer);
  nodes.push([file,...bounds.map((n,i)=>i<2?Math.floor(n*100)/100:Math.ceil(n*100)/100)]);bytes+=buffer.length;vertices+=first;
 }
 const index={version:1,roofModeVersion:1,roofCount:roofs.textures.length,origin:ORIGIN,scale:SCALE,eyeHeight:EYE_HEIGHT,radius:LOAD_RADIUS,spawn:SPAWN,yaw:SPAWN_YAW,materials,attilaBase,facadeBase,roofBase,nodes,sourceHashes,stats:{assets:nodes.length,vertices,bytes,detailedVertices:detail.vertexCount,attilaVertices:attila.vertexCount,buiretteVertices:buirette.vertexCount,parc14Vertices:parc14.vertexCount,camp127Vertices:camp127.vertexCount}};

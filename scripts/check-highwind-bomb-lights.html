@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><title>Vérification des éclairages de bombes</title>
+<canvas width="1" height="1"></canvas><pre>Initialisation…</pre>
+<script type="module">
+import {BombLights,BOMB_LIGHT_GLSL} from '/bomb-lights.js';
+import {makeProgram} from '/bomb-scorches.js';
+const out=document.querySelector('pre');
+try{
+ const gl=document.querySelector('canvas').getContext('webgl2',{antialias:false});
+ const program=makeProgram(gl,`#version 300 es
+ void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2.-1.,0.,1.);}`,`#version 300 es
+ precision highp float;${BOMB_LIGHT_GLSL}
+ out vec4 color;void main(){color=vec4(bombLighting(vec3(0.))*.02,1.);}`);
+ gl.useProgram(program);gl.viewport(0,0,1,1);
+ const uniforms=Object.fromEntries(['u_bomb_lights','u_bomb_light_count'].map(k=>[k,gl.getUniformLocation(program,k)]));
+ const bombs={time:0,blasts:Array.from({length:25},()=>({position:[0,0,0],started:0,radius:100}))},results=[];
+ for(const limit of [0,1,4,-1]){
+  const lights=new BombLights(gl,{config:{limites:{eclairagesSimultanes:limit}}});lights.apply(bombs,uniforms);gl.drawArrays(gl.TRIANGLES,0,3);
+  const pixel=new Uint8Array(4);gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+  const expected=limit<0?25:limit,error=gl.getError();
+  if(error||Math.abs(pixel[0]-expected*.02*255)>1)throw Error(JSON.stringify({limit,pixel:[...pixel],error,expected}));
+  results.push({limit,lights:lights.count,red:pixel[0],webgl:'OK'});lights.dispose();
+ }
+ out.textContent=JSON.stringify({result:'PASS',results},null,2);
+}catch(e){out.textContent='FAIL '+e.stack;}
+</script>

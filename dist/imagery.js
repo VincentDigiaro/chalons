@@ -1,7 +1,8 @@
+import {cityDataURL} from './city-config.js';
 // IGN first; our saved original is the silent fallback.
 export const IGN_LAYER = 'ORTHOIMAGERY.ORTHOPHOTOS';
 export const IGN_WMTS = 'https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM_0_19&TILEMATRIX={z}&TILECOL={x}&TILEROW={y}';
-export const LOCAL_IMAGERY = './data/imagery/ign/{z}/{x}/{y}.jpg';
+export const LOCAL_IMAGERY = cityDataURL('imagery/ign/{z}/{x}/{y}.jpg');
 export const IMAGERY_TILES = 'saved-ign://{z}/{x}/{y}';
 export const imageryURL = (z,x,y) => IGN_WMTS.replace('{z}',z).replace('{x}',x).replace('{y}',y);
 export const localImageryURL=(z,x,y)=>LOCAL_IMAGERY.replace('{z}',z).replace('{x}',x).replace('{y}',y);
@@ -29,7 +30,7 @@ export function createImageryLoader({fetchImage=(...args)=>globalThis.fetch(...a
   }
   async function retain(z,x,y){
     if(!saveOriginals)return;
-    if(!savedIndex)savedIndex=fetchImage('./data/imagery/saved.json',{signal:AbortSignal.timeout(5000)}).then(r=>r.ok?r.json():null).then(index=>{for(const tile of index?.tiles||[])saved.add(tile.join('/'));}).catch(()=>{});
+    if(!savedIndex)savedIndex=fetchImage(cityDataURL('imagery/saved.json'),{signal:AbortSignal.timeout(5000)}).then(r=>r.ok?r.json():null).then(index=>{for(const tile of index?.tiles||[])saved.add(tile.join('/'));}).catch(()=>{});
     await savedIndex;const key=`${z}/${x}/${y}`;
     if(saved.has(key)||scheduled.has(key)||saveQueue.length>=256)return;
     scheduled.add(key);saveQueue.push({key,url:localImageryURL(z,x,y)});pumpCopies();

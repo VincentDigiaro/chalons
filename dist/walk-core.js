@@ -1,4 +1,5 @@
 import {FPS_CONFIG} from './walk-config.js';
+import {CITY} from './city-config.js';
 // Shared metre-based geometry for the pedestrian camera, streaming and collisions.
 export const EYE_HEIGHT=1.40, PLAYER_RADIUS=.24, PLAYER_HEIGHT=1.65;
 export const BUILDING_LOAD_RADIUS=FPS_CONFIG.rayonChargementBatimentsMetres, GROUND_LOAD_RADIUS=FPS_CONFIG.rayonChargementSolMetres, ROAD_LOAD_RADIUS=FPS_CONFIG.rayonChargementRoutesMetres;
@@ -7,17 +8,40 @@ export const FOG_START=FPS_CONFIG.debutBrouillardMetres, FOG_END=FPS_CONFIG.finB
 export const nodeLoadRadius=file=>file.startsWith('roads/')?ROAD_LOAD_RADIUS:BUILDING_LOAD_RADIUS;
 export const WALK_SPEED=FPS_CONFIG.vitesseMarcheMps, RUN_SPEED=FPS_CONFIG.vitesseCourseMps, TURBO_SPEED=FPS_CONFIG.superVitesseKmh/3.6;
 export const FPS_FOV=65;
-export const ORIGIN=[4.3815,48.9475], SCALE=[73109.44253336328,111320];
+export const ORIGIN=CITY.origin, SCALE=CITY.scale;
 export const toLocal=([lng,lat])=>[(lng-ORIGIN[0])*SCALE[0],(lat-ORIGIN[1])*SCALE[1]];
 export const toLngLat=([x,y])=>[x/SCALE[0]+ORIGIN[0],y/SCALE[1]+ORIGIN[1]];
-export const SPAWN=toLocal([4.379995,48.946464]);
-export const SPAWN_YAW=Math.atan2((4.380129-4.379958)*SCALE[0],(48.946532-48.946445)*SCALE[1]);
+export const SPAWN=toLocal(CITY.spawn.coordinates);
+export const SPAWN_YAW=CITY.spawn.yawDegrees*Math.PI/180;
 export const nearDistance=(b,p)=>Math.hypot(Math.max(b[0]-p[0],0,p[0]-b[2]),Math.max(b[1]-p[1],0,p[1]-b[3]));
 export const farDistance=(b,p)=>Math.hypot(Math.max(Math.abs(b[0]-p[0]),Math.abs(b[2]-p[0])),Math.max(Math.abs(b[1]-p[1]),Math.abs(b[3]-p[1])));
 // Whole asset bounds must fit inside the loading circle.
 export const inRange=(b,p,radius=BUILDING_LOAD_RADIUS)=>farDistance(b,p)<=radius;
-export function segmentDistance(p,s){const dx=s[2]-s[0],dy=s[3]-s[1],den=dx*dx+dy*dy,t=den?Math.max(0,Math.min(1,((p[0]-s[0])*dx+(p[1]-s[1])*dy)/den)):0;return Math.hypot(p[0]-s[0]-dx*t,p[1]-s[1]-dy*t);}
-export function blocked(p,segments,feet=0){return segments.some(s=>(s.length<6||(feet<s[5]-.005&&feet+PLAYER_HEIGHT>s[4]+.005))&&segmentDistance(p,s)<PLAYER_RADIUS);}
+export function segmentDistance(p,s,bottom=s[4],top=s[5]){
+ if(s.triangle){
+  let poly=s.triangle;
+  // Only the part of an inclined wall alongside the player's body can block
+  // movement. This also lets the player stand beneath its overhanging part.
+  for(const [z,sign] of [[bottom,1],[top,-1]]){
+   const clipped=[];
+   for(let i=0;i<poly.length;i++){
+    const a=poly[i],b=poly[(i+1)%poly.length],da=(a[2]-z)*sign,db=(b[2]-z)*sign;
+    if(da>=0)clipped.push(a);
+    if((da>=0)!==(db>=0)){const t=da/(da-db);clipped.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,z]);}
+   }
+   poly=clipped;if(!poly.length)return Infinity;
+  }
+  let nearest=Infinity,positive=false,negative=false;
+  for(let i=0;i<poly.length;i++){
+   const a=poly[i],b=poly[(i+1)%poly.length],cross=(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);
+   if(cross>1e-9)positive=true;if(cross< -1e-9)negative=true;
+   nearest=Math.min(nearest,segmentDistance(p,[a[0],a[1],b[0],b[1]]));
+  }
+  return poly.length>=3&&positive!==negative?0:nearest;
+ }
+ const dx=s[2]-s[0],dy=s[3]-s[1],den=dx*dx+dy*dy,t=den?Math.max(0,Math.min(1,((p[0]-s[0])*dx+(p[1]-s[1])*dy)/den)):0;return Math.hypot(p[0]-s[0]-dx*t,p[1]-s[1]-dy*t);
+}
+export function blocked(p,segments,feet=0){return segments.some(s=>(s.length<6||(feet<s[5]-.005&&feet+PLAYER_HEIGHT>s[4]+.005))&&segmentDistance(p,s,feet,feet+PLAYER_HEIGHT)<PLAYER_RADIUS);}
 export function stepPlayer(p,dx,dy,segments,feet=0){
  const count=Math.max(1,Math.ceil(Math.hypot(dx,dy)/.10));let q=[...p];
  for(let i=0;i<count;i++){

@@ -1,5 +1,5 @@
 // Static scene geometry is indexed when it arrives, never searched city-wide
-// during a physics frame. Detailed primitive indexes are built only when visited.
+// during a physics frame. Primitive indexes are prepared before scene installation.
 export const WALK_COLLISION_RADIUS=.75;
 export const overlaps=(a,b)=>a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1];
 export function movementBounds(position,delta=[0,0],radius=WALK_COLLISION_RADIUS){
@@ -34,14 +34,26 @@ export class SpatialIndex {
  clear(){this.cells.clear();this.entries.clear();this.large.clear();}
 }
 const primitiveIndexes=new WeakMap();
+export function* prepareCollisionIndex(scene){
+ if(!scene||primitiveIndexes.has(scene))return;
+ const index={segments:new SpatialIndex(2),surfaces:new SpatialIndex(2)};let steps=0;
+ for(let i=0;i<scene.segments.length;i++){
+  const s=scene.segments[i];index.segments.set(i,s.bounds??[Math.min(s[0],s[2]),Math.min(s[1],s[3]),Math.max(s[0],s[2]),Math.max(s[1],s[3])],s);
+  if(++steps%64===0)yield;
+ }
+ for(let i=0;i<scene.surfaces.length;i++){
+  const s=scene.surfaces[i];index.surfaces.set(i,s.bounds,s);if(++steps%64===0)yield;
+ }
+ primitiveIndexes.set(scene,index);
+}
 export function nearbyCollision(scene,bounds){
  if(!scene)return {segments:[],surfaces:[]};
  let index=primitiveIndexes.get(scene);
  if(!index){
-  index={segments:new SpatialIndex(2),surfaces:new SpatialIndex(2)};
-  scene.segments.forEach((s,i)=>index.segments.set(i,[Math.min(s[0],s[2]),Math.min(s[1],s[3]),Math.max(s[0],s[2]),Math.max(s[1],s[3])],s));
-  scene.surfaces.forEach((s,i)=>index.surfaces.set(i,s.bounds,s));
-  primitiveIndexes.set(scene,index);
+  // Compatibility for small ad-hoc colliders; resident scene meshes prepare
+  // this index before installation, outside the movement/render callbacks.
+  const preparation=prepareCollisionIndex(scene);while(!preparation.next().done){}
+  index=primitiveIndexes.get(scene);
  }
  return {segments:index.segments.query(bounds),surfaces:index.surfaces.query(bounds)};
 }

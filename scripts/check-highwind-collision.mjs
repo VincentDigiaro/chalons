@@ -16,7 +16,7 @@ assert(!shipHitsGround(hull,{...pose,position:{x:0,y:0,z:4}}),'A ship inside a b
 assert(shipHitsGround(hull,{...pose,position:{x:0,y:0,z:GROUND_HEIGHT+1-.01}}));
 assert(!shipHitsGround(hull,{...pose,position:{x:0,y:0,z:GROUND_HEIGHT+1+.01}}));
 assert(!trianglesIntersect([[0,0,0],[1,0,0],[0,1,0]],[[2,2,0],[3,2,0],[2,3,0]]));assert(trianglesIntersect([[0,0,0],[1,0,0],[0,1,0]],[[.2,.2,-1],[.2,.2,1],[.8,.2,0]]));
-const small={enabled:true,config:{vitesseMaxKmh:400,dureeAccelerationSecondes:.3,dureeFreinageSecondes:.18},pose,index:{bounds:[[-.2,-.5,-.1],[.2,.5,.1]]},residency:{data:{collider:hull}},contactDistance:()=>39.9,updateBounds(){}};
+const small={enabled:true,config:{vitesseNormaleKmh:400,vitesseMaxKmh:800,dureeAccelerationSecondes:.3,dureeFreinageSecondes:.18},pose,index:{bounds:[[-.2,-.5,-.1],[.2,.5,.1]]},residency:{data:{collider:hull}},contactDistance:()=>39.9,updateBounds(){}};
 const flight=new HighwindFlight(small),input=flightInputs(new Set());assert.equal(flight.interact({}),'board');
 let sceneQueries=0,ready=false;const renderer={vehicleScene(){sceneQueries++;return {...scene,ready};}};
 small.pose={...pose,position:{x:0,y:-30,z:4}};
@@ -32,6 +32,9 @@ small.pose={...pose,position:{x:0,y:0,z:GROUND_HEIGHT+1.002}};const landedZ=smal
 for(let i=0;i<30;i++)flight.tick(.02,flightInputs(new Set(['ControlLeft'])),renderer);
 assert(small.pose.position.z>=landedZ-.005);assert(!shipHitsGround(hull,small.pose),'Manual descent cannot cross the ground');
 flight.tick(.02,flightInputs(new Set(['Space'])),renderer);assert(small.pose.position.z>landedZ,'Take off from the ground');
+small.pose={...pose,position:{x:0,y:0,z:30}};
+for(let i=0;i<30;i++)flight.tick(.05,flightInputs(new Set(['ControlLeft','ShiftLeft'])),renderer);
+assert(!shipHitsGround(hull,small.pose),'Boosted descent cannot tunnel through the ground');assert.equal(flight.status,'Obstacle');
 flight.mode='foot';small.contactDistance=()=>40.1;assert.equal(flight.interact({}),false);
 const index=JSON.parse(await fs.readFile('dist/data/highwind/index.json')),b=await fs.readFile('dist/data/highwind/mesh.bin'),v=new Float32Array(b.buffer,b.byteOffset,b.length/4),real=meshCollider(trianglePositions(v,index.ranges)),realPose={longueurMetres:237,angleDegres:0,pitch:0,position:{x:0,y:0,z:100}},standing=[];
 const boardingShip=Object.assign(Object.create(FPSHighwind.prototype),{pose:realPose,index,residency:{data:{vertices:v,collider:real}}});

@@ -12,6 +12,11 @@
 #walk-root.scene-loading{visibility:hidden;pointer-events:none}
 .play-spinner{display:block;flex:0 0 16px;width:16px;height:16px;box-sizing:border-box;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:play-spin .8s linear infinite}
 @keyframes play-spin{to{transform:rotate(360deg)}}
+.city-switch{position:absolute;z-index:4;top:calc(max(24px,env(safe-area-inset-top)) + 64px);left:max(24px,env(safe-area-inset-left));display:flex;gap:6px}
+.city-switch button{min-height:40px;padding:9px 13px;border:1px solid #dbe4ee;border-radius:10px;background:#fffffff2;color:#334155;font-size:14px;font-weight:600;box-shadow:0 3px 12px #15365718}
+.city-switch button[aria-pressed=true]{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
+.city-switch button:hover{background:#eff6ff}
+@media(max-width:700px){.city-switch{top:calc(max(16px,env(safe-area-inset-top)) + 60px);left:max(16px,env(safe-area-inset-left))}}
 @media(prefers-reduced-motion:reduce){.play-spinner{animation:none;border-style:dotted}}
 .play-button.is-entering{display:none}
 
@@ -29,9 +34,17 @@
 #walk-root.highwind-piloting #walk-street{display:none!important}
 
 /* Compact HUD buttons on desktop and touch. No visible joystick captions. */
-.walk-bar button,#highwind-enter{box-sizing:border-box;pointer-events:auto;min-width:56px;min-height:32px;padding:6px 10px;border:1px solid #ffffff45;border-radius:7px;background:#17314880;color:#fff;font:500 12px/18px system-ui;box-shadow:none;touch-action:manipulation;cursor:pointer}
+.walk-bar button,#highwind-enter,#highwind-bomb{box-sizing:border-box;pointer-events:auto;min-width:56px;min-height:32px;padding:6px 10px;border:1px solid #ffffff45;border-radius:7px;background:#17314880;color:#fff;font:500 12px/18px system-ui;box-shadow:none;touch-action:manipulation;cursor:pointer}
 .walk-bar button{position:relative}
 .walk-bar button::after,#highwind-enter::after{content:"";position:absolute;inset:-6px}
-@media(hover:hover){.walk-bar button:hover,#highwind-enter:hover{background:#173148ad}}
-.walk-bar button:active,#highwind-enter:active{background:#173148b8}
-.walk-bar button:focus-visible,#highwind-enter:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(hover:hover){.walk-bar button:hover,#highwind-enter:hover,#highwind-bomb:hover{background:#173148ad}}
+.walk-bar button:active,#highwind-enter:active,#highwind-bomb:active{background:#173148b8}
+.walk-bar button:focus-visible,#highwind-enter:focus-visible,#highwind-bomb:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+#highwind-bomb{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(28px,calc(env(safe-area-inset-bottom) + 20px));display:flex;align-items:center;justify-content:center;gap:8px;min-width:80px;min-height:48px;padding:10px 14px;font-size:16px;font-variant-numeric:tabular-nums;touch-action:none;user-select:none}
+#highwind-bomb[hidden]{display:none}#highwind-bomb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;pointer-events:none}#highwind-bomb span{pointer-events:none}#highwind-bomb:disabled{opacity:.55;cursor:default}
+#highwind-bomb[data-recharging=true]{opacity:.65}
+.touch #highwind-bomb{bottom:max(160px,calc(env(safe-area-inset-bottom) + 152px));right:max(24px,env(safe-area-inset-right))}
+#highwind-blast-flash{position:absolute;inset:0;background:#ffe9bf;pointer-events:none;opacity:0}
+@media(max-height:420px){.touch #highwind-bomb{bottom:max(154px,calc(env(safe-area-inset-bottom) + 146px));min-height:44px;padding:8px 12px}}
+@media(prefers-reduced-motion:reduce){#highwind-blast-flash{display:none}}

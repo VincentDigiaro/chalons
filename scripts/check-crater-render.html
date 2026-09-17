@@ -1,0 +1,44 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><base href="/"><title>Vérification cratères et routes</title>
+<style>body{margin:0;background:#17232b;color:white;font:15px system-ui}header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px}button{padding:10px;cursor:pointer}canvas,#map{display:block;width:100%;height:76vh}output{display:block;padding:16px}[hidden]{display:none!important}</style>
+<link href="/vendor/maplibre-gl.css" rel="stylesheet"><script src="/vendor/maplibre-gl.js"></script>
+<header><b>Cratère : 20 m au premier tir, creusement dégressif</b><button id="one">Tirer</button><button id="many">25 tirs au même endroit</button><button id="offset">Impact décalé</button><button id="reset">Réinitialiser</button><button id="map-view">Vue carte</button><button id="water">Eau à gauche</button><button id="faint">Trace réduite</button><button id="dense">Trace dense</button></header><canvas></canvas><div id="map" hidden></div><output>Initialisation</output>
+<script type="module">
+import {WalkRenderer} from '/walk-renderer.js';
+import {HighwindBombs} from '/highwind-bombs.js';
+import {terrainTile,terrainHeight} from '/terrain.js';
+import {terrainCraterRevision} from '/terrain-craters.js';
+import {setTerrainWater} from '/terrain-water.js';
+import {saveScorches,BombScorches} from '/bomb-scorches.js';
+import {collisionGeometry} from '/walk-physics.js';
+import {toLngLat} from '/walk-core.js';
+import {installMapTerrain} from '/terrain-map.js';
+import {NervalLayer} from '/nerval-layer.js';
+import {loadBombMapRoads,bombMapRoadData} from '/bomb-map-roads.js';
+import {CityRoadsLayer} from '/city-roads-layer.js';
+import {boxMesh,drain} from '/qa/bomb-cut-fixtures.mjs';
+const canvas=document.querySelector('canvas'),out=document.querySelector('output'),r=new WalkRenderer(canvas),gl=r.gl,craterRadius=Number(new URLSearchParams(location.search).get('creusement')??100);let hits=[],map,mode='FPS',failure='',detailReady=false;
+r.index={materials:[{kind:14},{kind:0}],facadeBase:10,roofBase:20};r.cullOutsideView=false;
+function reset(){
+ hits=[];saveScorches([]);r.bombs=new HighwindBombs({config:{rayonExplosionMetres:100,rayonCreusementMetres:craterRadius,rayonDestructionBatimentsMetres:70,profondeurCratereRatio:.1}});r.scorches.marks=[];
+ for(const n of r.nodes.values()){n.controller.abort();r.drop(n.gpu);}r.nodes.clear();
+ for(const [file,bounds,mesh] of [['roads/demo.bin',[-170,-7,170,7],boxMesh(-170,-7,170,7,{bottom:0,top:.12,material:0})],['0/way-1.bin',[60,25,85,50],boxMesh(60,25,85,50,{top:22,material:1})],['0/way-2.bin',[-15,62,15,90],boxMesh(-15,62,15,90,{top:16,material:1})],['0/way-3.bin',[45,-65,75,-35],boxMesh(45,-65,75,-35,{top:25,material:1})]]){
+  const source={...mesh,collision:collisionGeometry(mesh.vertices)};r.nodes.set(file,{file,bounds,mesh:source,gpu:r.geometry(mesh.vertices),collision:source.collision,ranges:mesh.ranges,hasGround:file.startsWith('roads/'),controller:new AbortController(),bombImpactCount:0,terrainRevision:terrainCraterRevision()});
+ }
+}
+reset();
+const pattern=document.createElement('canvas');pattern.width=pattern.height=128;const ctx=pattern.getContext('2d');ctx.fillStyle='#809067';ctx.fillRect(0,0,128,128);ctx.fillStyle='#96a379';ctx.fillRect(0,0,64,64);ctx.fillRect(64,64,64,64);ctx.strokeStyle='#b1b894';ctx.lineWidth=2;ctx.strokeRect(0,0,128,128);const basePattern=ctx.getImageData(0,0,128,128);
+for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++){
+ const key=`ign/demo/${x}/${y}`,bounds=[x*128-64,y*128-64,x*128+64,y*128+64],texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,pattern);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);r.textures.set(key,{key,gpu:texture,controller:new AbortController()});r.ground.set(key,{bounds,gpu:r.geometry(terrainTile(bounds)),controller:new AbortController(),terrainRevision:terrainCraterRevision()});
+}
+document.getElementById('water').onclick=()=>{setTerrainWater({features:[{properties:{kind:'water'},geometry:{type:'Polygon',coordinates:[[[-1000,-1000],[0,-1000],[0,1000],[-1000,1000],[-1000,-1000]]]}}]},{features:[]},{origin:[0,0],scale:[1,1]});for(const [key,t] of r.textures){if(!key.startsWith('ign/demo/'))continue;const x=Number(key.split('/')[2]);if(x>0)continue;ctx.putImageData(basePattern,0,0);ctx.fillStyle='#3878aa';ctx.fillRect(0,0,x<0?128:64,128);gl.bindTexture(gl.TEXTURE_2D,t.gpu);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,pattern);}};
+for(const [id,config] of [['faint',{tailleRatio:.5,opacite:.3,douceurBord:.8}],['dense',{tailleRatio:1.3,opacite:1,douceurBord:.1}]])document.getElementById(id).onclick=()=>{const marks=r.scorches.marks;r.scorches.dispose();r.scorches=new BombScorches(gl,{marks,config});};
+function fire(x=0,y=0){const depth=r.bombs.craterDepthAt([x,y]),p=[x,y,100,70,depth,craterRadius];hits.push(p);r.bombs.addCrater(p);r.scorches.add([x,y,terrainHeight(x,y)],100,70,depth,craterRadius);}
+document.getElementById('one').onclick=()=>fire();document.getElementById('many').onclick=()=>{for(let i=0;i<25;i++)fire();};document.getElementById('offset').onclick=()=>fire(55,30);document.getElementById('reset').onclick=()=>{if(map){map.remove();map=null;document.getElementById('map').hidden=true;canvas.hidden=false;mode='FPS';}reset();};
+document.getElementById('map-view').onclick=()=>{
+ try{mode='Carte';canvas.hidden=true;document.getElementById('map').hidden=false;map=new maplibregl.Map({container:'map',center:toLngLat([0,0]),zoom:17,pitch:65,bearing:-25,maxPitch:80,style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#829268'}}]}});
+ map.on('load',async()=>{installMapTerrain(map,maplibregl);const features=[];for(let x=-10;x<10;x++)for(let y=-10;y<10;y++){const ring=[[x*20,y*20],[(x+1)*20,y*20],[(x+1)*20,(y+1)*20],[x*20,(y+1)*20],[x*20,y*20]].map(toLngLat);features.push({type:'Feature',properties:{color:(x+y)%2?'#829268':'#a8b693'},geometry:{type:'Polygon',coordinates:[ring]}});}map.addSource('grid',{type:'geojson',data:{type:'FeatureCollection',features}});map.addLayer({id:'grid',type:'fill',source:'grid',paint:{'fill-color':['get','color']}});await loadBombMapRoads();map.addSource('overview',{type:'geojson',data:bombMapRoadData.overview});map.addLayer({id:'overview',type:'fill',source:'overview',paint:{'fill-color':'#515355'}});map.addLayer(new CityRoadsLayer());map.addLayer(new NervalLayer({bounds:[4.37,48.94,4.39,48.96],onReady:()=>{detailReady=true;},onError:e=>{failure=String(e);}}));});map.on('error',e=>{failure=String(e.error);});
+ }catch(e){failure=e.stack;}
+};
+function draw(){try{if(!map)r.draw([-150,-190],105,.66,-.36);out.textContent=failure||JSON.stringify({mode,detailReady,impacts:hits.length,depth:-terrainHeight(0,0),waterDepth:-terrainHeight(-50,0),landDepth:-terrainHeight(50,0),groundTriangles:[...r.ground.values()].reduce((n,t)=>n+t.gpu.count/3,0),scorchDraws:r.scorches.draws,pending:r.preparation.pending,webgl:gl.getError(),errors:r.errors});requestAnimationFrame(draw);}catch(e){failure=e.stack;out.textContent=failure;}}
+draw();
+</script></html>

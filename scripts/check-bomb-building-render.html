@@ -1,0 +1,48 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><base href="/"><title>Vérification des bâtiments découpés</title>
+<style>body{margin:0;background:#152431;color:#fff;font:15px system-ui}header{padding:14px;display:flex;gap:12px;align-items:center}button{padding:10px;cursor:pointer}canvas,#map{width:100%;height:76vh;display:block}output{display:block;padding:16px;white-space:pre-wrap}[hidden]{display:none!important}</style>
+<link href="/vendor/maplibre-gl.css" rel="stylesheet"><script src="/vendor/maplibre-gl.js"></script>
+<header><b>Découpe au rayon maximal</b><button id="before">Avant</button><button id="after">Après explosion</button><button id="second">Deuxième explosion</button><button id="ring">Lisière irrégulière</button><button id="real">Bâtiments réels</button><button id="map-mode">Retour carte</button></header><canvas></canvas><div id="map" hidden></div><output>Initialisation…</output>
+<script type="module">
+import {WalkRenderer} from '/walk-renderer.js';
+import {HighwindBombs} from '/highwind-bombs.js';
+import {collisionGeometry} from '/walk-physics.js';
+import {prepareWalkGeometry} from '/walk-preparation.js';
+import {loadTerrain,terrainHeight} from '/terrain.js';
+import {toLngLat} from '/walk-core.js';
+import {cityDataURL} from '/city-config.js';
+import {saveScorches} from '/bomb-scorches.js';
+import {loadMapBombDamage,mapBombDamage} from '/bomb-map-damage.js';
+import {MapBombFragments} from '/bomb-map-fragments.js';
+import {boxMesh,combineMeshes,drain} from '/qa/bomb-cut-fixtures.mjs';
+const canvas=document.querySelector('canvas'),out=document.querySelector('output'),renderer=new WalkRenderer(canvas);let camera={p:[52,-58],z:39,yaw:.68,pitch:-.34},label='Témoin',mapMode=false,frames=0;
+renderer.index={materials:[{kind:0},{kind:6}],facadeBase:20,roofBase:40};renderer.cullOutsideView=false;
+let original=combineMeshes(boxMesh(80,-18,120,18,{top:22,slope:.12}),boxMesh(35,24,52,40,{top:12}),boxMesh(122,26,141,46,{top:18}));
+let records=[{file:'0/way-1.bin',bounds:[80,-18,120,18],mesh:boxMesh(80,-18,120,18,{top:22,slope:.12})},{file:'0/way-2.bin',bounds:[35,24,52,40],mesh:boxMesh(35,24,52,40,{top:12})},{file:'0/way-3.bin',bounds:[122,26,141,46],mesh:boxMesh(122,26,141,46,{top:18})}],impact=[0,0,100,100],realIndex;
+function reset(hits=[]){
+ for(const n of renderer.nodes.values()){n.controller.abort();renderer.drop(n.gpu);}renderer.nodes.clear();renderer.bombs=new HighwindBombs({craters:hits});
+ for(const record of records){const mesh={...record.mesh,collision:collisionGeometry(record.mesh.vertices)},node={...record,mesh,ranges:mesh.ranges,collision:mesh.collision,gpu:renderer.geometry(mesh.vertices),controller:new AbortController(),bombImpactCount:0};renderer.nodes.set(record.file,node);}
+ renderer.scorches.marks=hits;frames=0;
+}
+reset();
+document.getElementById('before').onclick=()=>reset();document.getElementById('after').onclick=()=>reset([impact]);document.getElementById('second').onclick=()=>{renderer.bombs.addCrater([impact[0]+200,impact[1],90,90]);};
+document.getElementById('ring').onclick=()=>{
+ label='Lisière : orientation ±30°, inclinaison ±18°';renderer.index={materials:[{kind:0},{kind:6}],facadeBase:20,roofBase:40};impact=[0,0,100,100];
+ records=Array.from({length:32},(_,i)=>{const a=i*2*Math.PI/32,x=Math.cos(a)*100,y=Math.sin(a)*100,bounds=[x-9,y-7,x+9,y+7];return {file:'0/way-'+i+'.bin',bounds,mesh:boxMesh(...bounds,{top:18+i%5*3})};});
+ camera={p:[0,-215],z:210,yaw:0,pitch:-.77};reset([impact]);
+};
+async function real(){
+ label='Bâtiments réels';out.textContent='Chargement des bâtiments réels…';await loadTerrain();realIndex??=await(await fetch(cityDataURL('walk/index.json'))).json();renderer.index=realIndex;
+ const list=realIndex.nodes.filter(n=>/^\d+\//.test(n[0])&&n[3]-n[1]>12&&n[4]-n[2]>12).sort((a,b)=>Math.hypot(a[1],a[2])-Math.hypot(b[1],b[2])),chosen=list[0],x=(chosen[1]+chosen[3])/2,y=(chosen[2]+chosen[4])/2;
+ impact=[x-100,y,100,100];records=[];
+ for(const [file,...bounds] of realIndex.nodes.filter(n=>/^\d+\//.test(n[0])&&Math.hypot((n[1]+n[3])/2-x,(n[2]+n[4])/2-y)<75))records.push({file,bounds,mesh:drain(prepareWalkGeometry(await(await fetch(cityDataURL('walk/'+file))).arrayBuffer(),realIndex,'catalogue'))});
+ camera={p:[x-60,y-70],z:terrainHeight(x,y)+48,yaw:.6,pitch:-.38};reset([impact]);
+}
+document.getElementById('real').onclick=()=>real().catch(e=>out.textContent=e.stack);
+document.getElementById('map-mode').onclick=async()=>{try{
+ if(!realIndex)await real();saveScorches([impact]);await loadMapBombDamage();mapMode=true;canvas.hidden=true;document.getElementById('map').hidden=false;
+ const center=toLngLat([impact[0]+100,impact[1]]),map=new maplibregl.Map({container:'map',center,zoom:18.3,pitch:60,bearing:-55,style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#9dafa1'}}]}});
+ const layer=new MapBombFragments();map.on('load',()=>map.addLayer(layer));map.on('render',()=>{out.textContent=JSON.stringify({mode:'Carte',...layer.getState(),webgl:layer.gl?.getError(),expectedFragments:mapBombDamage.fragments.length});});
+ }catch(e){out.textContent=e.stack;}};
+function draw(){try{if(!mapMode){renderer.draw(camera.p,camera.z,camera.yaw,camera.pitch);frames++;out.textContent=JSON.stringify({mode:label,webgl:renderer.gl.getError(),frames,nodes:renderer.nodes.size,cuts:[...renderer.nodes.values()].reduce((n,v)=>n+v.ranges.filter(r=>r[0]==='bomb-cut').length,0),pending:renderer.preparation.pending,errors:renderer.errors});}requestAnimationFrame(draw);}catch(e){out.textContent=e.stack;}}
+draw();
+</script></html>
